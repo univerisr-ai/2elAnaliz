@@ -5,13 +5,15 @@ import { CONFIG } from './config.mjs';
 import {
   downloadFile,
   getUpdates,
-  pickWorkingToken,
   sendDocument,
   sendMessage,
 } from './telegram.mjs';
 import { ensureDir, nowStamp, readJson, slugify, splitText, writeJson } from './utils.mjs';
 
-const OFFSET_FILE = path.join(CONFIG.stateDir, 'telegram-offset.json');
+function offsetFileForToken(token, index) {
+  const suffix = String(token).slice(-8).replace(/[^a-zA-Z0-9_-]/g, '_') || `bot${index + 1}`;
+  return path.join(CONFIG.stateDir, `telegram-offset-${index + 1}-${suffix}.json`);
+}
 
 async function ensureRuntimeDirs() {
   await ensureDir(CONFIG.stateDir);
@@ -25,14 +27,14 @@ function isAllowedChat(chatId) {
   return CONFIG.allowedChatIds.includes(String(chatId));
 }
 
-async function loadOffset() {
-  const state = await readJson(OFFSET_FILE, { offset: 0 });
+async function loadOffset(offsetFile) {
+  const state = await readJson(offsetFile, { offset: 0 });
   const n = Number(state?.offset || 0);
   return Number.isFinite(n) ? n : 0;
 }
 
-async function saveOffset(offset) {
-  await writeJson(OFFSET_FILE, { offset, savedAt: new Date().toISOString() });
+async function saveOffset(offsetFile, offset) {
+  await writeJson(offsetFile, { offset, savedAt: new Date().toISOString() });
 }
 
 function extractDocumentMessage(update) {
@@ -78,50 +80,68 @@ async function analyzeAndRespond(token, chatId, inputPath) {
 }
 
 async function processTelegramMode() {
-  const token = await pickWorkingToken(CONFIG.telegramTokens);
-  if (!token) {
+  const tokens = Array.from(new Set(CONFIG.telegramTokens.map((x) => String(x).trim()).filter(Boolean)));
+  if (!tokens.length) {
     throw new Error('No working Telegram token found.');
   }
 
-  let offset = await loadOffset();
-  const updates = await getUpdates(token, offset + 1, CONFIG.telegramPollLimit);
+  let totalUpdates = 0;
 
-  if (!updates.length) {
-    console.log('[telegram] No new updates.');
-    return;
-  }
+  for (const [tokenIndex, token] of tokens.entries()) {
+    const offsetFile = offsetFileForToken(token, tokenIndex);
+    let offset = await loadOffset(offsetFile);
 
-  console.log(`[telegram] Received ${updates.length} updates.`);
-
-  for (const update of updates) {
-    offset = Math.max(offset, Number(update.update_id) || offset);
-    const docMsg = extractDocumentMessage(update);
-    if (!docMsg) continue;
-
-    if (!isAllowedChat(docMsg.chatId)) {
-      console.log(`[telegram] Skipping unauthorized chat ${docMsg.chatId}`);
+    let updates = [];
+    try {
+      updates = await getUpdates(token, offset + 1, CONFIG.telegramPollLimit);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[telegram] Bot #${tokenIndex + 1} getUpdates failed: ${message}`);
       continue;
     }
 
-    const baseName = `${nowStamp()}-${slugify(docMsg.fileName)}`;
-    const inputPath = path.join(CONFIG.inboxDir, baseName);
-
-    console.log(`[telegram] Downloading ${docMsg.fileName} from chat ${docMsg.chatId}`);
-    await downloadFile(token, docMsg.fileId, inputPath);
-
-    try {
-      const result = await analyzeAndRespond(token, docMsg.chatId, inputPath);
-      console.log(
-        `[telegram] Analysis sent. candidates=${result.candidateCount} file=${path.basename(inputPath)}`,
-      );
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.error(`[telegram] Analysis failed: ${message}`);
-      await sendMessage(token, docMsg.chatId, `Analiz hatasi: ${message}`);
+    if (!updates.length) {
+      console.log(`[telegram] Bot #${tokenIndex + 1}: no new updates.`);
+      continue;
     }
+
+    totalUpdates += updates.length;
+    console.log(`[telegram] Bot #${tokenIndex + 1}: received ${updates.length} updates.`);
+
+    for (const update of updates) {
+      offset = Math.max(offset, Number(update.update_id) || offset);
+      const docMsg = extractDocumentMessage(update);
+      if (!docMsg) continue;
+
+      if (!isAllowedChat(docMsg.chatId)) {
+        console.log(`[telegram] Skipping unauthorized chat ${docMsg.chatId}`);
+        continue;
+      }
+
+      const baseName = `${nowStamp()}-${slugify(docMsg.fileName)}`;
+      const inputPath = path.join(CONFIG.inboxDir, baseName);
+
+      console.log(`[telegram] Downloading ${docMsg.fileName} from chat ${docMsg.chatId}`);
+      await downloadFile(token, docMsg.fileId, inputPath);
+
+      try {
+        const result = await analyzeAndRespond(token, docMsg.chatId, inputPath);
+        console.log(
+          `[telegram] Analysis sent. candidates=${result.candidateCount} file=${path.basename(inputPath)}`,
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error(`[telegram] Analysis failed: ${message}`);
+        await sendMessage(token, docMsg.chatId, `Analiz hatasi: ${message}`);
+      }
+    }
+
+    await saveOffset(offsetFile, offset);
   }
 
-  await saveOffset(offset);
+  if (!totalUpdates) {
+    console.log('[telegram] No new updates on any configured bot token.');
+  }
 }
 
 async function processFileMode(filePathArg) {
