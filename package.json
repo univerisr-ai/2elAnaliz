@@ -1,0 +1,16 @@
+{
+  "name": "2el-analiz",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Telegram document analyzer for second-hand GPU listings",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.mjs",
+    "analyze:file": "node src/index.mjs --file"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "dotenv": "^16.5.0",
+    "form-data": "^4.0.1"
+  }
+}
