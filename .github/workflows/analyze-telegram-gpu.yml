@@ -40,8 +40,10 @@ jobs:
           MAX_RESULTS: ${{ vars.MAX_RESULTS }}
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+          OPENROUTER_MODELS: ${{ vars.OPENROUTER_MODELS }}
+          MAX_AI_FALLBACK_MODELS: ${{ vars.MAX_AI_FALLBACK_MODELS }}
           MAX_AI_MODEL_LOOKUPS: ${{ vars.MAX_AI_MODEL_LOOKUPS }}
+          MAX_WEB_MODEL_LOOKUPS: ${{ vars.MAX_WEB_MODEL_LOOKUPS }}
         run: node src/index.mjs
 
       - name: Upload analysis artifacts

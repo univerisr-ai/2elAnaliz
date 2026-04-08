@@ -8,7 +8,7 @@ Telegram'a gelen `output.json` dosyasini analiz eder, ikinci el ekran karti ilan
 - Ilanlardan model + fiyat bilgisini normalize eder.
 - Model bazli referans fiyat olusturur:
   - Web arama fiyat sinyalleri (DuckDuckGo)
-  - Opsiyonel AI referansi (OpenRouter)
+  - Opsiyonel AI referansi (OpenRouter, kalite-oncelikli model zinciri)
   - Gelen ilandaki lokal median fiyat
 - Tek bir sabit fiyat yerine dinamik indirim esitigi kullanir.
 - Sonucu Telegram'a mesaj + rapor dosyasi olarak geri yollar.
@@ -34,7 +34,8 @@ AI destekli fiyat referansi istersen:
 ```env
 AI_PROVIDER=openrouter
 OPENROUTER_API_KEY=...
-OPENROUTER_MODEL=google/gemini-2.5-flash
+OPENROUTER_MODELS=anthropic/claude-3.7-sonnet,openai/gpt-4.1,google/gemini-2.5-pro,google/gemini-2.5-flash
+MAX_AI_FALLBACK_MODELS=3
 MAX_AI_MODEL_LOOKUPS=8
 MAX_WEB_MODEL_LOOKUPS=14
 ```
@@ -69,7 +70,8 @@ Opsiyonel GitHub Variables:
 - `MIN_DISCOUNT_RATIO`
 - `MAX_RESULTS`
 - `AI_PROVIDER`
-- `OPENROUTER_MODEL`
+- `OPENROUTER_MODELS`
+- `MAX_AI_FALLBACK_MODELS`
 - `MAX_AI_MODEL_LOOKUPS`
 - `MAX_WEB_MODEL_LOOKUPS`
 

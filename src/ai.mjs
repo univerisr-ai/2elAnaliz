@@ -26,54 +26,72 @@ export async function fetchAiPriceReference(modelKey) {
     'Rules: confidence must be 0..1, fair_min/fair_max must be integers in TRY.',
   ].join('\n');
 
-  try {
-    const { data } = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: CONFIG.openRouterModel,
-        temperature: 0.1,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a pricing assistant. Return only JSON object without markdown.',
-          },
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-      },
-      {
-        timeout: 45000,
-        headers: {
-          Authorization: `Bearer ${CONFIG.openRouterApiKey}`,
-          'Content-Type': 'application/json',
+  const modelsToTry = CONFIG.openRouterModels.slice(0, CONFIG.maxAiFallbackModels);
+  const failReasons = [];
+
+  for (const model of modelsToTry) {
+    try {
+      const { data } = await axios.post(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          model,
+          temperature: 0.05,
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are a pricing assistant focused on accuracy. Return only one JSON object without markdown.',
+            },
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
         },
-      },
-    );
+        {
+          timeout: 55000,
+          headers: {
+            Authorization: `Bearer ${CONFIG.openRouterApiKey}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
-    const raw = data?.choices?.[0]?.message?.content || '';
-    const parsed = findJsonObject(raw);
-    if (!parsed) return null;
+      const raw = data?.choices?.[0]?.message?.content || '';
+      const parsed = findJsonObject(raw);
+      if (!parsed) continue;
 
-    const fairMin = parsePriceTl(parsed.fair_min);
-    const fairMax = parsePriceTl(parsed.fair_max);
-    if (!(fairMin > 0) || !(fairMax > 0) || fairMax < fairMin) return null;
+      const fairMin = parsePriceTl(parsed.fair_min);
+      const fairMax = parsePriceTl(parsed.fair_max);
+      if (!(fairMin > 0) || !(fairMax > 0) || fairMax < fairMin) continue;
 
-    const confidenceRaw = Number(parsed.confidence);
-    const confidence = Number.isFinite(confidenceRaw)
-      ? Math.max(0, Math.min(1, confidenceRaw))
-      : 0.45;
+      const confidenceRaw = Number(parsed.confidence);
+      const confidence = Number.isFinite(confidenceRaw)
+        ? Math.max(0, Math.min(1, confidenceRaw))
+        : 0.45;
 
-    return {
-      source: 'ai',
-      fairMin,
-      fairMax,
-      fairPrice: Math.round((fairMin + fairMax) / 2),
-      confidence,
-      note: String(parsed.note || '').slice(0, 200),
-    };
-  } catch {
-    return null;
+      return {
+        source: 'ai',
+        aiModel: model,
+        fairMin,
+        fairMax,
+        fairPrice: Math.round((fairMin + fairMax) / 2),
+        confidence,
+        note: String(parsed.note || '').slice(0, 200),
+      };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      failReasons.push(`${model}: ${msg.slice(0, 180)}`);
+      // try next model in chain
+    }
   }
+
+  if (failReasons.length) {
+    console.warn(
+      `[ai] All fallback models failed for ${modelKey}. ` +
+        `Check OPENROUTER_MODELS. Reasons: ${failReasons.join(' | ')}`,
+    );
+  }
+
+  return null;
 }
