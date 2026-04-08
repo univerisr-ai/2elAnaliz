@@ -14,16 +14,24 @@ function findJsonObject(text) {
   }
 }
 
-export async function fetchAiPriceReference(modelKey) {
+export async function fetchAiPriceReference(modelKey, localMedian = 0) {
   if (CONFIG.aiProvider !== 'openrouter' || !CONFIG.openRouterApiKey) {
     return null;
   }
 
+  // Provide local context to the AI so it doesn't hallucinate wildly
+  const localContext = localMedian > 0 
+    ? `We currently see a local median price of ${localMedian} TRY on the market.`
+    : `We have no local median price available.`;
+
   const prompt = [
     `GPU model: ${modelKey}`,
-    'Task: Estimate current Turkey second-hand fair market price in TRY.',
-    'Return strict JSON only with keys: fair_min, fair_max, confidence, note.',
+    `Context: ${localContext}`,
+    'Task: Estimate the true Turkish second-hand fair market price in TRY.',
+    'Consider factors like current mining deprecation, new GPU generation releases, and realistic seller markup.',
+    'Return strict JSON only with keys: fair_min, fair_max, confidence, note.', 
     'Rules: confidence must be 0..1, fair_min/fair_max must be integers in TRY.',
+    'Do not include markdown blocks like ```json, just output the raw JSON object.'
   ].join('\n');
 
   const modelsToTry = CONFIG.openRouterModels.slice(0, CONFIG.maxAiFallbackModels);
@@ -95,3 +103,52 @@ export async function fetchAiPriceReference(modelKey) {
 
   return null;
 }
+
+export async function generateFinalExpertSummary(topCandidates) {
+  if (CONFIG.aiProvider !== 'openrouter' || !CONFIG.openRouterApiKey || topCandidates.length === 0) {
+    return null;
+  }
+
+  const listingsText = topCandidates.slice(0, 15).map((x, i) => 
+    `ID: ${i+1} | TITLE: ${String(x.title).substring(0, 80)} | MODEL: ${x.modelKey} | PRICE: ${x.price} TRY | REFERENCE: ${x.fairPrice} TRY`
+  ).join('\n');
+
+  const prompt = [
+    'Sen 2026 yılında Türkiye\'de ikinci el bilgisayar parçaları konusunda uzman bir analizcisin (PC Master).',
+    'Aşağıdaki matematiksel olarak en karlı duran 15 GPU ekran kartı ilanını (başlık, piyasa değeri ve fiyatlarına göre) incele.',
+    'Matematik bazen yanıltıcıdır: Başlıklarda gizli olabilecek arıza, "çalışmıyor", "yedek parça", "mining çıkması", veya şüpheli dolandırıcılık kokan ifadeleri cımbızla (semantic analiz yap).',
+    'Görevin: Mantıken ve cidden alınabilecek en iyi 3 (veya daha az) ekran kartını seç.',
+    'JSON formatı KULLANMA. Kullanıcı telgrafa gönderecek.',
+    'Lütfen çok net, 3 maddelik kısa bir değerlendirme metni yaz.',
+    'Format: (id numarasını gösterme, kartın net adını ve fiyatını yaz)',
+    '1. [GPU Model / Başlık Kısaltması] - [Fiyat] TL',
+    '   💡 [Seçim sebebin ve başlıktaki temizlik hissiyatı (Örn: Parametre ve başlık temiz duruyor)]',
+    '',
+    'Lütfen Türkçe yanıt ver.',
+    'İlanlar:',
+    listingsText
+  ].join('\n');
+
+  try {
+    const { data } = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: CONFIG.openRouterModels[0], // Prefer the primary 480B model
+        temperature: 0.25,
+        messages: [{ role: 'user', content: prompt }],
+      },
+      {
+        timeout: 45000,
+        headers: {
+          Authorization: `Bearer ${CONFIG.openRouterApiKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return (data?.choices?.[0]?.message?.content || '').trim();
+  } catch (err) {
+    console.warn('[ai] Expert summary generation failed:', err.message);
+    return null;
+  }
+}
+

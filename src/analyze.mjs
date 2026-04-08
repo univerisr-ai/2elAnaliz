@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { CONFIG } from './config.mjs';
 import { extractModelKey, getMarketReference } from './market.mjs';
+import { generateFinalExpertSummary } from './ai.mjs';
 import { clamp, median, parsePriceTl, percentile } from './utils.mjs';
 
 function firstField(obj, keys) {
@@ -118,12 +119,15 @@ export async function analyzeFile(inputPath) {
   candidates.sort((a, b) => b.score - a.score || b.discountRatio - a.discountRatio || a.price - b.price);
 
   const top = candidates.slice(0, CONFIG.maxResults);
+  const expertSummary = await generateFinalExpertSummary(top);
+
   const report = {
     generatedAt: new Date().toISOString(),
     inputFile: path.basename(inputPath),
     listingCount: normalized.length,
     recognizedModelCount: byModel.size,
     candidateCount: candidates.length,
+    expertSummary,
     config: {
       minDiscountRatio: CONFIG.minDiscountRatio,
       maxResults: CONFIG.maxResults,
@@ -155,6 +159,12 @@ export function renderTelegramSummary(report) {
       );
       if (x.url) lines.push(`   ${x.url}`);
     });
+  }
+
+  if (report.expertSummary) {
+    lines.push('');
+    lines.push('🤖 PC Uzmanı (Yapay Zeka) Yorumu:');
+    lines.push(report.expertSummary);
   }
 
   return lines.join('\n');

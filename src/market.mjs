@@ -125,7 +125,7 @@ export async function getMarketReference(modelKey, localPrices, aiBudgetRef, web
   let aiRef = null;
   if (aiBudgetRef.remaining > 0) {
     aiBudgetRef.remaining -= 1;
-    aiRef = await fetchAiPriceReference(modelKey);
+    aiRef = await fetchAiPriceReference(modelKey, localMedian);
   }
 
   const weighted = [];
