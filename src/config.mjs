@@ -39,10 +39,11 @@ const allowedChatIds = allowedChatRaw
 const rootDir = process.cwd();
 
 const defaultOpenRouterModels = [
+  'qwen/qwen3-coder:free',
+  'nvidia/nemotron-3-super-120b-a12b:free',
+  'openai/gpt-oss-120b:free',
   'anthropic/claude-3.7-sonnet',
-  'openai/gpt-4.1',
-  'google/gemini-2.5-pro',
-  'google/gemini-2.5-flash',
+  'openai/gpt-4.1'
 ];
 
 const openRouterModelsRaw =
