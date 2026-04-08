@@ -42,8 +42,7 @@ const defaultOpenRouterModels = [
   'qwen/qwen3-coder:free',
   'nvidia/nemotron-3-super-120b-a12b:free',
   'openai/gpt-oss-120b:free',
-  'anthropic/claude-3.7-sonnet',
-  'openai/gpt-4.1'
+  'meta-llama/llama-3.3-70b-instruct:free'
 ];
 
 const openRouterModelsRaw =
@@ -76,7 +75,7 @@ export const CONFIG = {
   aiProvider: (process.env.AI_PROVIDER || 'none').toLowerCase(),
   openRouterApiKey: process.env.OPENROUTER_API_KEY || '',
   openRouterModels,
-  openRouterModel: openRouterModels[0] || 'anthropic/claude-3.7-sonnet',
+  openRouterModel: openRouterModels[0] || 'qwen/qwen3-coder:free',
   maxAiModelLookups: Math.max(0, Math.min(20, toInt(process.env.MAX_AI_MODEL_LOOKUPS, 8))),
   maxAiFallbackModels: Math.max(1, Math.min(8, toInt(process.env.MAX_AI_FALLBACK_MODELS, 3))),
   maxWebModelLookups: Math.max(0, Math.min(40, toInt(process.env.MAX_WEB_MODEL_LOOKUPS, 14))),
