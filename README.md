@@ -8,7 +8,7 @@ Telegram'a gelen `output.json` dosyasini analiz eder, ikinci el ekran karti ilan
 - Ilanlardan model + fiyat bilgisini normalize eder.
 - Model bazli referans fiyat olusturur:
   - Web arama fiyat sinyalleri (DuckDuckGo)
-  - Opsiyonel AI referansi (OpenRouter, kalite-oncelikli model zinciri)
+  - Opsiyonel AI referansi (OpenRouter, ucretsiz model zinciri)
   - Gelen ilandaki lokal median fiyat
 - Tek bir sabit fiyat yerine dinamik indirim esitigi kullanir.
 - Sonucu Telegram'a mesaj + rapor dosyasi olarak geri yollar.
@@ -16,7 +16,7 @@ Telegram'a gelen `output.json` dosyasini analiz eder, ikinci el ekran karti ilan
 ## Kurulum
 
 ```bash
-npm install
+npm ci
 cp .env.example .env
 ```
 
@@ -34,11 +34,13 @@ AI destekli fiyat referansi istersen:
 ```env
 AI_PROVIDER=openrouter
 OPENROUTER_API_KEY=...
-OPENROUTER_MODELS=anthropic/claude-3.7-sonnet,openai/gpt-4.1,google/gemini-2.5-pro,google/gemini-2.5-flash
+OPENROUTER_MODELS=qwen/qwen3-coder:free,nvidia/nemotron-3-super-120b-a12b:free,openai/gpt-oss-120b:free,meta-llama/llama-3.3-70b-instruct:free
 MAX_AI_FALLBACK_MODELS=3
 MAX_AI_MODEL_LOOKUPS=8
 MAX_WEB_MODEL_LOOKUPS=14
 ```
+
+Not: `OPENROUTER_MODELS` bos birakilirsa kod zaten ayni ucretsiz varsayilan zinciri kullanir.
 
 ## Calistirma
 
@@ -53,6 +55,14 @@ Tek bir dosyayi lokal analiz etme modu:
 ```bash
 node src/index.mjs --file path/to/output.json
 ```
+
+Lokal smoke test (onerilen ilk dogrulama):
+
+```bash
+node src/index.mjs --file "c:/Users/Demir Alp/Downloads/Telegram Desktop/output.json"
+```
+
+Basarili calismada terminalde ozet gorulur ve `data/outbox` altinda rapor dosyasi olusur.
 
 ## GitHub Actions
 
