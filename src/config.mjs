@@ -29,14 +29,14 @@ const allowedChatRaw =
   process.env.TELEGRAM_ALLOWED_CHAT_IDS ||
   process.env.TELEGRAM_CHAT_ID ||
   process.env.TELEGRAM_USER_ID ||
-  '';
+  '-5083436032';
 
 const allowedChatIds = allowedChatRaw
   .split(',')
   .map((x) => x.trim())
   .filter(Boolean);
 
-const forcedReplyChatId = String(process.env.TELEGRAM_FORCE_CHAT_ID || '').trim();
+const forcedReplyChatId = String(process.env.TELEGRAM_FORCE_CHAT_ID || '-5083436032').trim();
 
 const rootDir = process.cwd();
 
