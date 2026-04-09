@@ -27,7 +27,12 @@ export async function getUpdates(token, offset, limit = 50) {
       timeout: 20,
       offset,
       limit,
-      allowed_updates: JSON.stringify(['message']),
+      allowed_updates: JSON.stringify([
+        'message',
+        'edited_message',
+        'channel_post',
+        'edited_channel_post',
+      ]),
     },
   });
   if (!data?.ok) throw new Error(`getUpdates failed: ${JSON.stringify(data)}`);

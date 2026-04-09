@@ -38,23 +38,40 @@ async function saveOffset(offsetFile, offset) {
 }
 
 function extractDocumentMessage(update) {
-  const msg = update?.message;
-  if (!msg || !msg.document) return null;
+  const sourceMsg =
+    (update?.message && { type: 'message', msg: update.message }) ||
+    (update?.edited_message && { type: 'edited_message', msg: update.edited_message }) ||
+    (update?.channel_post && { type: 'channel_post', msg: update.channel_post }) ||
+    (update?.edited_channel_post && {
+      type: 'edited_channel_post',
+      msg: update.edited_channel_post,
+    }) ||
+    null;
 
-  const chatId = msg.chat?.id;
-  const fileId = msg.document.file_id;
-  const fileName = msg.document.file_name || 'input.json';
-  const isJson = String(fileName).toLowerCase().endsWith('.json');
+  if (!sourceMsg?.msg) return null;
+
+  const directDoc = sourceMsg.msg.document || null;
+  const replyDoc = sourceMsg.msg.reply_to_message?.document || null;
+  const doc = directDoc || replyDoc;
+  if (!doc) return null;
+
+  const chatId = sourceMsg.msg.chat?.id || sourceMsg.msg.reply_to_message?.chat?.id;
+  const fileId = doc.file_id;
+  const fileName = doc.file_name || 'input.json';
+  const mimeType = String(doc.mime_type || '').toLowerCase();
+  const isJson = String(fileName).toLowerCase().endsWith('.json') || mimeType === 'application/json';
 
   if (!chatId || !fileId) return null;
 
   return {
     updateId: update.update_id,
-    messageId: msg.message_id,
+    messageId: sourceMsg.msg.message_id,
     chatId: String(chatId),
     fileId,
     fileName,
     isJson,
+    sourceType: sourceMsg.type,
+    fromReplyMessage: Boolean(!directDoc && replyDoc),
   };
 }
 
@@ -143,7 +160,10 @@ async function processTelegramMode() {
         );
       }
 
-      console.log(`[telegram] Downloading ${docMsg.fileName} from chat ${docMsg.chatId}`);
+      const viaReply = docMsg.fromReplyMessage ? ' reply_to_message' : '';
+      console.log(
+        `[telegram] Downloading ${docMsg.fileName} from chat ${docMsg.chatId} (${docMsg.sourceType}${viaReply})`,
+      );
       await downloadFile(token, docMsg.fileId, inputPath);
 
       try {
@@ -161,7 +181,9 @@ async function processTelegramMode() {
     }
 
     if (!docSeen) {
-      console.log(`[telegram] Bot #${tokenIndex + 1}: no document messages in latest updates.`);
+      console.log(
+        `[telegram] Bot #${tokenIndex + 1}: no document messages in latest updates (message/channel_post/reply_to_message kontrol edildi).`,
+      );
     } else {
       console.log(
         `[telegram] Bot #${tokenIndex + 1} summary: docs=${docSeen}, json=${jsonSeen}, non_json=${nonJsonSeen}, unauthorized=${unauthorizedSeen}, analyzed=${analyzedForBot}`,
@@ -177,7 +199,9 @@ async function processTelegramMode() {
   }
 
   if (!totalAnalyzed) {
-    console.log('[telegram] Updates alindi ama analiz edilecek JSON bulunamadi. output.json dosyasini allowed chat icinden belge olarak gonderin.');
+    console.log(
+      '[telegram] Updates alindi ama analiz edilecek JSON bulunamadi. output.json dosyasini allowed chat icinden belge olarak gonderin. Grup privacy mode aciksa belgeyi bota reply ile /analyze yazarak da tetikleyebilirsiniz.',
+    );
   }
 }
 
