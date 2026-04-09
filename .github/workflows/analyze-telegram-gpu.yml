@@ -35,6 +35,7 @@ jobs:
           TELEGRAM_BOT_TOKEN_1: ${{ secrets.TELEGRAM_BOT_TOKEN_1 }}
           TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
           TELEGRAM_ALLOWED_CHAT_IDS: ${{ secrets.TELEGRAM_ALLOWED_CHAT_IDS }}
+          TELEGRAM_FORCE_CHAT_ID: ${{ vars.TELEGRAM_FORCE_CHAT_ID }}
           TELEGRAM_POLL_LIMIT: ${{ vars.TELEGRAM_POLL_LIMIT }}
           MIN_DISCOUNT_RATIO: ${{ vars.MIN_DISCOUNT_RATIO }}
           MAX_RESULTS: ${{ vars.MAX_RESULTS }}

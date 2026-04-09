@@ -120,19 +120,26 @@ async function processTelegramMode() {
 
       const baseName = `${nowStamp()}-${slugify(docMsg.fileName)}`;
       const inputPath = path.join(CONFIG.inboxDir, baseName);
+      const targetChatId = CONFIG.telegramForceChatId || docMsg.chatId;
+
+      if (CONFIG.telegramForceChatId && CONFIG.telegramForceChatId !== docMsg.chatId) {
+        console.log(
+          `[telegram] Forced target chat active. Source=${docMsg.chatId} -> Target=${CONFIG.telegramForceChatId}`,
+        );
+      }
 
       console.log(`[telegram] Downloading ${docMsg.fileName} from chat ${docMsg.chatId}`);
       await downloadFile(token, docMsg.fileId, inputPath);
 
       try {
-        const result = await analyzeAndRespond(token, docMsg.chatId, inputPath);
+        const result = await analyzeAndRespond(token, targetChatId, inputPath);
         console.log(
           `[telegram] Analysis sent. candidates=${result.candidateCount} file=${path.basename(inputPath)}`,
         );
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         console.error(`[telegram] Analysis failed: ${message}`);
-        await sendMessage(token, docMsg.chatId, `Analiz hatasi: ${message}`);
+        await sendMessage(token, targetChatId, `Analiz hatasi: ${message}`);
       }
     }
 

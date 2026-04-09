@@ -36,6 +36,8 @@ const allowedChatIds = allowedChatRaw
   .map((x) => x.trim())
   .filter(Boolean);
 
+const forcedReplyChatId = String(process.env.TELEGRAM_FORCE_CHAT_ID || '').trim();
+
 const rootDir = process.cwd();
 
 const defaultOpenRouterModels = [
@@ -64,6 +66,7 @@ export const CONFIG = {
 
   telegramTokens,
   allowedChatIds,
+  telegramForceChatId: forcedReplyChatId,
   telegramPollLimit: Math.max(1, Math.min(100, toInt(process.env.TELEGRAM_POLL_LIMIT, 50))),
 
   minDiscountRatio: Math.max(0.03, Math.min(0.40, toFloat(process.env.MIN_DISCOUNT_RATIO, 0.10))),

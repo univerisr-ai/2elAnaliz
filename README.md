@@ -25,9 +25,12 @@ cp .env.example .env
 ```env
 TELEGRAM_BOT_TOKEN_1=...
 TELEGRAM_ALLOWED_CHAT_IDS=123456789
+TELEGRAM_FORCE_CHAT_ID=-1001234567890
 MIN_DISCOUNT_RATIO=0.10
 MAX_RESULTS=40
 ```
+
+Not: `TELEGRAM_FORCE_CHAT_ID` verilirse bot cevaplari her zaman bu chat ID'ye yollar (gruba sabitlemek icin ideal).
 
 AI destekli fiyat referansi istersen:
 
@@ -84,6 +87,7 @@ Opsiyonel GitHub Variables:
 - `MAX_AI_FALLBACK_MODELS`
 - `MAX_AI_MODEL_LOOKUPS`
 - `MAX_WEB_MODEL_LOOKUPS`
+- `TELEGRAM_FORCE_CHAT_ID`
 
 ## Yeni repo push (senin verdigin remote)
 
