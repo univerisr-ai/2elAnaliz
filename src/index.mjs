@@ -5,6 +5,7 @@ import { CONFIG } from './config.mjs';
 import {
   downloadFile,
   getMe,
+  getWebhookInfo,
   getUpdates,
   sendDocument,
   sendMessage,
@@ -110,9 +111,16 @@ async function analyzeAndRespond(token, chatId, inputPath) {
 }
 
 async function processTelegramMode() {
-  const tokens = Array.from(new Set(CONFIG.telegramTokens.map((x) => String(x).trim()).filter(Boolean)));
+  const providedTokens = CONFIG.telegramTokens.map((x) => String(x).trim()).filter(Boolean);
+  const tokens = Array.from(new Set(providedTokens));
   if (!tokens.length) {
     throw new Error('No working Telegram token found.');
+  }
+
+  if (providedTokens.length !== tokens.length) {
+    console.warn(
+      `[telegram] Duplicate token values detected in TELEGRAM_BOT_TOKEN secrets. provided=${providedTokens.length}, unique=${tokens.length}`,
+    );
   }
 
   let totalUpdates = 0;
@@ -129,10 +137,35 @@ async function processTelegramMode() {
 
     try {
       const me = await getMe(token);
+      const botName = me?.username ? `@${me.username}` : '(no username)';
+      const botId = me?.id ? String(me.id) : 'unknown';
+      const privacyState =
+        me?.can_read_all_group_messages === true
+          ? 'DISABLED'
+          : me?.can_read_all_group_messages === false
+            ? 'ENABLED'
+            : 'UNKNOWN';
+
+      console.log(
+        `[telegram] Bot #${tokenIndex + 1} identity: ${botName} (id=${botId}, privacy=${privacyState})`,
+      );
+
       if (me?.can_read_all_group_messages === false) {
         console.log(
           `[telegram] Bot #${tokenIndex + 1} privacy mode acik. Grup mesajlarinda sadece komut/reply gorur. BotFather -> /setprivacy -> Disable yapin.`,
         );
+      }
+
+      try {
+        const webhook = await getWebhookInfo(token);
+        if (webhook?.url) {
+          console.warn(
+            `[telegram] Bot #${tokenIndex + 1} has active webhook: ${webhook.url}. getUpdates ile bazi mesajlar gelmeyebilir; webhook kapatmayi dusunun.`,
+          );
+        }
+      } catch (hookErr) {
+        const hookMessage = hookErr instanceof Error ? hookErr.message : String(hookErr);
+        console.warn(`[telegram] Bot #${tokenIndex + 1} getWebhookInfo warning: ${hookMessage}`);
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);

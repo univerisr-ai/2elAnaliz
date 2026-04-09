@@ -26,6 +26,13 @@ export async function getMe(token) {
   return data.result;
 }
 
+export async function getWebhookInfo(token) {
+  const url = apiUrl(token, 'getWebhookInfo');
+  const { data } = await axios.get(url, { timeout: 20000 });
+  if (!data?.ok) throw new Error(`getWebhookInfo failed: ${JSON.stringify(data)}`);
+  return data.result;
+}
+
 export async function getUpdates(token, offset, limit = 50, timeoutSeconds = 20) {
   const url = apiUrl(token, 'getUpdates');
   const { data } = await axios.get(url, {
