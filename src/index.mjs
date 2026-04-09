@@ -10,6 +10,17 @@ import {
 } from './telegram.mjs';
 import { ensureDir, nowStamp, readJson, slugify, splitText, writeJson } from './utils.mjs';
 
+async function acknowledgeProcessedUpdates(token, offset) {
+  if (!Number.isFinite(offset) || offset <= 0) return;
+  try {
+    // CI kosulari stateless oldugu icin server tarafinda offset'i explicit onayla.
+    await getUpdates(token, offset + 1, 1, 0);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.warn(`[telegram] Offset acknowledge failed: ${message}`);
+  }
+}
+
 function offsetFileForToken(token, index) {
   const suffix = String(token).slice(-8).replace(/[^a-zA-Z0-9_-]/g, '_') || `bot${index + 1}`;
   return path.join(CONFIG.stateDir, `telegram-offset-${index + 1}-${suffix}.json`);
@@ -189,6 +200,8 @@ async function processTelegramMode() {
         `[telegram] Bot #${tokenIndex + 1} summary: docs=${docSeen}, json=${jsonSeen}, non_json=${nonJsonSeen}, unauthorized=${unauthorizedSeen}, analyzed=${analyzedForBot}`,
       );
     }
+
+    await acknowledgeProcessedUpdates(token, offset);
 
     await saveOffset(offsetFile, offset);
   }

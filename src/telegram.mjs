@@ -19,12 +19,12 @@ export async function pickWorkingToken(tokens) {
   return '';
 }
 
-export async function getUpdates(token, offset, limit = 50) {
+export async function getUpdates(token, offset, limit = 50, timeoutSeconds = 20) {
   const url = apiUrl(token, 'getUpdates');
   const { data } = await axios.get(url, {
     timeout: 45000,
     params: {
-      timeout: 20,
+      timeout: Math.max(0, Number(timeoutSeconds) || 0),
       offset,
       limit,
       allowed_updates: JSON.stringify([
