@@ -44,9 +44,9 @@ function extractDocumentMessage(update) {
   const chatId = msg.chat?.id;
   const fileId = msg.document.file_id;
   const fileName = msg.document.file_name || 'input.json';
+  const isJson = String(fileName).toLowerCase().endsWith('.json');
 
   if (!chatId || !fileId) return null;
-  if (!String(fileName).toLowerCase().endsWith('.json')) return null;
 
   return {
     updateId: update.update_id,
@@ -54,6 +54,7 @@ function extractDocumentMessage(update) {
     chatId: String(chatId),
     fileId,
     fileName,
+    isJson,
   };
 }
 
@@ -86,10 +87,16 @@ async function processTelegramMode() {
   }
 
   let totalUpdates = 0;
+  let totalAnalyzed = 0;
 
   for (const [tokenIndex, token] of tokens.entries()) {
     const offsetFile = offsetFileForToken(token, tokenIndex);
     let offset = await loadOffset(offsetFile);
+    let docSeen = 0;
+    let jsonSeen = 0;
+    let nonJsonSeen = 0;
+    let unauthorizedSeen = 0;
+    let analyzedForBot = 0;
 
     let updates = [];
     try {
@@ -113,7 +120,15 @@ async function processTelegramMode() {
       const docMsg = extractDocumentMessage(update);
       if (!docMsg) continue;
 
+      docSeen += 1;
+      if (!docMsg.isJson) {
+        nonJsonSeen += 1;
+        continue;
+      }
+      jsonSeen += 1;
+
       if (!isAllowedChat(docMsg.chatId)) {
+        unauthorizedSeen += 1;
         console.log(`[telegram] Skipping unauthorized chat ${docMsg.chatId}`);
         continue;
       }
@@ -133,6 +148,8 @@ async function processTelegramMode() {
 
       try {
         const result = await analyzeAndRespond(token, targetChatId, inputPath);
+        analyzedForBot += 1;
+        totalAnalyzed += 1;
         console.log(
           `[telegram] Analysis sent. candidates=${result.candidateCount} file=${path.basename(inputPath)}`,
         );
@@ -143,11 +160,24 @@ async function processTelegramMode() {
       }
     }
 
+    if (!docSeen) {
+      console.log(`[telegram] Bot #${tokenIndex + 1}: no document messages in latest updates.`);
+    } else {
+      console.log(
+        `[telegram] Bot #${tokenIndex + 1} summary: docs=${docSeen}, json=${jsonSeen}, non_json=${nonJsonSeen}, unauthorized=${unauthorizedSeen}, analyzed=${analyzedForBot}`,
+      );
+    }
+
     await saveOffset(offsetFile, offset);
   }
 
   if (!totalUpdates) {
     console.log('[telegram] No new updates on any configured bot token.');
+    return;
+  }
+
+  if (!totalAnalyzed) {
+    console.log('[telegram] Updates alindi ama analiz edilecek JSON bulunamadi. output.json dosyasini allowed chat icinden belge olarak gonderin.');
   }
 }
 
