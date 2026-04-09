@@ -19,6 +19,13 @@ export async function pickWorkingToken(tokens) {
   return '';
 }
 
+export async function getMe(token) {
+  const url = apiUrl(token, 'getMe');
+  const { data } = await axios.get(url, { timeout: 20000 });
+  if (!data?.ok) throw new Error(`getMe failed: ${JSON.stringify(data)}`);
+  return data.result;
+}
+
 export async function getUpdates(token, offset, limit = 50, timeoutSeconds = 20) {
   const url = apiUrl(token, 'getUpdates');
   const { data } = await axios.get(url, {

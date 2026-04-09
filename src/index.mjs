@@ -4,6 +4,7 @@ import { analyzeFile, renderTelegramSummary } from './analyze.mjs';
 import { CONFIG } from './config.mjs';
 import {
   downloadFile,
+  getMe,
   getUpdates,
   sendDocument,
   sendMessage,
@@ -125,6 +126,18 @@ async function processTelegramMode() {
     let nonJsonSeen = 0;
     let unauthorizedSeen = 0;
     let analyzedForBot = 0;
+
+    try {
+      const me = await getMe(token);
+      if (me?.can_read_all_group_messages === false) {
+        console.log(
+          `[telegram] Bot #${tokenIndex + 1} privacy mode acik. Grup mesajlarinda sadece komut/reply gorur. BotFather -> /setprivacy -> Disable yapin.`,
+        );
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn(`[telegram] Bot #${tokenIndex + 1} getMe warning: ${message}`);
+    }
 
     let updates = [];
     try {
