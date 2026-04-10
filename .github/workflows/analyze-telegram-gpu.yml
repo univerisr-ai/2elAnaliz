@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '*/15 * * * *'
   workflow_dispatch:
+  repository_dispatch:
+    types: [telegram_file_ready]
 
 permissions:
   contents: read
@@ -36,6 +38,10 @@ jobs:
           TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
           TELEGRAM_ALLOWED_CHAT_IDS: ${{ secrets.TELEGRAM_ALLOWED_CHAT_IDS }}
           TELEGRAM_FORCE_CHAT_ID: ${{ vars.TELEGRAM_FORCE_CHAT_ID }}
+          TELEGRAM_SOURCE_FILE_ID: ${{ github.event.client_payload.file_id }}
+          TELEGRAM_SOURCE_FILE_NAME: ${{ github.event.client_payload.file_name }}
+          TELEGRAM_SOURCE_CHAT_ID: ${{ github.event.client_payload.chat_id }}
+          TELEGRAM_SOURCE_TOKEN_HINT: ${{ github.event.client_payload.token_hint }}
           TELEGRAM_POLL_LIMIT: ${{ vars.TELEGRAM_POLL_LIMIT }}
           MIN_DISCOUNT_RATIO: ${{ vars.MIN_DISCOUNT_RATIO }}
           MAX_RESULTS: ${{ vars.MAX_RESULTS }}

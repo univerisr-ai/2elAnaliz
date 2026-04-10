@@ -37,6 +37,10 @@ const allowedChatIds = allowedChatRaw
   .filter(Boolean);
 
 const forcedReplyChatId = String(process.env.TELEGRAM_FORCE_CHAT_ID || '-5083436032').trim();
+const telegramSourceFileId = String(process.env.TELEGRAM_SOURCE_FILE_ID || '').trim();
+const telegramSourceFileName = String(process.env.TELEGRAM_SOURCE_FILE_NAME || 'relay-input.json').trim();
+const telegramSourceChatId = String(process.env.TELEGRAM_SOURCE_CHAT_ID || '').trim();
+const telegramSourceTokenHint = String(process.env.TELEGRAM_SOURCE_TOKEN_HINT || '').trim();
 
 const rootDir = process.cwd();
 
@@ -67,6 +71,10 @@ export const CONFIG = {
   telegramTokens,
   allowedChatIds,
   telegramForceChatId: forcedReplyChatId,
+  telegramSourceFileId,
+  telegramSourceFileName,
+  telegramSourceChatId,
+  telegramSourceTokenHint,
   telegramPollLimit: Math.max(1, Math.min(100, toInt(process.env.TELEGRAM_POLL_LIMIT, 50))),
 
   minDiscountRatio: Math.max(0.03, Math.min(0.40, toFloat(process.env.MIN_DISCOUNT_RATIO, 0.10))),

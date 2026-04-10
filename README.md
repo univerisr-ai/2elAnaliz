@@ -71,12 +71,23 @@ Basarili calismada terminalde ozet gorulur ve `data/outbox` altinda rapor dosyas
 
 Workflow dosyasi: `.github/workflows/analyze-telegram-gpu.yml`
 
+Workflow artik `repository_dispatch` (`telegram_file_ready`) eventini de dinler. Bu sayede baska bir bot, Telegram'a dosya gonderdikten sonra `file_id` bilgisi ile analyzer'i dogrudan tetikleyebilir.
+
 Gerekli GitHub Secrets:
 
 - `TELEGRAM_BOT_TOKEN_1`
 - `TELEGRAM_BOT_TOKEN_2` (opsiyonel)
 - `TELEGRAM_ALLOWED_CHAT_IDS`
 - `OPENROUTER_API_KEY` (AI aciksa)
+
+Relay event payload alanlari (repository_dispatch) su sekilde kullanilir:
+
+- `file_id`
+- `file_name`
+- `chat_id`
+- `token_hint` (opsiyonel, gonderen bot token'inin son 8 karakteri)
+
+Bu alanlar geldiginde analyzer, Telegram update beklemeden `file_id` uzerinden dosyayi indirip analiz eder.
 
 Opsiyonel GitHub Variables:
 

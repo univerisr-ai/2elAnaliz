@@ -13,6 +13,16 @@ import {
 } from './telegram.mjs';
 import { ensureDir, nowStamp, readJson, slugify, splitText, writeJson } from './utils.mjs';
 
+function sortTokensByHint(tokens, hint) {
+  const cleanHint = String(hint || '').trim();
+  if (!cleanHint) return tokens;
+  return [...tokens].sort((a, b) => {
+    const aMatch = String(a).endsWith(cleanHint) ? 1 : 0;
+    const bMatch = String(b).endsWith(cleanHint) ? 1 : 0;
+    return bMatch - aMatch;
+  });
+}
+
 async function acknowledgeProcessedUpdates(token, offset) {
   if (!Number.isFinite(offset) || offset <= 0) return;
   try {
@@ -109,6 +119,62 @@ async function analyzeAndRespond(token, chatId, inputPath) {
   await sendDocument(token, chatId, reportTxtPath, 'Analiz ozeti (TXT)');
 
   return { reportJsonPath, reportTxtPath, candidateCount: report.candidateCount };
+}
+
+async function processTelegramRelayMode() {
+  const sourceFileId = String(CONFIG.telegramSourceFileId || '').trim();
+  if (!sourceFileId) return false;
+
+  const sourceChatId = String(CONFIG.telegramSourceChatId || '').trim();
+  if (sourceChatId && !isAllowedChat(sourceChatId)) {
+    throw new Error(`Relay source chat unauthorized: ${sourceChatId}`);
+  }
+
+  const baseTokens = Array.from(new Set(CONFIG.telegramTokens.map((x) => String(x).trim()).filter(Boolean)));
+  if (!baseTokens.length) {
+    throw new Error('Relay mode requires at least one TELEGRAM_BOT_TOKEN.');
+  }
+
+  const tokens = sortTokensByHint(baseTokens, CONFIG.telegramSourceTokenHint);
+
+  const sourceFileName = String(CONFIG.telegramSourceFileName || 'relay-input.json').trim();
+  const sourceExt = path.extname(sourceFileName) || '.json';
+  const sourceBase = slugify(path.basename(sourceFileName, sourceExt));
+  const inputPath = path.join(CONFIG.inboxDir, `${nowStamp()}-${sourceBase}${sourceExt.toLowerCase()}`);
+
+  let selectedToken = '';
+  const errors = [];
+
+  for (const [index, token] of tokens.entries()) {
+    try {
+      await downloadFile(token, sourceFileId, inputPath);
+      selectedToken = token;
+      console.log(`[telegram] Relay download success with token #${index + 1}: ${path.basename(inputPath)}`);
+      break;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      errors.push(`token #${index + 1}: ${message}`);
+    }
+  }
+
+  if (!selectedToken) {
+    throw new Error(
+      `Relay download failed for all configured tokens. file_id=${sourceFileId}. details=${errors.join(' | ')}`,
+    );
+  }
+
+  const targetChatId =
+    String(CONFIG.telegramForceChatId || '').trim() ||
+    sourceChatId ||
+    String(CONFIG.allowedChatIds[0] || '').trim();
+
+  if (!targetChatId) {
+    throw new Error('Relay mode target chat is empty. Set TELEGRAM_FORCE_CHAT_ID or TELEGRAM_SOURCE_CHAT_ID.');
+  }
+
+  const result = await analyzeAndRespond(selectedToken, targetChatId, inputPath);
+  console.log(`[telegram] Relay analysis sent. candidates=${result.candidateCount} file=${path.basename(inputPath)}`);
+  return true;
 }
 
 async function processTelegramMode() {
@@ -318,6 +384,11 @@ async function main() {
 
   if (CONFIG.inputFile) {
     await processFileMode(CONFIG.inputFile);
+    return;
+  }
+
+  if (CONFIG.telegramSourceFileId) {
+    await processTelegramRelayMode();
     return;
   }
 
