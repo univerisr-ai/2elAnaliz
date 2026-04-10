@@ -4,6 +4,7 @@ import { analyzeFile, renderTelegramSummary } from './analyze.mjs';
 import { CONFIG } from './config.mjs';
 import {
   downloadFile,
+  getChatMember,
   getMe,
   getWebhookInfo,
   getUpdates,
@@ -149,6 +150,23 @@ async function processTelegramMode() {
       console.log(
         `[telegram] Bot #${tokenIndex + 1} identity: ${botName} (id=${botId}, privacy=${privacyState})`,
       );
+
+      if (CONFIG.allowedChatIds.length) {
+        for (const allowedChatId of CONFIG.allowedChatIds) {
+          try {
+            const member = await getChatMember(token, allowedChatId, botId);
+            const status = member?.status || 'unknown';
+            console.log(
+              `[telegram] Bot #${tokenIndex + 1} chat membership: chat=${allowedChatId}, status=${status}`,
+            );
+          } catch (memberErr) {
+            const memberMessage = memberErr instanceof Error ? memberErr.message : String(memberErr);
+            console.warn(
+              `[telegram] Bot #${tokenIndex + 1} cannot verify/access allowed chat ${allowedChatId}: ${memberMessage}`,
+            );
+          }
+        }
+      }
 
       if (me?.can_read_all_group_messages === false) {
         console.log(

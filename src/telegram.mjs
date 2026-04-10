@@ -33,6 +33,19 @@ export async function getWebhookInfo(token) {
   return data.result;
 }
 
+export async function getChatMember(token, chatId, userId) {
+  const url = apiUrl(token, 'getChatMember');
+  const { data } = await axios.get(url, {
+    timeout: 20000,
+    params: {
+      chat_id: String(chatId),
+      user_id: String(userId),
+    },
+  });
+  if (!data?.ok) throw new Error(`getChatMember failed: ${JSON.stringify(data)}`);
+  return data.result;
+}
+
 export async function getUpdates(token, offset, limit = 50, timeoutSeconds = 20) {
   const url = apiUrl(token, 'getUpdates');
   const { data } = await axios.get(url, {
