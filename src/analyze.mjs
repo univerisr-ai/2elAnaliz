@@ -142,10 +142,10 @@ export async function analyzeFile(inputPath) {
 
 export function renderTelegramSummary(report) {
   const lines = [];
-  lines.push('GPU analiz tamamlandi.');
+  lines.push('✨ *YAPAY ZEKA (AI) FIRSAT ANALİZİ*');
   lines.push(`Toplam ilan: ${report.listingCount}`);
   lines.push(`Model bulunan: ${report.recognizedModelCount}`);
-  lines.push(`Alinabilir aday: ${report.candidateCount}`);
+  lines.push(`Alınabilir aday: ${report.candidateCount}`);
   lines.push('');
   lines.push('En iyi adaylar:');
 
