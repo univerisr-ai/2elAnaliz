@@ -112,6 +112,9 @@ export async function analyzeFile(inputPath) {
         score,
         confidence: market.confidence,
         url: row.url,
+        analysisNote: `%${(discountRatio * 100).toFixed(1)} piyasa avantaji, guven %${Math.round(
+          market.confidence * 100,
+        )}`,
       });
     }
   }

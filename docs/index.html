@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPU Kontrol Paneli</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Ekran karti scrape ve analiz pipeline'i icin ozel kontrol paneli.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f4efe4;
+      --paper: rgba(255, 250, 240, 0.82);
+      --ink: #1e2922;
+      --muted: #596659;
+      --line: rgba(30, 41, 34, 0.12);
+      --card: rgba(255, 255, 255, 0.72);
+      --accent: #1f6f5f;
+      --accent-strong: #10473c;
+      --warm: #bf6a2f;
+      --danger: #a83e3e;
+      --ok: #2d7a4d;
+      --radius: 24px;
+      --shadow: 0 22px 60px rgba(56, 52, 44, 0.12);
+      --font-ui: "Space Grotesk", sans-serif;
+      --font-mono: "IBM Plex Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-ui);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(31, 111, 95, 0.14), transparent 32%),
+        radial-gradient(circle at top right, rgba(191, 106, 47, 0.14), transparent 28%),
+        linear-gradient(180deg, #efe6d6 0%, var(--bg) 100%);
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(30, 41, 34, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 41, 34, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 85%);
+    }
+
+    .shell {
+      width: min(1320px, calc(100vw - 32px));
+      margin: 24px auto 48px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .hero {
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 88% 20%, rgba(31, 111, 95, 0.14), transparent 20%),
+        radial-gradient(circle at 70% 78%, rgba(191, 106, 47, 0.14), transparent 24%);
+      pointer-events: none;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(16, 71, 60, 0.08);
+      color: var(--accent-strong);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(36px, 6vw, 66px);
+      line-height: 0.95;
+      max-width: 10ch;
+    }
+
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 70ch;
+      line-height: 1.55;
+    }
+
+    .hero-meta,
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .chip,
+    button,
+    .run-link {
+      font: inherit;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--ink);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+    }
+
+    .chip strong {
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #f7f4ec;
+    }
+
+    button.secondary {
+      background: rgba(16, 71, 60, 0.08);
+      border-color: rgba(16, 71, 60, 0.14);
+      color: var(--accent-strong);
+    }
+
+    button.warn {
+      background: rgba(191, 106, 47, 0.12);
+      border-color: rgba(191, 106, 47, 0.2);
+      color: #7d4318;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    button:hover,
+    .run-link:hover {
+      transform: translateY(-1px);
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .two-col {
+      grid-template-columns: 1.15fr 0.85fr;
+    }
+
+    .three-col {
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 8px 30px rgba(59, 53, 41, 0.04);
+    }
+
+    .card h2,
+    .card h3 {
+      margin: 0 0 14px;
+      font-size: 20px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      margin-top: 16px;
+      font-size: clamp(30px, 4vw, 42px);
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .banner {
+      display: none;
+      padding: 18px 20px;
+      border-radius: 22px;
+      margin-top: 18px;
+      border: 1px solid transparent;
+    }
+
+    .banner.visible { display: block; }
+    .banner.info { background: rgba(31, 111, 95, 0.08); border-color: rgba(31, 111, 95, 0.18); }
+    .banner.warning { background: rgba(191, 106, 47, 0.09); border-color: rgba(191, 106, 47, 0.18); }
+    .banner.error { background: rgba(168, 62, 62, 0.09); border-color: rgba(168, 62, 62, 0.18); }
+
+    .feedback {
+      min-height: 22px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta-list,
+    .message-list,
+    .run-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .meta-row,
+    .message-item,
+    .run-item {
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .meta-row strong,
+    .message-item strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .candidate-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .candidate {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .candidate::before {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--warm));
+    }
+
+    .candidate .model {
+      display: inline-flex;
+      margin-bottom: 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(16, 71, 60, 0.08);
+      color: var(--accent-strong);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .candidate h3 {
+      font-size: 19px;
+      margin-bottom: 16px;
+    }
+
+    .price-row {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .price {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent-strong);
+    }
+
+    .price-sub {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    .candidate p {
+      margin: 0 0 18px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--muted);
+    }
+
+    .status-dot.healthy { background: var(--ok); }
+    .status-dot.degraded { background: var(--danger); }
+    .status-dot.running { background: var(--warm); }
+    .status-dot.paused { background: var(--warm); }
+
+    .run-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .pill.ok { color: var(--ok); }
+    .pill.fail { color: var(--danger); }
+    .pill.run { color: #7d4318; }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 20px;
+    }
+
+    @media (max-width: 980px) {
+      .stats,
+      .two-col,
+      .three-col {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel hero">
+      <div class="hero-top">
+        <div>
+          <span class="eyebrow">Private Ops Console</span>
+          <h1>GPU pipeline kontrol merkezi</h1>
+          <p>
+            Scraper ve analyzer akisini tek yerden izle, son firsatlari gor, GitHub workflow'larini
+            yeniden calistir ve schedule'i duraklat.
+          </p>
+        </div>
+        <div class="hero-meta">
+          <span class="chip"><span class="status-dot" id="healthDot"></span><strong id="healthLabel">Yukleniyor</strong></span>
+          <span class="chip"><strong id="deployAt">Deploy bekleniyor</strong></span>
+          <span class="chip"><strong id="pausedLabel">Pause durumu bilinmiyor</strong></span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <button class="primary" id="rerunScraperBtn">Scraper rerun</button>
+        <button class="secondary" id="rerunAnalyzerBtn">Analyzer rerun</button>
+        <button class="warn" id="pauseBtn">Pause / Resume</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="banner" id="banner"></div>
+    </section>
+
+    <section class="grid stats">
+      <article class="card">
+        <div class="stat-label">Toplam ilan</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </article>
+      <article class="card">
+        <div class="stat-label">Model eslesen</div>
+        <div class="stat-value" id="statModels">0</div>
+      </article>
+      <article class="card">
+        <div class="stat-label">Alinabilir aday</div>
+        <div class="stat-value" id="statCandidates">0</div>
+      </article>
+      <article class="card">
+        <div class="stat-label">Ortalama guven</div>
+        <div class="stat-value" id="statConfidence">%0</div>
+      </article>
+    </section>
+
+    <section class="grid two-col">
+      <article class="card">
+        <h2>Uzman ozet</h2>
+        <p class="muted" id="expertSummary">Henuz analiz ozetine ulasilamadi.</p>
+      </article>
+      <article class="card">
+        <h2>Deploy ve run meta</h2>
+        <div class="meta-list" id="metaList"></div>
+      </article>
+    </section>
+
+    <section class="grid three-col">
+      <article class="card">
+        <h2>Pipeline mesajlari</h2>
+        <div class="message-list" id="pipelineList"></div>
+      </article>
+      <article class="card">
+        <h2>Son workflow kosulari</h2>
+        <div class="run-list" id="runList"></div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>En iyi adaylar</h2>
+        <div class="candidate-grid" id="candidateGrid"></div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      status: null,
+      runs: null,
+      busy: false,
+    };
+
+    const els = {
+      banner: document.getElementById('banner'),
+      feedback: document.getElementById('feedback'),
+      healthDot: document.getElementById('healthDot'),
+      healthLabel: document.getElementById('healthLabel'),
+      deployAt: document.getElementById('deployAt'),
+      pausedLabel: document.getElementById('pausedLabel'),
+      statTotal: document.getElementById('statTotal'),
+      statModels: document.getElementById('statModels'),
+      statCandidates: document.getElementById('statCandidates'),
+      statConfidence: document.getElementById('statConfidence'),
+      expertSummary: document.getElementById('expertSummary'),
+      metaList: document.getElementById('metaList'),
+      pipelineList: document.getElementById('pipelineList'),
+      runList: document.getElementById('runList'),
+      candidateGrid: document.getElementById('candidateGrid'),
+      rerunScraperBtn: document.getElementById('rerunScraperBtn'),
+      rerunAnalyzerBtn: document.getElementById('rerunAnalyzerBtn'),
+      pauseBtn: document.getElementById('pauseBtn'),
+    };
+
+    function formatDate(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '—';
+      return date.toLocaleString('tr-TR', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      });
+    }
+
+    function formatPrice(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '—';
+      return `${number.toLocaleString('tr-TR')} TL`;
+    }
+
+    function formatPercent(value) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '%0';
+      return `%${(number * 100).toFixed(1)}`;
+    }
+
+    function setFeedback(message, tone = 'muted') {
+      els.feedback.textContent = message || '';
+      els.feedback.style.color =
+        tone === 'error' ? '#a83e3e' :
+        tone === 'ok' ? '#2d7a4d' :
+        tone === 'warn' ? '#7d4318' :
+        'var(--muted)';
+    }
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, {
+        headers: { 'content-type': 'application/json' },
+        ...options,
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data?.error || `Istek basarisiz: ${response.status}`);
+      }
+      return data;
+    }
+
+    function renderBanner(status) {
+      const banner = status?.banner;
+      if (!banner) {
+        els.banner.className = 'banner';
+        els.banner.textContent = '';
+        return;
+      }
+
+      els.banner.className = `banner visible ${banner.level || 'info'}`;
+      els.banner.innerHTML = `
+        <strong>${banner.text || 'Durum guncellemesi'}</strong>
+        ${banner.runUrl ? `<div style="margin-top:10px;"><a class="run-link" href="${banner.runUrl}" target="_blank" rel="noreferrer">Logu ac</a></div>` : ''}
+      `;
+    }
+
+    function renderStats(summary) {
+      const candidates = Array.isArray(summary?.topCandidates) ? summary.topCandidates : [];
+      const avgConfidence = candidates.length
+        ? candidates.reduce((acc, item) => acc + (Number(item.confidence) || 0), 0) / candidates.length
+        : 0;
+
+      els.statTotal.textContent = Number(summary?.listingCount || 0).toLocaleString('tr-TR');
+      els.statModels.textContent = Number(summary?.recognizedModelCount || 0).toLocaleString('tr-TR');
+      els.statCandidates.textContent = Number(summary?.candidateCount || 0).toLocaleString('tr-TR');
+      els.statConfidence.textContent = `%${(avgConfidence * 100).toFixed(0)}`;
+    }
+
+    function renderMeta(status) {
+      const summary = status?.summary || {};
+      const runMeta = summary.runMeta || {};
+      const rows = [
+        ['Son deploy', formatDate(runMeta.deployedAt || summary.generatedAt)],
+        ['Scraper run', runMeta.scraperRunUrl ? `<a class="run-link" href="${runMeta.scraperRunUrl}" target="_blank" rel="noreferrer">GitHub run</a>` : '—'],
+        ['Analyzer run', runMeta.analyzerRunUrl ? `<a class="run-link" href="${runMeta.analyzerRunUrl}" target="_blank" rel="noreferrer">GitHub run</a>` : '—'],
+        ['Artifact', runMeta.scraperArtifactName || '—'],
+        ['Scrape durumu', runMeta.scrapeStatus || '—'],
+        ['Proje', status?.deploy?.projectName || runMeta.deployProjectName || '—'],
+      ];
+
+      els.metaList.innerHTML = rows
+        .map(([label, value]) => `<div class="meta-row"><strong>${label}</strong><div class="muted mono">${value}</div></div>`)
+        .join('');
+    }
+
+    function renderMessages(summary) {
+      const messages = Array.isArray(summary?.pipelineMessages) ? summary.pipelineMessages : [];
+      if (!messages.length) {
+        els.pipelineList.innerHTML = '<div class="empty">Henuz pipeline mesaji yok.</div>';
+        return;
+      }
+
+      els.pipelineList.innerHTML = messages
+        .map((message) => `
+          <div class="message-item">
+            <strong>${message.service || 'service'} · ${message.status || 'UNKNOWN'}</strong>
+            <div>${message.message || ''}</div>
+            <div class="muted mono" style="margin-top:8px;">${formatDate(message.timestamp)}</div>
+          </div>
+        `)
+        .join('');
+    }
+
+    function runTone(run) {
+      if (!run) return 'run';
+      if (run.conclusion === 'success') return 'ok';
+      if (run.conclusion === 'failure' || run.conclusion === 'cancelled' || run.conclusion === 'timed_out') return 'fail';
+      return 'run';
+    }
+
+    function renderRuns(runsData) {
+      const runs = [
+        ...(runsData?.scraper || []).slice(0, 4).map((run) => ({ ...run, kind: 'Scraper' })),
+        ...(runsData?.analyzer || []).slice(0, 4).map((run) => ({ ...run, kind: 'Analyzer' })),
+      ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      if (!runs.length) {
+        els.runList.innerHTML = '<div class="empty">Run bilgisi bulunamadi.</div>';
+        return;
+      }
+
+      els.runList.innerHTML = runs
+        .map((run) => `
+          <div class="run-item">
+            <div class="run-top">
+              <div>
+                <strong>${run.kind}</strong>
+                <div class="muted mono">${run.displayTitle || run.name || 'Workflow run'}</div>
+              </div>
+              <span class="pill ${runTone(run)}">${run.status || 'unknown'} / ${run.conclusion || 'pending'}</span>
+            </div>
+            <div class="muted mono">Event: ${run.event || '—'} · Branch: ${run.branch || '—'}</div>
+            <div class="muted mono" style="margin-top:8px;">Baslangic: ${formatDate(run.createdAt)}</div>
+            <div style="margin-top:12px;">
+              <a class="run-link" href="${run.htmlUrl}" target="_blank" rel="noreferrer">GitHub logu</a>
+            </div>
+          </div>
+        `)
+        .join('');
+    }
+
+    function renderCandidates(summary) {
+      const candidates = Array.isArray(summary?.topCandidates) ? summary.topCandidates : [];
+      if (!candidates.length) {
+        els.candidateGrid.innerHTML = '<div class="empty">Henuz yayinlanmis uygun aday yok.</div>';
+        return;
+      }
+
+      els.candidateGrid.innerHTML = candidates
+        .map((item) => `
+          <article class="card candidate">
+            <span class="model">${item.modelKey || 'GPU'}</span>
+            <h3>${item.title || 'Isimsiz ilan'}</h3>
+            <div class="price-row">
+              <span class="price">${formatPrice(item.price)}</span>
+              <span class="price-sub">${formatPrice(item.fairPrice)}</span>
+            </div>
+            <p>${item.analysisNote || 'Ek not yok.'}</p>
+            <div class="actions-row">
+              <span class="pill">${formatPercent(item.discountRatio)} indirim · %${Math.round((Number(item.confidence) || 0) * 100)} guven</span>
+              ${item.url ? `<a class="run-link" href="${item.url}" target="_blank" rel="noreferrer">Ilani ac</a>` : ''}
+            </div>
+          </article>
+        `)
+        .join('');
+    }
+
+    function renderStatus(status) {
+      const summary = status?.summary || {};
+      const health = status?.pipelineHealth || 'unknown';
+      const paused = status?.paused === true;
+
+      els.healthDot.className = `status-dot ${health}`;
+      els.healthLabel.textContent = `Saglik: ${health}`;
+      els.deployAt.textContent = `Son deploy: ${formatDate(status?.deploy?.deployedAt || summary?.generatedAt)}`;
+      els.pausedLabel.textContent = paused ? 'Schedule: paused' : 'Schedule: aktif';
+      els.pauseBtn.textContent = paused ? 'Schedule ac' : 'Schedule pause';
+
+      renderBanner(status);
+      renderStats(summary);
+      renderMeta(status);
+      renderMessages(summary);
+      renderCandidates(summary);
+      els.expertSummary.textContent = summary?.expertSummary || 'Henuz uzman ozeti uretilmedi.';
+    }
+
+    async function refreshDashboard() {
+      setFeedback('Panel verileri yenileniyor...');
+      const [status, runs] = await Promise.all([
+        fetchJson('/api/status'),
+        fetchJson('/api/runs'),
+      ]);
+
+      state.status = status;
+      state.runs = runs;
+      renderStatus(status);
+      renderRuns(runs);
+      setFeedback(`Son yenileme: ${new Date().toLocaleTimeString('tr-TR')}`, 'ok');
+    }
+
+    async function runAction(action, buildRequest) {
+      if (state.busy) return;
+      state.busy = true;
+      els.rerunScraperBtn.disabled = true;
+      els.rerunAnalyzerBtn.disabled = true;
+      els.pauseBtn.disabled = true;
+
+      try {
+        setFeedback(`${action} gonderiliyor...`);
+        await fetchJson(...buildRequest());
+        setFeedback(`${action} kabul edildi. GitHub tarafinda yeni durum biraz sonra gorunecek.`, 'ok');
+        await refreshDashboard();
+      } catch (error) {
+        setFeedback(error.message || `${action} basarisiz oldu.`, 'error');
+      } finally {
+        state.busy = false;
+        els.rerunScraperBtn.disabled = false;
+        els.rerunAnalyzerBtn.disabled = false;
+        els.pauseBtn.disabled = false;
+      }
+    }
+
+    els.rerunScraperBtn.addEventListener('click', () => {
+      runAction('Scraper rerun', () => [
+        '/api/workflows/scraper/run',
+        {
+          method: 'POST',
+          body: JSON.stringify({ bypass_ai: true }),
+        },
+      ]);
+    });
+
+    els.rerunAnalyzerBtn.addEventListener('click', () => {
+      runAction('Analyzer rerun', () => [
+        '/api/workflows/analyzer/run',
+        {
+          method: 'POST',
+          body: JSON.stringify({}),
+        },
+      ]);
+    });
+
+    els.pauseBtn.addEventListener('click', () => {
+      const paused = state.status?.paused === true;
+      runAction(paused ? 'Schedule ac' : 'Schedule pause', () => [
+        '/api/pipeline/pause',
+        {
+          method: 'POST',
+          body: JSON.stringify({ paused: !paused }),
+        },
+      ]);
+    });
+
+    refreshDashboard().catch((error) => {
+      setFeedback(error.message || 'Panel yuklenemedi.', 'error');
+      renderBanner({
+        banner: {
+          level: 'error',
+          text: error.message || 'Panel verisi yuklenemedi.',
+        },
+      });
+    });
+  </script>
+</body>
+</html>

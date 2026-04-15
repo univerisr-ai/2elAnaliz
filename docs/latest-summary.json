@@ -1,0 +1,37 @@
+{
+  "analysisCompleted": false,
+  "generatedAt": null,
+  "listingCount": 0,
+  "recognizedModelCount": 0,
+  "candidateCount": 0,
+  "topCandidates": [],
+  "expertSummary": "",
+  "pipelineMessages": [
+    {
+      "service": "dashboard",
+      "status": "BEKLENIYOR",
+      "message": "Ilk analyzer kosusu bekleniyor.",
+      "timestamp": null
+    }
+  ],
+  "runMeta": {
+    "inputFile": null,
+    "sourceRepository": null,
+    "scraperRunId": null,
+    "scraperRunUrl": null,
+    "scraperArtifactName": null,
+    "scrapeStatus": null,
+    "listingCountFromScraper": 0,
+    "startedAt": null,
+    "finishedAt": null,
+    "pipelineMessage": "",
+    "isFallback": false,
+    "analyzerRepository": null,
+    "analyzerRunId": null,
+    "analyzerRunUrl": null,
+    "deployedAt": null,
+    "deployTarget": "vercel",
+    "deployProjectName": null,
+    "dashboardVersion": "v1"
+  }
+}

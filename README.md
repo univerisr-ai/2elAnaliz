@@ -1,112 +1,104 @@
 # 2elAnaliz
 
-Telegram'a gelen `output.json` dosyasini analiz eder, ikinci el ekran karti ilanlarini piyasa referansi ile karsilastirir ve alinabilir adaylari siralar.
+Vercel uzerinde calisan ozel GPU kontrol paneli. `yenitest` reposundaki scraper artifact'ini alir, ham veriyi sanitize eder, `latest-summary.json` uretir ve paneli Vercel deployment URL'si uzerinden yayinlar.
 
-## Ne yapar?
+## Mimari
 
-- Telegram'dan gelen JSON dokumanini indirir.
-- Ilanlardan model + fiyat bilgisini normalize eder.
-- Model bazli referans fiyat olusturur:
-  - Web arama fiyat sinyalleri (DuckDuckGo)
-  - Opsiyonel AI referansi (OpenRouter, ucretsiz model zinciri)
-  - Gelen ilandaki lokal median fiyat
-- Tek bir sabit fiyat yerine dinamik indirim esitigi kullanir.
-- Sonucu Telegram'a mesaj + rapor dosyasi olarak geri yollar.
+1. `yenitest` scraper workflow'u `output.json` ve `pipeline-messages.json` artifact'ini uretir.
+2. Scraper, `repository_dispatch` ile bu repo workflow'unu tetikler.
+3. Bu repo artifact'i indirir, analizi calistirir ve sadece guvenli alanlari iceren `docs/latest-summary.json` dosyasini uretir.
+4. `api/*` altindaki Vercel Function route'lari GitHub API uzerinden run durumu, rerun ve pause islemlerini sunar.
+5. Dashboard, Vercel Authentication ile korunmus deployment URL'sinden acilir.
 
-## Kurulum
+## Yayinlanan veri
+
+Panel sadece su alanlari yayinlar:
+
+- `analysisCompleted`
+- `generatedAt`
+- `listingCount`
+- `recognizedModelCount`
+- `candidateCount`
+- `topCandidates[]`
+- `expertSummary`
+- `pipelineMessages[]`
+- `runMeta`
+
+Ham `output.json`, Telegram `file_id/chat_id`, cookie/proxy detaylari ve tam listing dump deploy paketine girmez.
+
+## Lokal calistirma
 
 ```bash
 npm ci
 cp .env.example .env
+node src/local-index.mjs ./data/inbox/output.json
 ```
 
-`.env` icine en az sunlari gir:
+Bu komut `docs/latest-summary.json` dosyasini gunceller.
+
+Vercel dev ortami acmak icin:
+
+```bash
+npm run vercel:dev
+```
+
+## Vercel env / GitHub ayarlari
+
+Vercel proje env'leri:
 
 ```env
-TELEGRAM_BOT_TOKEN_1=...
-TELEGRAM_ALLOWED_CHAT_IDS=-5083436032
-TELEGRAM_FORCE_CHAT_ID=-5083436032
-MIN_DISCOUNT_RATIO=0.10
-MAX_RESULTS=40
+GITHUB_FINE_GRAINED_TOKEN=
+VERCEL_PROJECT_NAME=
+SCRAPER_REPO_OWNER=univerisr-ai
+SCRAPER_REPO_NAME=yenitest
+SCRAPER_WORKFLOW_ID=scraper.yml
+SCRAPER_REPO_REF=main
+ANALYZER_REPO_OWNER=univerisr-ai
+ANALYZER_REPO_NAME=2elAnaliz
+ANALYZER_WORKFLOW_ID=analyze-telegram-gpu.yml
+ANALYZER_REPO_REF=main
+PIPELINE_PAUSED_VARIABLE=PIPELINE_PAUSED
 ```
 
-Not: `TELEGRAM_FORCE_CHAT_ID` verilirse bot cevaplari her zaman bu chat ID'ye yollar (gruba sabitlemek icin ideal).
+Gerekli GitHub token izinleri:
 
-AI destekli fiyat referansi istersen:
+- scraper repo icin `Actions: read/write`, `Variables: read/write`
+- analyzer repo icin `Actions: read/write`
+- `Contents: read`
 
-```env
-AI_PROVIDER=openrouter
-OPENROUTER_API_KEY=...
-OPENROUTER_MODELS=qwen/qwen3-coder:free,nvidia/nemotron-3-super-120b-a12b:free,openai/gpt-oss-120b:free,meta-llama/llama-3.3-70b-instruct:free
-MAX_AI_FALLBACK_MODELS=3
-MAX_AI_MODEL_LOOKUPS=8
-MAX_WEB_MODEL_LOOKUPS=14
-```
+## Bu repo icin GitHub secrets / vars
 
-Not: `OPENROUTER_MODELS` bos birakilirsa kod zaten ayni ucretsiz varsayilan zinciri kullanir.
+Secrets:
 
-## Calistirma
+- `PAT_TOKEN` (yenitest artifact indirme izni)
+- `OPENROUTER_API_KEY` (opsiyonel)
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+- `TELEGRAM_BOT_TOKEN_1` veya `TELEGRAM_BOT_TOKEN_2` (deploy/failure bildirimi)
 
-Telegram polling modu:
+Variables:
 
-```bash
-npm start
-```
-
-Tek bir dosyayi lokal analiz etme modu:
-
-```bash
-node src/index.mjs --file path/to/output.json
-```
-
-Lokal smoke test (onerilen ilk dogrulama):
-
-```bash
-node src/index.mjs --file "c:/Users/Demir Alp/Downloads/Telegram Desktop/output.json"
-```
-
-Basarili calismada terminalde ozet gorulur ve `data/outbox` altinda rapor dosyasi olusur.
-
-## GitHub Actions
-
-Workflow dosyasi: `.github/workflows/analyze-telegram-gpu.yml`
-
-Workflow artik `repository_dispatch` (`telegram_file_ready`) eventini de dinler. Bu sayede baska bir bot, Telegram'a dosya gonderdikten sonra `file_id` bilgisi ile analyzer'i dogrudan tetikleyebilir.
-
-Gerekli GitHub Secrets:
-
-- `TELEGRAM_BOT_TOKEN_1`
-- `TELEGRAM_BOT_TOKEN_2` (opsiyonel)
-- `TELEGRAM_ALLOWED_CHAT_IDS`
-- `OPENROUTER_API_KEY` (AI aciksa)
-
-Relay event payload alanlari (repository_dispatch) su sekilde kullanilir:
-
-- `file_id`
-- `file_name`
-- `chat_id`
-- `token_hint` (opsiyonel, gonderen bot token'inin son 8 karakteri)
-
-Bu alanlar geldiginde analyzer, Telegram update beklemeden `file_id` uzerinden dosyayi indirip analiz eder.
-
-Opsiyonel GitHub Variables:
-
-- `MIN_DISCOUNT_RATIO`
-- `MAX_RESULTS`
+- `VERCEL_PROJECT_NAME`
 - `AI_PROVIDER`
 - `OPENROUTER_MODELS`
 - `MAX_AI_FALLBACK_MODELS`
 - `MAX_AI_MODEL_LOOKUPS`
 - `MAX_WEB_MODEL_LOOKUPS`
+- `MIN_DISCOUNT_RATIO`
+- `MAX_RESULTS`
 - `TELEGRAM_FORCE_CHAT_ID`
 
-## Yeni repo push (senin verdigin remote)
+## Vercel koruma notu
 
-```bash
-git init
-git add .
-git commit -m "init 2elAnaliz analyzer"
-git branch -M main
-git remote add origin https://github.com/univerisr-ai/2elAnaliz.git
-git push -u origin main
-```
+Vercel Authentication resmi dokumana gore tum planlarda var. En kolay guvenli kullanim, paneli Vercel deployment URL'si uzerinden acmak. Bu repo workflow'u deploy bittiginde URL'yi job summary ve Telegram mesajina yazar.
+
+## Panel API yuzeyi
+
+- `GET /api/status`
+- `GET /api/runs`
+- `POST /api/workflows/scraper/run`
+- `POST /api/workflows/analyzer/run`
+- `POST /api/pipeline/pause`
+
+Mutation endpoint'leri Vercel korumali deployment'in arkasinda calisir; ayrica GitHub tarafinda sadece senin token'larin kullanilir.

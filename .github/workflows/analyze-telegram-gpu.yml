@@ -1,23 +1,17 @@
-name: Telegram GPU JSON Analyzer
+name: Vercel Dashboard Analyzer
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
-  workflow_dispatch:
   repository_dispatch:
     types: [telegram_file_ready]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: telegram-gpu-analyzer
-  cancel-in-progress: false
-
 jobs:
-  analyze:
+  analyze-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout
@@ -32,33 +26,195 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run analyzer
+      - name: Download scraper artifact
+        if: github.event.client_payload.github_run_id != ''
         env:
-          TELEGRAM_BOT_TOKEN_1: ${{ secrets.TELEGRAM_BOT_TOKEN_1 }}
-          TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
-          TELEGRAM_ALLOWED_CHAT_IDS: ${{ secrets.TELEGRAM_ALLOWED_CHAT_IDS }}
-          TELEGRAM_FORCE_CHAT_ID: ${{ vars.TELEGRAM_FORCE_CHAT_ID }}
-          TELEGRAM_SOURCE_FILE_ID: ${{ github.event.client_payload.file_id }}
-          TELEGRAM_SOURCE_FILE_NAME: ${{ github.event.client_payload.file_name }}
-          TELEGRAM_SOURCE_CHAT_ID: ${{ github.event.client_payload.chat_id }}
-          TELEGRAM_SOURCE_TOKEN_HINT: ${{ github.event.client_payload.token_hint }}
-          TELEGRAM_POLL_LIMIT: ${{ vars.TELEGRAM_POLL_LIMIT }}
-          MIN_DISCOUNT_RATIO: ${{ vars.MIN_DISCOUNT_RATIO }}
-          MAX_RESULTS: ${{ vars.MAX_RESULTS }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p ./data/inbox
+
+          gh run download "${{ github.event.client_payload.github_run_id }}" \
+            --repo "${{ github.event.client_payload.source_repository || 'univerisr-ai/yenitest' }}" \
+            --name "${{ github.event.client_payload.artifact_name || format('scraper-results-{0}', github.event.client_payload.github_run_id) }}" \
+            --dir ./data/inbox || echo "Artifact indirilemedi, fallback inbox dosyalari kullanilacak."
+
+      - name: Prepare fallback inbox files
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ./data/inbox
+
+          if [ ! -f ./data/inbox/output.json ]; then
+            cat > ./data/inbox/output.json <<'JSON'
+          {
+            "timestamp": null,
+            "totalRaw": 0,
+            "totalClean": 0,
+            "topDeals": [],
+            "allListings": [],
+            "runMeta": {}
+          }
+          JSON
+          fi
+
+          if [ ! -f ./data/inbox/pipeline-messages.json ]; then
+            cat > ./data/inbox/pipeline-messages.json <<'JSON'
+          [
+            {
+              "service": "scraper",
+              "status": "ANALIZ_EDILMEDI",
+              "message": "Scraper veriyi hazirladi; analyzer bu dosyayi dashboard icin isleyecek.",
+              "timestamp": "1970-01-01T00:00:00.000Z"
+            }
+          ]
+          JSON
+          fi
+
+      - name: Build sanitized dashboard package
+        shell: bash
+        env:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           OPENROUTER_MODELS: ${{ vars.OPENROUTER_MODELS }}
           MAX_AI_FALLBACK_MODELS: ${{ vars.MAX_AI_FALLBACK_MODELS }}
           MAX_AI_MODEL_LOOKUPS: ${{ vars.MAX_AI_MODEL_LOOKUPS }}
           MAX_WEB_MODEL_LOOKUPS: ${{ vars.MAX_WEB_MODEL_LOOKUPS }}
-        run: node src/index.mjs
+          MIN_DISCOUNT_RATIO: ${{ vars.MIN_DISCOUNT_RATIO }}
+          MAX_RESULTS: ${{ vars.MAX_RESULTS }}
+          DEPLOY_TARGET: vercel
+          VERCEL_PROJECT_NAME: ${{ vars.VERCEL_PROJECT_NAME }}
+          SCRAPER_SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository }}
+          SCRAPER_RUN_URL: ${{ github.event.client_payload.source_run_url }}
+          SCRAPER_GITHUB_RUN_ID: ${{ github.event.client_payload.github_run_id }}
+          SCRAPER_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name }}
+          SCRAPER_STATUS: ${{ github.event.client_payload.scrape_status }}
+          SCRAPER_LISTING_COUNT: ${{ github.event.client_payload.listing_count }}
+          SCRAPER_STARTED_AT: ${{ github.event.client_payload.started_at }}
+          SCRAPER_FINISHED_AT: ${{ github.event.client_payload.finished_at }}
+          SCRAPER_PIPELINE_MESSAGE: ${{ github.event.client_payload.pipeline_message }}
+          SCRAPER_IS_FALLBACK: ${{ github.event.client_payload.is_fallback }}
+        run: |
+          set -o pipefail
+          node src/local-index.mjs ./data/inbox/output.json 2>&1 | tee analyzer.log
 
-      - name: Upload analysis artifacts
-        if: always()
+      - name: Upload sanitized summary artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: gpu-analysis-artifacts
+          name: dashboard-summary-${{ github.run_id }}
           path: |
-            data/outbox/
-          if-no-files-found: ignore
-          retention-days: 14
+            docs/latest-summary.json
+          retention-days: 7
+
+      - name: Deploy dashboard to Vercel
+        if: success()
+        id: vercel_deploy
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${VERCEL_TOKEN:-}" ] || [ -z "${VERCEL_ORG_ID:-}" ] || [ -z "${VERCEL_PROJECT_ID:-}" ]; then
+            echo "Vercel deployment skipped: token/org/project id missing." >&2
+            exit 1
+          fi
+
+          npm install --global vercel@latest
+          vercel pull --yes --environment=preview --token="$VERCEL_TOKEN"
+          DEPLOY_URL="$(vercel deploy --token="$VERCEL_TOKEN" --yes)"
+
+          echo "dashboard_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$DEPLOY_URL" > dashboard-url.txt
+
+      - name: Upload dashboard url artifact
+        if: success() && steps.vercel_deploy.outputs.dashboard_url != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: dashboard-url-${{ github.run_id }}
+          path: |
+            dashboard-url.txt
+          retention-days: 7
+
+      - name: Job summary
+        if: success() && steps.vercel_deploy.outputs.dashboard_url != ''
+        shell: bash
+        run: |
+          {
+            echo "## Vercel Dashboard"
+            echo
+            echo "- URL: ${{ steps.vercel_deploy.outputs.dashboard_url }}"
+            echo "- GitHub Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Telegram success message
+        if: success() && steps.vercel_deploy.outputs.dashboard_url != ''
+        shell: bash
+        env:
+          TELEGRAM_BOT_TOKEN_1: ${{ secrets.TELEGRAM_BOT_TOKEN_1 }}
+          TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
+          TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_FORCE_CHAT_ID }}
+          DASHBOARD_URL: ${{ steps.vercel_deploy.outputs.dashboard_url }}
+        run: |
+          set +e
+
+          TOKEN="${TELEGRAM_BOT_TOKEN_1:-${TELEGRAM_BOT_TOKEN_2:-}}"
+          CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+
+          if [ -z "$TOKEN" ] || [ -z "$CHAT_ID" ] || [ -z "$DASHBOARD_URL" ]; then
+            echo "Telegram success message skipped."
+            exit 0
+          fi
+
+          message="GPU dashboard hazir
+          URL: $DASHBOARD_URL
+          GitHub Run: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+          curl -fsS -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$CHAT_ID" \
+            --data-urlencode "text=$message" >/dev/null || true
+
+      - name: Telegram failure alert
+        if: failure()
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TELEGRAM_BOT_TOKEN_1: ${{ secrets.TELEGRAM_BOT_TOKEN_1 }}
+          TELEGRAM_BOT_TOKEN_2: ${{ secrets.TELEGRAM_BOT_TOKEN_2 }}
+          TELEGRAM_CHAT_ID: ${{ vars.TELEGRAM_FORCE_CHAT_ID }}
+        run: |
+          set +e
+
+          TOKEN="${TELEGRAM_BOT_TOKEN_1:-${TELEGRAM_BOT_TOKEN_2:-}}"
+          CHAT_ID="${TELEGRAM_CHAT_ID:-}"
+
+          if [ -z "$TOKEN" ] || [ -z "$CHAT_ID" ]; then
+            echo "Telegram alert skipped: token/chat id missing."
+            exit 0
+          fi
+
+          gh run view "$GITHUB_RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed > failed.log 2>/dev/null || true
+
+          summary="$(grep -m 1 -E 'Error:|ERR!|Traceback|Exception|FATAL|KRITIK|CRITICAL|❌' failed.log || true)"
+          if [ -z "$summary" ] && [ -f analyzer.log ]; then
+            summary="$(grep -m 1 -E 'Error:|ERR!|Traceback|Exception|FATAL|KRITIK|CRITICAL|❌' analyzer.log || true)"
+          fi
+          if [ -z "$summary" ]; then
+            summary="Ilk hata ozeti otomatik cikarilamadi; run logunu kontrol et."
+          fi
+
+          summary="${summary//$'\r'/ }"
+          summary="${summary//$'\n'/ }"
+
+          message="GPU analyzer alarmi
+          Repo: $GITHUB_REPOSITORY
+          Workflow: $GITHUB_WORKFLOW
+          Run URL: https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+          Ozet: ${summary:0:700}"
+
+          curl -fsS -X POST "https://api.telegram.org/bot$TOKEN/sendMessage" \
+            --data-urlencode "chat_id=$CHAT_ID" \
+            --data-urlencode "text=$message" >/dev/null || true

@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.mjs",
-    "analyze:file": "node src/index.mjs --file"
+    "analyze:file": "node src/index.mjs --file",
+    "dashboard:build": "node src/local-index.mjs ./data/inbox/output.json",
+    "vercel:dev": "npx vercel dev"
   },
   "dependencies": {
     "axios": "^1.9.0",
