@@ -29,7 +29,7 @@ jobs:
       - name: Download scraper artifact
         if: github.event.client_payload.github_run_id != ''
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -euo pipefail
           mkdir -p ./data/inbox
