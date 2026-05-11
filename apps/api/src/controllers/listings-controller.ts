@@ -82,6 +82,12 @@ interface PublicWatchlistItem {
   readonly listing: PublicCatalogListing | null;
 }
 
+const CATALOG_DEFAULT_PER_PAGE = 120;
+const CATALOG_MAX_PER_PAGE = 1000;
+const MODEL_DEFAULT_PER_PAGE = 1000;
+const MODEL_MAX_PER_PAGE = 1000;
+const PUBLIC_LIST_CACHE_HEADER = "public, max-age=60, s-maxage=300, stale-while-revalidate=1800";
+
 const PUBLIC_TEXT_REDACTIONS: ReadonlyArray<readonly [RegExp, string]> = [
   [/https?:\/\/[^\s)]+/gi, ""],
   [/\bgithub\b/gi, "iş akışı"],
@@ -99,6 +105,19 @@ function scrubPublicText(value: string): string {
 
 function scrubNullablePublicText(value: string | null): string | null {
   return value == null ? null : scrubPublicText(value);
+}
+
+function setPublicListCache(res: Response): void {
+  res.setHeader("Cache-Control", PUBLIC_LIST_CACHE_HEADER);
+}
+
+function parseBoundedPositiveInteger(value: unknown, fallback: number, max: number): number {
+  const parsed = parseInt(String(value ?? fallback), 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+
+  return Math.min(max, parsed);
 }
 
 function buildPublicImagePath(listingId: string, imageUrl: string | null | undefined): string | null {
@@ -449,14 +468,13 @@ listingsRouter.get("/listings", async (req: Request, res: Response): Promise<voi
     }
 
     if (typeof limit === "string") {
-      const lim = parseInt(limit, 10);
-      if (!isNaN(lim) && lim > 0) {
-        listings = listings.slice(0, lim);
-      }
+      const lim = parseBoundedPositiveInteger(limit, CATALOG_DEFAULT_PER_PAGE, CATALOG_MAX_PER_PAGE);
+      listings = listings.slice(0, lim);
     }
 
     const publicListings = listings.map(sanitizeDashboardListing);
 
+    setPublicListCache(res);
     res.json({
       success: true,
       data: publicListings,
@@ -981,13 +999,14 @@ listingsRouter.get("/catalog", async (req: Request, res: Response): Promise<void
         break;
     }
 
-    const resolvedPage = Math.max(1, parseInt(String(page || "1"), 10) || 1);
-    const resolvedPerPage = Math.max(1, Math.min(5000, parseInt(String(perPage || "120"), 10) || 120));
+    const resolvedPage = parseBoundedPositiveInteger(page, 1, 100000);
+    const resolvedPerPage = parseBoundedPositiveInteger(perPage, CATALOG_DEFAULT_PER_PAGE, CATALOG_MAX_PER_PAGE);
     const total = listings.length;
     const totalPages = Math.max(1, Math.ceil(total / resolvedPerPage));
     const pagedListings = listings.slice((resolvedPage - 1) * resolvedPerPage, resolvedPage * resolvedPerPage);
     const publicListings = pagedListings.map((listing) => sanitizeCatalogListing(listing, context));
 
+    setPublicListCache(res);
     res.json({
       success: true,
       data: publicListings,
@@ -1024,6 +1043,7 @@ listingsRouter.get("/models", async (req: Request, res: Response): Promise<void>
       models = models.filter((model) => `${model.label} ${model.family} ${model.brand}`.toLocaleLowerCase("tr-TR").includes(search));
     }
 
+    setPublicListCache(res);
     res.json({
       success: true,
       data: models.slice(0, limit),
@@ -1087,12 +1107,13 @@ listingsRouter.get("/models/:slug", async (req: Request, res: Response): Promise
         break;
     }
 
-    const page = Math.max(1, parseInt(String(req.query.page || "1"), 10) || 1);
-    const perPage = Math.max(1, Math.min(5000, parseInt(String(req.query.perPage || "5000"), 10) || 5000));
+    const page = parseBoundedPositiveInteger(req.query.page, 1, 100000);
+    const perPage = parseBoundedPositiveInteger(req.query.perPage, MODEL_DEFAULT_PER_PAGE, MODEL_MAX_PER_PAGE);
     const total = sortedListings.length;
     const totalPages = Math.max(1, Math.ceil(total / perPage));
     const pagedListings = sortedListings.slice((page - 1) * perPage, page * perPage);
 
+    setPublicListCache(res);
     res.json({
       success: true,
       data: {
@@ -1130,6 +1151,7 @@ listingsRouter.get("/summary", async (_req: Request, res: Response): Promise<voi
     const summary = await getDashboardSummary();
     const lastUpdated = await getDashboardLastUpdated();
 
+    setPublicListCache(res);
     res.json({
       success: true,
       data: sanitizeDashboardSummary(summary),
@@ -1163,6 +1185,7 @@ listingsRouter.get("/dashboard", async (_req: Request, res: Response): Promise<v
 
     const publicListings = listings.map(sanitizeDashboardListing);
 
+    setPublicListCache(res);
     res.json({
       success: true,
       data: {
@@ -1250,6 +1273,7 @@ listingsRouter.get("/published-listings/:id", async (req: Request, res: Response
 listingsRouter.get("/sync-logs", async (_req: Request, res: Response): Promise<void> => {
   try {
     const logs = await getDashboardRefreshLogs();
+    setPublicListCache(res);
     res.json({
       success: true,
       data: logs.map((log) => ({

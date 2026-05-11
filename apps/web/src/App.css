@@ -1503,6 +1503,23 @@
     width: min(100% - 20px, 1400px);
   }
 
+  .catalog-marketplace {
+    display: flex;
+    width: min(100% - 20px, 1400px);
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .catalog-marketplace__content {
+    order: 1;
+  }
+
+  .catalog-marketplace__sidebar {
+    order: 2;
+    position: static;
+    gap: 12px;
+  }
+
   .home-hero {
     width: min(100% - 20px, 1400px);
     max-width: calc(100vw - 20px);
@@ -1511,12 +1528,15 @@
 
   .home-hero__signals,
   .home-hero__meta-grid,
-  .catalog-page__status-cards,
   .dashboard__preview-strip,
   .listing-grid__standby-grid,
-  .about-panel__grid,
-  .catalog-model-summary dl {
+  .about-panel__grid {
     grid-template-columns: 1fr;
+  }
+
+  .catalog-page__status-cards,
+  .catalog-model-summary dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .home-hero__copy,
@@ -1563,6 +1583,96 @@
 
   .catalog-loader__device {
     min-height: 124px;
+  }
+
+  .catalog-page__intro {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .catalog-page__intro h2 {
+    font-size: clamp(2rem, 9vw, 2.35rem);
+    line-height: 1.06;
+  }
+
+  .catalog-page__intro p {
+    font-size: 0.84rem;
+  }
+
+  .catalog-page__status-card {
+    min-height: 66px;
+    padding: 11px;
+  }
+
+  .catalog-page__status-card span {
+    font-size: 0.58rem;
+  }
+
+  .catalog-page__status-card strong {
+    font-size: 1rem;
+  }
+
+  .catalog-spotlight {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .catalog-spotlight__item {
+    min-height: 72px;
+    padding: 12px;
+  }
+
+  .catalog-spotlight__item strong {
+    font-size: 0.82rem;
+    white-space: normal;
+  }
+
+  .catalog-model-summary {
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 14px;
+  }
+
+  .catalog-model-summary h3 {
+    font-size: 1rem;
+  }
+
+  .catalog-model-summary p {
+    font-size: 0.78rem;
+  }
+
+  .catalog-watch {
+    margin-bottom: 14px;
+    padding: 12px;
+  }
+
+  .catalog-categories {
+    gap: 14px;
+    padding: 14px;
+  }
+
+  .catalog-categories__group {
+    gap: 10px;
+    padding-bottom: 14px;
+  }
+
+  .catalog-categories__rail {
+    max-height: 248px;
+  }
+
+  .catalog-categories__item {
+    min-height: 38px;
+    padding: 0 12px;
+  }
+
+  .catalog-categories__item span,
+  .catalog-categories__item strong {
+    font-size: 0.7rem;
+  }
+
+  .catalog-marketplace__trust {
+    display: none;
   }
 
   .dashboard__messages li,

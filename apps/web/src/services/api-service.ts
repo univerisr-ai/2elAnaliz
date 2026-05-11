@@ -177,7 +177,7 @@ export async function fetchDashboard(): Promise<DashboardData> {
   };
 }
 
-export async function fetchCatalog(filters: CatalogFilterState, page = 1, perPage = 5000): Promise<CatalogData> {
+export async function fetchCatalog(filters: CatalogFilterState, page = 1, perPage = 1000): Promise<CatalogData> {
   const params = new URLSearchParams();
 
   if (filters.search.trim()) params.set("search", filters.search.trim());

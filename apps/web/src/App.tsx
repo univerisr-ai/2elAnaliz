@@ -82,7 +82,7 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   sortBy: CATALOG_SORT_OPTIONS.LATEST,
 };
 
-const CATALOG_FETCH_LIMIT = 5000;
+const CATALOG_FETCH_LIMIT = 1000;
 const CATALOG_BATCH_SIZE = 120;
 const CATALOG_ENTRY_LOADING_MS = 4000;
 const SITE_URL = (import.meta.env.VITE_SITE_URL?.trim() || "https://gpupusula.shop").replace(/\/+$/g, "");
