@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.mjs",
+    "build": "npm --prefix apps/web install && npm --prefix apps/web run build && node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.cpSync('apps/web/dist','dist',{recursive:true});\"",
     "analyze:file": "node src/index.mjs --file",
     "dashboard:build": "node src/local-index.mjs ./data/inbox/output.json",
     "vercel:dev": "npx vercel dev"
