@@ -7,14 +7,5 @@
       "includeFiles": "apps/api/dist/data/**",
       "maxDuration": 30
     }
-  },
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ]
+  }
 }
