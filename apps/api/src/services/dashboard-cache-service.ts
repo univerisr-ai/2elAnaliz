@@ -1,5 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import catalogSeed from "../data/catalog-cache.json";
+import refreshLogSeed from "../data/dashboard-refresh-log.json";
+import snapshotSeed from "../data/dashboard-summary-cache.json";
 import type {
   DashboardBrand,
   CatalogListing,
@@ -21,6 +24,11 @@ const WRITE_DATA_DIR = DATA_DIRS[0] ?? path.resolve(process.cwd(), "data");
 const SNAPSHOT_FILE = "dashboard-summary-cache.json";
 const REFRESH_LOG_FILE = "dashboard-refresh-log.json";
 const CATALOG_FILE = "catalog-cache.json";
+const EMBEDDED_JSON: Record<string, unknown> = {
+  [SNAPSHOT_FILE]: snapshotSeed,
+  [REFRESH_LOG_FILE]: refreshLogSeed,
+  [CATALOG_FILE]: catalogSeed,
+};
 
 async function ensureDataDir(): Promise<void> {
   await fs.mkdir(WRITE_DATA_DIR, { recursive: true });
@@ -34,6 +42,10 @@ async function readJsonFile<T>(fileName: string, fallback: T): Promise<T> {
     } catch {
       // Try the next packaged data location.
     }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(EMBEDDED_JSON, fileName)) {
+    return JSON.parse(JSON.stringify(EMBEDDED_JSON[fileName])) as T;
   }
 
   return fallback;
