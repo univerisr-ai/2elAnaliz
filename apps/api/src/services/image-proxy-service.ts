@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { ENV } from "../config/env.js";
 import {
@@ -9,7 +10,9 @@ import {
   validatePublicHttpUrl,
 } from "./network-security-service.js";
 
-const CACHE_DIR = path.resolve(process.cwd(), ".cache", "image-proxy");
+const CACHE_DIR = process.env.VERCEL
+  ? path.join(os.tmpdir(), "gpupusula-image-proxy")
+  : path.resolve(process.cwd(), ".cache", "image-proxy");
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24;
 const MAX_IMAGE_BYTES = ENV.MAX_UPLOAD_IMAGE_MB * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
@@ -197,7 +200,12 @@ export async function resolveImageProxy(
     return null;
   }
 
-  await writeCachedImage(normalizedUrl, downloaded);
+  try {
+    await writeCachedImage(normalizedUrl, downloaded);
+  } catch (error) {
+    console.warn("[IMAGE] Proxy cache yazilamadi, gorsel cache'siz servis ediliyor:", error);
+  }
+
   return downloaded;
 }
 
