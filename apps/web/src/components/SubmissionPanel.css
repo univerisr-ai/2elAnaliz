@@ -1,0 +1,571 @@
+.submission-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.submission-panel__intro,
+.submission-panel__auth,
+.submission-panel__form-shell,
+.submission-panel__account {
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  background: var(--panel-bg);
+  box-shadow: var(--shadow-card);
+}
+
+.submission-panel__intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px;
+}
+
+.submission-panel__eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--accent-primary-strong);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.submission-panel__intro h2 {
+  color: var(--text-primary);
+  font-size: clamp(1.35rem, 2.2vw, 1.9rem);
+  font-weight: 820;
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.submission-panel__intro p,
+.submission-panel__auth-head p {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.submission-panel__back,
+.submission-panel__ghost-button,
+.submission-panel__primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  border-radius: var(--radius-md);
+  font-size: 0.74rem;
+  font-weight: 800;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.submission-panel__back,
+.submission-panel__ghost-button {
+  padding: 0 14px;
+  border: 1px solid var(--border-card);
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--text-primary);
+}
+
+.submission-panel__primary-button {
+  padding: 0 16px;
+  border: 1px solid var(--accent-primary);
+  background: var(--accent-primary);
+  color: #f8fbfd;
+  box-shadow: var(--shadow-card);
+}
+
+.submission-panel__back:hover,
+.submission-panel__ghost-button:hover,
+.submission-panel__primary-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
+}
+
+.submission-panel__primary-button:disabled,
+.submission-panel__ghost-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+  transform: none;
+  box-shadow: none;
+}
+
+.submission-panel__grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.36fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.submission-panel__auth,
+.submission-panel__form-shell,
+.submission-panel__account {
+  padding: 18px;
+}
+
+.submission-panel__auth {
+  align-self: start;
+  display: grid;
+  gap: 16px;
+}
+
+.submission-panel__auth-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.submission-panel__auth-head strong {
+  color: var(--text-primary);
+  font-size: 0.98rem;
+}
+
+.submission-panel__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--accent-primary-dim);
+  color: var(--accent-primary-strong);
+}
+
+.submission-panel__auth-form,
+.submission-panel__listing-form {
+  display: grid;
+  gap: 12px;
+}
+
+.submission-panel__mode-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: #f4f6ff;
+}
+
+.submission-panel__mode-switch--wide {
+  width: min(100%, 420px);
+  margin-bottom: 16px;
+}
+
+.submission-panel__mode-switch button {
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.submission-panel__mode-switch button.is-active {
+  background: #ffffff;
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--accent-primary);
+}
+
+.submission-panel label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.submission-panel input,
+.submission-panel select,
+.submission-panel textarea {
+  width: 100%;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.submission-panel input,
+.submission-panel select {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.submission-panel textarea {
+  resize: vertical;
+  min-height: 120px;
+  padding: 12px;
+}
+
+.submission-panel input:focus,
+.submission-panel select:focus,
+.submission-panel textarea:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px var(--accent-primary-dim);
+}
+
+.submission-panel input:disabled {
+  cursor: not-allowed;
+  color: var(--text-tertiary);
+  background: rgba(240, 245, 249, 0.82);
+}
+
+.submission-panel input[type="file"] {
+  padding: 10px 12px;
+}
+
+.submission-panel__field-hint {
+  color: var(--text-tertiary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+}
+
+.submission-panel__listing-form--manual {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.submission-panel__wide-field,
+.submission-panel__listing-form .submission-panel__primary-button,
+.submission-panel__message {
+  grid-column: 1 / -1;
+}
+
+.submission-panel__message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(244, 248, 252, 0.98);
+}
+
+.submission-panel__message--success {
+  border-color: rgba(0, 51, 160, 0.22);
+  color: var(--accent-primary-strong);
+  background: var(--accent-primary-dim);
+}
+
+.submission-panel__message--error {
+  border-color: rgba(181, 90, 90, 0.22);
+  color: var(--accent-danger);
+  background: rgba(255, 246, 246, 0.98);
+}
+
+.submission-panel__preview {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+}
+
+.submission-panel__preview-media,
+.submission-panel__preview-placeholder {
+  width: 112px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--soft-surface);
+}
+
+.submission-panel__preview-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.submission-panel__preview-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.submission-panel__preview span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-primary-strong);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.submission-panel__preview strong {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submission-panel__preview p {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.submission-panel__account {
+  display: grid;
+  gap: 16px;
+}
+
+.submission-panel__account-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.submission-panel__account-head h3 {
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 820;
+  letter-spacing: 0;
+}
+
+.submission-panel__account-head p,
+.submission-panel__empty-state,
+.submission-panel__comments-note {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.submission-panel__account-head p {
+  margin-top: 6px;
+}
+
+.submission-panel__empty-state {
+  padding: 14px;
+  border: 1px dashed var(--border-card);
+  border-radius: var(--radius-md);
+  background: rgba(244, 248, 252, 0.8);
+  font-weight: 700;
+}
+
+.submission-panel__submission-list {
+  display: grid;
+  gap: 12px;
+}
+
+.submission-panel__submission-item {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+}
+
+.submission-panel__submission-media {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--soft-surface);
+  color: var(--text-tertiary);
+}
+
+.submission-panel__submission-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.submission-panel__submission-body {
+  display: grid;
+  min-width: 0;
+  gap: 10px;
+}
+
+.submission-panel__submission-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.submission-panel__submission-title-row span,
+.submission-panel__submission-meta span {
+  color: var(--text-secondary);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.submission-panel__submission-title-row h4 {
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 820;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submission-panel__submission-title-row strong {
+  flex: 0 0 auto;
+  padding: 6px 9px;
+  border-radius: var(--radius-md);
+  background: var(--accent-primary-dim);
+  color: var(--accent-primary-strong);
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.submission-panel__submission-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.submission-panel__submission-meta span {
+  padding: 5px 8px;
+  border-radius: var(--radius-md);
+  background: rgba(244, 248, 252, 0.9);
+}
+
+.submission-panel__submission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.submission-panel__source-link,
+.submission-panel__comments-toggle,
+.submission-panel__remove-button {
+  justify-self: start;
+  color: var(--accent-primary-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.submission-panel__comments-toggle,
+.submission-panel__remove-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+}
+
+.submission-panel__remove-button {
+  padding: 0 10px;
+  border: 1px solid rgba(181, 90, 90, 0.2);
+  border-radius: var(--radius-md);
+  background: #fff7f7;
+  color: var(--accent-danger);
+}
+
+.submission-panel__comments-list {
+  display: grid;
+  gap: 8px;
+}
+
+.submission-panel__comment {
+  padding: 10px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: rgba(244, 248, 252, 0.72);
+}
+
+.submission-panel__comment div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.submission-panel__comment strong {
+  color: var(--text-primary);
+  font-size: 0.78rem;
+}
+
+.submission-panel__comment span {
+  color: var(--text-tertiary);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.submission-panel__comment p {
+  margin-top: 5px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 920px) {
+  .submission-panel__intro,
+  .submission-panel__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .submission-panel__intro {
+    display: grid;
+  }
+
+  .submission-panel__account-head,
+  .submission-panel__submission-title-row {
+    display: grid;
+  }
+
+  .submission-panel__back {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .submission-panel__listing-form--manual {
+    grid-template-columns: 1fr;
+  }
+
+  .submission-panel__intro,
+  .submission-panel__auth,
+  .submission-panel__form-shell,
+  .submission-panel__account {
+    padding: 14px;
+  }
+
+  .submission-panel__preview,
+  .submission-panel__submission-item {
+    grid-template-columns: 1fr;
+  }
+
+  .submission-panel__preview-media,
+  .submission-panel__preview-placeholder,
+  .submission-panel__submission-media {
+    width: 100%;
+  }
+}

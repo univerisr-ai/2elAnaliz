@@ -1,7 +1,52 @@
+# Dependencies
 node_modules/
+
+# Environment variables (GİZLİ BİLGİLER!)
 .env
-.state/
-data/inbox/
-data/outbox/
-*.log
+.env.local
+*.env
+*.env.*
+!.env.example
+!apps/api/.env.example
+!apps/web/.env.example
+
+# Build output
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (runtime generated)
+apps/api/src/data/*.json
+apps/api/.cache/
+apps/api/.local-dev/
+apps/api/dist/
+apps/web/dist/
+.local-dev/
+output/
+coverage/
+.turbo/
 .vercel/
+apps/*/.vercel/
+
+# Logs
+*.log
+
+# Archives / bulky local references
+*.zip
+stitch_modern_ekran_kart_pazar/
+yeni test/
+
+# Local screenshots / accidental shell artifacts
+apps/web/*.png
+apps/web/cd
+apps/web/npm
+
+# Reference / archive folders
+developer-roadmap-master/

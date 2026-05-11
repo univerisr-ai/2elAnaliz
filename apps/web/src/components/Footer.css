@@ -1,0 +1,31 @@
+.footer {
+  padding: 40px 0 0;
+  background: #dce6ff;
+  border-top: 1px solid #bcc8e8;
+}
+
+.footer__panel {
+  padding: 24px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+  box-shadow: none;
+}
+
+.footer__text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.footer__brand {
+  color: var(--accent-primary-strong);
+  font-weight: 800;
+}
+
+.footer__disclaimer {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin-top: 10px;
+}

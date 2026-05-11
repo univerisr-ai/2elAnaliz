@@ -1,0 +1,347 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+:root {
+  color-scheme: light;
+  --bg-primary: #f7f8ff;
+  --bg-secondary: #f2f4ff;
+  --bg-tertiary: #e6ebff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.82);
+  --bg-input: #ffffff;
+  --bg-surface: #fafbff;
+  --panel-bg: #ffffff;
+  --soft-surface: #f4f6ff;
+  --accent-primary: #0033a0;
+  --accent-primary-strong: #00216e;
+  --accent-primary-dim: rgba(0, 51, 160, 0.1);
+  --accent-secondary: #516079;
+  --accent-secondary-dim: rgba(81, 96, 121, 0.12);
+  --accent-warning: #bd7a4c;
+  --accent-danger: #b55a5a;
+  --text-primary: #111827;
+  --text-secondary: #404857;
+  --text-tertiary: #6b7280;
+  --text-accent: #0033a0;
+  --border-subtle: #edf0f8;
+  --border-card: #c9cedd;
+  --border-strong: #0033a0;
+  --border-input: #c4c9d8;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-card: 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-card-hover: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: var(--font-sans);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg-primary);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 72% 12%, rgba(0, 51, 160, 0.06), transparent 30%),
+    linear-gradient(180deg, #faf8ff 0%, #f7f8ff 48%, #f2f5ff 100%);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: var(--radius-full);
+  background: rgba(24, 37, 52, 0.16);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(24, 37, 52, 0.24);
+}
+
+.container {
+  width: min(100% - 32px, 1400px);
+  margin-inline: auto;
+}
+
+.gpu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.gpu-backdrop__glow {
+  position: absolute;
+  right: -8%;
+  top: 80px;
+  width: min(48vw, 580px);
+  height: min(48vw, 580px);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(90, 134, 178, 0.12), transparent 68%);
+  filter: blur(18px);
+}
+
+.gpu-backdrop__panel {
+  position: absolute;
+  right: clamp(-22px, 2.4vw, 34px);
+  top: 112px;
+  width: min(46vw, 690px);
+  aspect-ratio: 1448 / 1086;
+  overflow: visible;
+}
+
+.gpu-backdrop__panel::after {
+  position: absolute;
+  inset: -7%;
+  z-index: 4;
+  content: "";
+  background: linear-gradient(180deg, rgba(247, 248, 255, 0.03), rgba(247, 248, 255, 0.34));
+  pointer-events: none;
+}
+
+.gpu-backdrop__image {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.17;
+  filter: saturate(0.88) contrast(0.98);
+}
+
+.gpu-backdrop__fans {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0.14;
+}
+
+.gpu-backdrop__fan-slot {
+  position: absolute;
+  display: block;
+  width: 26%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  filter: saturate(0.65) contrast(0.82) brightness(1.28);
+  transform: translate(-50%, -50%) rotate(var(--slot-rotate, 0deg)) scaleX(var(--slot-scale-x, 1)) scaleY(var(--slot-scale-y, 1));
+  transform-origin: center;
+}
+
+.gpu-backdrop__fan {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+  opacity: 0.9;
+  filter: brightness(1.18) contrast(0.82);
+  transform-origin: center;
+  will-change: transform;
+  animation: gpu-backdrop-fan-spin 820ms linear infinite;
+}
+
+.gpu-backdrop__fan-slot--left {
+  left: var(--gpu-fan-left-x, 27.8%);
+  top: var(--gpu-fan-left-y, 36.9%);
+  width: var(--gpu-fan-left-size, 32.2%);
+  --slot-rotate: 0deg;
+  --slot-scale-x: 1;
+  --slot-scale-y: 1;
+}
+
+.gpu-backdrop__fan-slot--center {
+  left: var(--gpu-fan-center-x, 53.1%);
+  top: var(--gpu-fan-center-y, 49.1%);
+  width: var(--gpu-fan-center-size, 31.4%);
+  --slot-rotate: 0deg;
+  --slot-scale-x: 1;
+  --slot-scale-y: 1;
+}
+
+.gpu-backdrop__fan-slot--center .gpu-backdrop__fan {
+  animation-duration: 760ms;
+}
+
+.gpu-backdrop__fan-slot--right {
+  left: var(--gpu-fan-right-x, 79.1%);
+  top: var(--gpu-fan-right-y, 57.8%);
+  width: var(--gpu-fan-right-size, 30.4%);
+  --slot-rotate: 0deg;
+  --slot-scale-x: 1;
+  --slot-scale-y: 1;
+}
+
+.gpu-backdrop__fan-slot--right .gpu-backdrop__fan {
+  animation-duration: 880ms;
+  animation-direction: reverse;
+}
+
+@keyframes gpu-fan-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes gpu-backdrop-fan-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gpu-tuner {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 30;
+  width: min(360px, calc(100vw - 32px));
+  max-height: min(72vh, 640px);
+  overflow: auto;
+  padding: 14px;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.14);
+  color: var(--text-primary);
+  pointer-events: auto;
+}
+
+.gpu-tuner__header,
+.gpu-tuner__group label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.gpu-tuner__header {
+  margin-bottom: 12px;
+}
+
+.gpu-tuner__header strong,
+.gpu-tuner__group strong {
+  color: var(--accent-primary);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gpu-tuner__header div {
+  display: flex;
+  gap: 6px;
+}
+
+.gpu-tuner button {
+  padding: 6px 9px;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.gpu-tuner__group {
+  display: grid;
+  gap: 8px;
+  padding-block: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.gpu-tuner__group label {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.gpu-tuner__group label span {
+  min-width: 46px;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.gpu-tuner input[type="range"] {
+  flex: 1;
+  min-width: 140px;
+}
+
+@media (max-width: 720px) {
+  .container {
+    width: min(100% - 20px, 1400px);
+  }
+
+  .gpu-backdrop__panel {
+    width: 260px;
+    top: 146px;
+    right: -34px;
+  }
+
+  .gpu-backdrop__image {
+    opacity: 0.1;
+  }
+
+  .gpu-backdrop__fans {
+    opacity: 0.12;
+  }
+}
