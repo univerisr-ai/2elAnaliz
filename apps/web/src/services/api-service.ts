@@ -13,12 +13,19 @@ import type {
 } from "../types/submission";
 
 function resolveApiBase(): string {
-  const sameOriginApi =
-    typeof window !== "undefined" && /(^|\.)gpupusula\.shop$/i.test(window.location.hostname)
-      ? `${window.location.origin}/api`
-      : "";
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+      return `${window.location.origin}/api`;
+    }
+  }
 
-  return sameOriginApi || import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:3001/api";
+  const configured = import.meta.env.VITE_API_BASE_URL?.trim();
+  if (configured) {
+    return configured;
+  }
+
+  return import.meta.env.DEV ? "http://localhost:3001/api" : "/api";
 }
 
 export const API_BASE = resolveApiBase();
