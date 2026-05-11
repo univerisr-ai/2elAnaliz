@@ -20,12 +20,11 @@ function resolveApiBase(): string {
     }
   }
 
-  const configured = import.meta.env.VITE_API_BASE_URL?.trim();
-  if (configured) {
-    return configured;
+  if (import.meta.env.DEV) {
+    return import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:3001/api";
   }
 
-  return import.meta.env.DEV ? "http://localhost:3001/api" : "/api";
+  return "/api";
 }
 
 export const API_BASE = resolveApiBase();
