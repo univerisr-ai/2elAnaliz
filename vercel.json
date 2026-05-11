@@ -4,6 +4,7 @@
   "cleanUrls": true,
   "functions": {
     "api/**/*.js": {
+      "includeFiles": "apps/api/src/data/**",
       "maxDuration": 30
     }
   },
