@@ -9,7 +9,7 @@ import type {
   DashboardSummary,
 } from "./dashboard-types.js";
 
-const DATA_DIR = path.resolve(__dirname, "../../src/data");
+const DATA_DIR = path.resolve(__dirname, "../data");
 const SNAPSHOT_FILE = path.join(DATA_DIR, "dashboard-summary-cache.json");
 const REFRESH_LOG_FILE = path.join(DATA_DIR, "dashboard-refresh-log.json");
 const CATALOG_FILE = path.join(DATA_DIR, "catalog-cache.json");

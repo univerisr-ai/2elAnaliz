@@ -4,17 +4,17 @@
   "cleanUrls": true,
   "functions": {
     "api/**/*.js": {
-      "includeFiles": "apps/api/src/data/**",
+      "includeFiles": "apps/api/dist/data/**",
       "maxDuration": 30
     }
   },
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
       "destination": "/api/[...path]"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
