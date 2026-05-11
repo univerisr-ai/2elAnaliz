@@ -9,26 +9,39 @@ import type {
   DashboardSummary,
 } from "./dashboard-types.js";
 
-const DATA_DIR = path.resolve(__dirname, "../data");
-const SNAPSHOT_FILE = path.join(DATA_DIR, "dashboard-summary-cache.json");
-const REFRESH_LOG_FILE = path.join(DATA_DIR, "dashboard-refresh-log.json");
-const CATALOG_FILE = path.join(DATA_DIR, "catalog-cache.json");
+const DATA_DIRS = Array.from(
+  new Set([
+    path.resolve(__dirname, "../data"),
+    path.resolve(process.cwd(), "apps/api/dist/data"),
+    path.resolve(process.cwd(), "apps/api/src/data"),
+    path.resolve(process.cwd(), "src/data"),
+  ]),
+);
+const WRITE_DATA_DIR = DATA_DIRS[0] ?? path.resolve(process.cwd(), "data");
+const SNAPSHOT_FILE = "dashboard-summary-cache.json";
+const REFRESH_LOG_FILE = "dashboard-refresh-log.json";
+const CATALOG_FILE = "catalog-cache.json";
 
 async function ensureDataDir(): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+  await fs.mkdir(WRITE_DATA_DIR, { recursive: true });
 }
 
-async function readJsonFile<T>(filePath: string, fallback: T): Promise<T> {
-  try {
-    const content = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(content) as T;
-  } catch {
-    return fallback;
+async function readJsonFile<T>(fileName: string, fallback: T): Promise<T> {
+  for (const dataDir of DATA_DIRS) {
+    try {
+      const content = await fs.readFile(path.join(dataDir, fileName), "utf-8");
+      return JSON.parse(content) as T;
+    } catch {
+      // Try the next packaged data location.
+    }
   }
+
+  return fallback;
 }
 
-async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
+async function writeJsonFile(fileName: string, data: unknown): Promise<void> {
   await ensureDataDir();
+  const filePath = path.join(WRITE_DATA_DIR, fileName);
   const tempPath = `${filePath}.tmp`;
   await fs.writeFile(tempPath, JSON.stringify(data, null, 2), "utf-8");
   await fs.rename(tempPath, filePath);

@@ -8,10 +8,18 @@ import path from "node:path";
 import type { ParsedGpuListing, AnalysisSummary } from "./parser-service.js";
 
 // Verilerin saklanacağı dosya yolları
-const DATA_DIR = path.resolve(__dirname, "../data");
-const LISTINGS_FILE = path.join(DATA_DIR, "listings.json");
-const SUMMARY_FILE = path.join(DATA_DIR, "summary.json");
-const SYNC_LOG_FILE = path.join(DATA_DIR, "sync-log.json");
+const DATA_DIRS = Array.from(
+  new Set([
+    path.resolve(__dirname, "../data"),
+    path.resolve(process.cwd(), "apps/api/dist/data"),
+    path.resolve(process.cwd(), "apps/api/src/data"),
+    path.resolve(process.cwd(), "src/data"),
+  ]),
+);
+const WRITE_DATA_DIR = DATA_DIRS[0] ?? path.resolve(process.cwd(), "data");
+const LISTINGS_FILE = "listings.json";
+const SUMMARY_FILE = "summary.json";
+const SYNC_LOG_FILE = "sync-log.json";
 
 interface SyncLogEntry {
   readonly syncedAt: string;
@@ -34,26 +42,31 @@ interface StoredSummary {
  * Data klasörünün var olduğunu garanti eder.
  */
 async function ensureDataDir(): Promise<void> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
+  await fs.mkdir(WRITE_DATA_DIR, { recursive: true });
 }
 
 /**
  * JSON dosyasını güvenli bir şekilde okur. Dosya yoksa fallback değeri döner.
  */
-async function readJsonFile<T>(filePath: string, fallback: T): Promise<T> {
-  try {
-    const content = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(content) as T;
-  } catch {
-    return fallback;
+async function readJsonFile<T>(fileName: string, fallback: T): Promise<T> {
+  for (const dataDir of DATA_DIRS) {
+    try {
+      const content = await fs.readFile(path.join(dataDir, fileName), "utf-8");
+      return JSON.parse(content) as T;
+    } catch {
+      // Try the next packaged data location.
+    }
   }
+
+  return fallback;
 }
 
 /**
  * JSON dosyasına atomik yazma (önce temp dosyaya yaz, sonra rename et).
  */
-async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
+async function writeJsonFile(fileName: string, data: unknown): Promise<void> {
   await ensureDataDir();
+  const filePath = path.join(WRITE_DATA_DIR, fileName);
   const tempPath = `${filePath}.tmp`;
   await fs.writeFile(tempPath, JSON.stringify(data, null, 2), "utf-8");
   await fs.rename(tempPath, filePath);
