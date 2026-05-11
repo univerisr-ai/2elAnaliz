@@ -8,7 +8,7 @@ import path from "node:path";
 import type { ParsedGpuListing, AnalysisSummary } from "./parser-service.js";
 
 // Verilerin saklanacağı dosya yolları
-const DATA_DIR = path.resolve(process.cwd(), "src/data");
+const DATA_DIR = path.resolve(__dirname, "../../src/data");
 const LISTINGS_FILE = path.join(DATA_DIR, "listings.json");
 const SUMMARY_FILE = path.join(DATA_DIR, "summary.json");
 const SYNC_LOG_FILE = path.join(DATA_DIR, "sync-log.json");

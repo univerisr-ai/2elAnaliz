@@ -4,7 +4,16 @@ let browserClient: SupabaseClient | null = null;
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.trim() || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || "";
-const API_BASE = import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:3001/api";
+function resolveApiBase(): string {
+  const sameOriginApi =
+    typeof window !== "undefined" && /(^|\.)gpupusula\.shop$/i.test(window.location.hostname)
+      ? `${window.location.origin}/api`
+      : "";
+
+  return sameOriginApi || import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:3001/api";
+}
+
+const API_BASE = resolveApiBase();
 const LOCAL_DEV_SESSION_KEY = "gpupusula.localDevSession";
 const LOCAL_DEV_AUTH_EVENT = "gpupusula:local-dev-auth";
 

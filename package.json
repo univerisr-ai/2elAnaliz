@@ -6,14 +6,21 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.mjs",
-    "build": "npm --prefix apps/web install && npm --prefix apps/web run build && node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.cpSync('apps/web/dist','dist',{recursive:true});\"",
+    "build": "npm --prefix apps/api install && npm --prefix apps/api run build && npm --prefix apps/web install && npm --prefix apps/web run build && node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.cpSync('apps/web/dist','dist',{recursive:true});\"",
     "analyze:file": "node src/index.mjs --file",
     "dashboard:build": "node src/local-index.mjs ./data/inbox/output.json",
     "vercel:dev": "npx vercel dev"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.103.3",
+    "adm-zip": "^0.5.17",
     "axios": "^1.9.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "form-data": "^4.0.1"
+    "express": "^5.1.0",
+    "form-data": "^4.0.1",
+    "helmet": "^8.1.0",
+    "multer": "^2.1.1",
+    "node-cron": "^3.0.3"
   }
 }

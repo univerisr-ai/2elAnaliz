@@ -12,7 +12,16 @@ import type {
   SubmissionRecord,
 } from "../types/submission";
 
-export const API_BASE = import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:3001/api";
+function resolveApiBase(): string {
+  const sameOriginApi =
+    typeof window !== "undefined" && /(^|\.)gpupusula\.shop$/i.test(window.location.hostname)
+      ? `${window.location.origin}/api`
+      : "";
+
+  return sameOriginApi || import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:3001/api";
+}
+
+export const API_BASE = resolveApiBase();
 
 interface ApiErrorShape {
   code: string;
