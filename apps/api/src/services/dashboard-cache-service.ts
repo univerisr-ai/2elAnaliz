@@ -1,8 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import catalogSeed from "../data/catalog-cache.json";
-import refreshLogSeed from "../data/dashboard-refresh-log.json";
-import snapshotSeed from "../data/dashboard-summary-cache.json";
+import { CATALOG_GENERATED_AT, CATALOG_SEED } from "../data/catalog-seed.js";
 import type {
   DashboardBrand,
   CatalogListing,
@@ -24,10 +22,48 @@ const WRITE_DATA_DIR = DATA_DIRS[0] ?? path.resolve(process.cwd(), "data");
 const SNAPSHOT_FILE = "dashboard-summary-cache.json";
 const REFRESH_LOG_FILE = "dashboard-refresh-log.json";
 const CATALOG_FILE = "catalog-cache.json";
+
+const emptyRunMeta = {
+  inputFile: null,
+  sourceRepository: null,
+  scraperRunId: null,
+  scraperRunUrl: null,
+  scraperArtifactName: null,
+  scrapeStatus: null,
+  listingCountFromScraper: CATALOG_SEED.length,
+  startedAt: null,
+  finishedAt: null,
+  pipelineMessage: "Katalog verisi hazır.",
+  isFallback: false,
+  analyzerRepository: null,
+  analyzerRunId: null,
+  analyzerRunUrl: null,
+  deployedAt: null,
+  deployTarget: "production",
+  deployProjectName: null,
+  dashboardVersion: "public-seed",
+};
+
+const SNAPSHOT_SEED: DashboardSnapshot = {
+  fetchedAt: CATALOG_GENERATED_AT,
+  source: "local_file",
+  summary: {
+    analysisCompleted: true,
+    generatedAt: CATALOG_GENERATED_AT,
+    listingCount: CATALOG_SEED.length,
+    recognizedModelCount: new Set(CATALOG_SEED.map((listing) => listing.model).filter(Boolean)).size,
+    candidateCount: CATALOG_SEED.length,
+    topCandidates: [],
+    expertSummary: "Katalog verisi public beta için hazır.",
+    pipelineMessages: [],
+    runMeta: emptyRunMeta,
+  },
+};
+
 const EMBEDDED_JSON: Record<string, unknown> = {
-  [SNAPSHOT_FILE]: snapshotSeed,
-  [REFRESH_LOG_FILE]: refreshLogSeed,
-  [CATALOG_FILE]: catalogSeed,
+  [SNAPSHOT_FILE]: SNAPSHOT_SEED,
+  [REFRESH_LOG_FILE]: [],
+  [CATALOG_FILE]: CATALOG_SEED,
 };
 
 async function ensureDataDir(): Promise<void> {

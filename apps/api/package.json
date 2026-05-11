@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "postbuild": "node -e \"const fs=require('fs'); if (fs.existsSync('src/data')) { fs.rmSync('dist/data',{recursive:true,force:true}); fs.cpSync('src/data','dist/data',{recursive:true}); }\"",
+    "postbuild": "node -e \"const fs=require('fs'); const path=require('path'); const src='src/data'; const dst='dist/data'; if (fs.existsSync(src)) { fs.mkdirSync(dst,{recursive:true}); for (const file of fs.readdirSync(src)) { if (file.endsWith('.json')) fs.copyFileSync(path.join(src,file), path.join(dst,file)); } }\"",
     "start": "node dist/index.js",
     "sync": "tsx src/jobs/run-sync.ts"
   },
