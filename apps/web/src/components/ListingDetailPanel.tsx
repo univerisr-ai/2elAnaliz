@@ -6,7 +6,8 @@ import { formatPrice } from "../utils/format";
 import { buildImageCandidateUrls } from "../utils/media";
 import { cleanPublicListingText } from "../utils/display";
 import { getCanonicalGpuModel, getModelFamily } from "../utils/catalog-taxonomy";
-import { BellRing, ImageOff, MapPin, MessageCircle, Send, Star, Trash2, X } from "lucide-react";
+import { getExternalListingUrl, getSourceLabel } from "../utils/source";
+import { BellRing, ExternalLink, ImageOff, MapPin, MessageCircle, Send, Star, Store, Trash2, X } from "lucide-react";
 import "./ListingDetailPanel.css";
 
 interface ListingDetailPanelProps {
@@ -68,6 +69,8 @@ export function ListingDetailPanel({
   const comparisonLabel = insight.isReferenceBased ? "Sıfır referans" : "Model medyanı";
   const comparisonPrice = insight.referencePrice ?? insight.medianPrice;
   const deltaLabel = insight.isReferenceBased ? "Sıfır farkı" : "Medyan farkı";
+  const sourceLabel = getSourceLabel(listing);
+  const externalListingUrl = getExternalListingUrl(listing);
 
   useEffect(() => {
     let isMounted = true;
@@ -161,6 +164,24 @@ export function ListingDetailPanel({
               {listing.location || "Konum belirtilmemiş"}
             </p>
           </div>
+
+          <section className="listing-detail__source" aria-label="İlan kaynağı">
+            <div>
+              <span>
+                <Store size={14} />
+                Kaynak
+              </span>
+              <strong>{sourceLabel}</strong>
+            </div>
+            {externalListingUrl ? (
+              <a className="listing-detail__open" href={externalListingUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink size={16} />
+                İlanı aç
+              </a>
+            ) : (
+              <span className="listing-detail__source-note">Site içi kayıt</span>
+            )}
+          </section>
 
           <section className={`listing-detail__score listing-detail__score--${insight.tone}`} aria-label="Alınabilirlik derecesi">
             <div>

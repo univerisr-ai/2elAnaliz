@@ -88,6 +88,9 @@ export interface CatalogListing {
   readonly modelSlug?: string;
   readonly modelFamily?: string;
   readonly buyability?: BuyabilityInsight;
+  readonly sourceLabel?: string | null;
+  readonly externalUrl?: string | null;
+  readonly isInternal?: boolean;
 }
 
 export interface CatalogModelSummary {

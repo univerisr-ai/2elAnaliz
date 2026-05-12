@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import type { CatalogListing } from "../types/listing";
 import { formatPrice } from "../utils/format";
-import { BellRing, CalendarDays, ImageOff, MapPin, Search, Star, Trash2 } from "lucide-react";
+import { BellRing, CalendarDays, ExternalLink, ImageOff, MapPin, Search, Star, Store, Trash2 } from "lucide-react";
 import { buildImageCandidateUrls } from "../utils/media";
 import { getCanonicalGpuModel, getModelFamily } from "../utils/catalog-taxonomy";
 import { cleanPublicListingText } from "../utils/display";
+import { getExternalListingUrl, getSourceLabel } from "../utils/source";
 import "./CatalogCard.css";
 
 interface CatalogCardProps {
@@ -51,6 +52,8 @@ export function CatalogCard({
   const modelFamily = getModelFamily(listing);
   const publicTitle = cleanPublicListingText(listing.title);
   const publicModel = getCanonicalGpuModel(listing) || cleanPublicListingText(listing.model);
+  const sourceLabel = getSourceLabel(listing);
+  const externalListingUrl = getExternalListingUrl(listing);
 
   function handleImageError() {
     if (imageIndex < imageCandidates.length - 1) {
@@ -141,6 +144,14 @@ export function CatalogCard({
           <strong>{publicModel}</strong>
         </p>
         <h3 className="catalog-card__title">{publicTitle}</h3>
+
+        <div className="catalog-card__source">
+          <span>
+            <Store size={12} />
+            {sourceLabel}
+          </span>
+          {externalListingUrl ? <ExternalLink size={12} aria-hidden="true" /> : null}
+        </div>
 
         <div className="catalog-card__meta">
           <span>

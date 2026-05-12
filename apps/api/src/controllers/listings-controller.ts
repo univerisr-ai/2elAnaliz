@@ -61,12 +61,19 @@ type PublicCatalogListing = Omit<CatalogListing, "url" | "source" | "sourceType"
   readonly modelSlug: string;
   readonly modelFamily: string;
   readonly buyability: BuyabilityInsight;
+  readonly sourceLabel: string;
+  readonly externalUrl: string | null;
+  readonly isInternal: boolean;
 };
 type PublicDashboardTopCandidate = Omit<DashboardTopCandidate, "url">;
 type PublicDashboardSummary = Omit<DashboardSummary, "topCandidates" | "pipelineMessages" | "runMeta"> & {
   readonly topCandidates: readonly PublicDashboardTopCandidate[];
 };
-type PublicPublishedListing = Omit<PublishedListingRecord, "sourceType" | "externalUrl" | "sourceLabel">;
+type PublicPublishedListing = Omit<PublishedListingRecord, "sourceType" | "externalUrl" | "sourceLabel"> & {
+  readonly sourceLabel: string;
+  readonly externalUrl: string | null;
+  readonly isInternal: boolean;
+};
 
 interface PublicCatalogContext {
   readonly allListings: readonly CatalogListing[];
@@ -97,6 +104,8 @@ const PUBLIC_TEXT_REDACTIONS: ReadonlyArray<readonly [RegExp, string]> = [
   [/letgo/gi, "harici kaynak"],
 ];
 
+const BLOCKED_PUBLIC_LINK_HOST_PARTS = ["github.com", "githubusercontent.com", "vercel.app"];
+
 function scrubPublicText(value: string): string {
   return PUBLIC_TEXT_REDACTIONS.reduce((text, [pattern, replacement]) => text.replace(pattern, replacement), value)
     .replace(/\s{2,}/g, " ")
@@ -105,6 +114,53 @@ function scrubPublicText(value: string): string {
 
 function scrubNullablePublicText(value: string | null): string | null {
   return value == null ? null : scrubPublicText(value);
+}
+
+function normalizePublicExternalUrl(value: string | null | undefined): string | null {
+  if (!value || value.startsWith("#")) {
+    return null;
+  }
+
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      return null;
+    }
+
+    const hostname = url.hostname.toLowerCase();
+    if (BLOCKED_PUBLIC_LINK_HOST_PARTS.some((part) => hostname === part || hostname.endsWith(`.${part}`))) {
+      return null;
+    }
+
+    return url.toString();
+  } catch {
+    return null;
+  }
+}
+
+function getPublicSourceLabel(
+  sourceType: CatalogListing["sourceType"] | PublishedListingRecord["sourceType"] | undefined,
+  source: string | null | undefined,
+): string {
+  const normalizedSource = (source ?? "").trim();
+
+  if (sourceType === "pecid" || /pecid/i.test(normalizedSource)) {
+    return "GPU Pusula";
+  }
+
+  if (sourceType === "sahibinden" || /sahibinden/i.test(normalizedSource)) {
+    return "Sahibinden";
+  }
+
+  if (sourceType === "letgo" || /letgo/i.test(normalizedSource)) {
+    return "Letgo";
+  }
+
+  if (normalizedSource && normalizedSource.toLowerCase() !== "harici") {
+    return scrubPublicText(normalizedSource) || "Harici site";
+  }
+
+  return "Harici site";
 }
 
 function setPublicListCache(res: Response): void {
@@ -222,6 +278,8 @@ function sanitizeDashboardListing(listing: DashboardListing): PublicDashboardLis
 }
 
 function sanitizeCatalogListing(listing: CatalogListing, context: PublicCatalogContext): PublicCatalogListing {
+  const isInternal = Boolean(listing.isInternal || listing.sourceType === "pecid");
+
   return {
     id: listing.id,
     title: scrubPublicText(listing.title),
@@ -236,10 +294,15 @@ function sanitizeCatalogListing(listing: CatalogListing, context: PublicCatalogC
     modelSlug: getModelSlug(listing),
     modelFamily: getModelFamily(listing),
     buyability: getBuyabilityInsight(listing, context.allListings, context.buyabilityIndex),
+    sourceLabel: getPublicSourceLabel(listing.sourceType, listing.source),
+    externalUrl: isInternal ? null : normalizePublicExternalUrl(listing.url),
+    isInternal,
   };
 }
 
 function sanitizePublishedListing(listing: PublishedListingRecord): PublicPublishedListing {
+  const isInternal = listing.sourceType === "pecid";
+
   return {
     id: listing.id,
     ownerId: listing.ownerId,
@@ -254,6 +317,9 @@ function sanitizePublishedListing(listing: PublishedListingRecord): PublicPublis
     imageCoverUrl: buildPublicImagePath(listing.id, listing.imageCoverUrl),
     publishedAt: listing.publishedAt,
     status: listing.status,
+    sourceLabel: getPublicSourceLabel(listing.sourceType, listing.sourceLabel),
+    externalUrl: isInternal ? null : normalizePublicExternalUrl(listing.externalUrl),
+    isInternal,
   };
 }
 

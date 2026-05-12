@@ -153,6 +153,33 @@
   -webkit-box-orient: vertical;
 }
 
+.catalog-card__source {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 26px;
+  padding: 0 9px;
+  border: 1px solid rgba(0, 51, 160, 0.12);
+  border-radius: var(--radius-md);
+  background: #f6f8ff;
+  color: var(--accent-primary-strong);
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.catalog-card__source span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .catalog-card__meta {
   display: flex;
   flex-wrap: wrap;
@@ -388,6 +415,12 @@
     font-size: 0.84rem;
     line-height: 1.26;
     -webkit-line-clamp: 2;
+  }
+
+  .catalog-card__source {
+    min-height: 23px;
+    padding: 0 7px;
+    font-size: 0.56rem;
   }
 
   .catalog-card__meta {

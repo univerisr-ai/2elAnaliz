@@ -111,6 +111,9 @@ export interface PublishedListingDetail {
   imageCoverUrl: string | null;
   publishedAt: string;
   status: string;
+  sourceLabel?: string | null;
+  externalUrl?: string | null;
+  isInternal?: boolean;
   comments?: Array<{
     id: string;
     listingId: string;
