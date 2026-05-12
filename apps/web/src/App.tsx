@@ -82,8 +82,8 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   sortBy: CATALOG_SORT_OPTIONS.LATEST,
 };
 
-const CATALOG_FETCH_LIMIT = 1000;
-const CATALOG_BATCH_SIZE = 120;
+const CATALOG_FETCH_LIMIT = 3000;
+const CATALOG_PAGE_SIZE = 120;
 const CATALOG_ENTRY_LOADING_MS = 4000;
 const SITE_URL = (import.meta.env.VITE_SITE_URL?.trim() || "https://gpupusula.shop").replace(/\/+$/g, "");
 const SHOWCASE_IMAGES = [gpuCard1, gpuCard2, gpuCard3];
@@ -516,7 +516,7 @@ export default function App() {
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>("Bilinmiyor");
   const [showcaseIndex, setShowcaseIndex] = useState(0);
-  const [visibleCatalogLimit, setVisibleCatalogLimit] = useState(CATALOG_BATCH_SIZE);
+  const [catalogPage, setCatalogPage] = useState(1);
   const [isCatalogEntryLoading, setIsCatalogEntryLoading] = useState(false);
   const [accountSession, setAccountSession] = useState<Session | null>(null);
   const [accountProfile, setAccountProfile] = useState<SubmissionProfile | null>(null);
@@ -732,7 +732,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    setVisibleCatalogLimit(CATALOG_BATCH_SIZE);
+    setCatalogPage(1);
   }, [catalogFilters, activePriceCategory, selectedModelCategories, spotlightFilter]);
 
   const isAdminUser = accountProfile?.role === "admin";
@@ -874,10 +874,17 @@ export default function App() {
     [activeCatalogListings, baseFilteredCatalogListings, buyabilityIndex, spotlightFilter],
   );
 
-  const visibleCatalogListings = useMemo(
-    () => filteredCatalogListings.slice(0, visibleCatalogLimit),
-    [filteredCatalogListings, visibleCatalogLimit],
-  );
+  const catalogTotalPages = Math.max(1, Math.ceil(filteredCatalogListings.length / CATALOG_PAGE_SIZE));
+  const visibleCatalogListings = useMemo(() => {
+    const startIndex = (catalogPage - 1) * CATALOG_PAGE_SIZE;
+    return filteredCatalogListings.slice(startIndex, startIndex + CATALOG_PAGE_SIZE);
+  }, [catalogPage, filteredCatalogListings]);
+
+  useEffect(() => {
+    if (catalogPage > catalogTotalPages) {
+      setCatalogPage(catalogTotalPages);
+    }
+  }, [catalogPage, catalogTotalPages]);
 
   const marketPulse = useMemo(() => {
     const bestDeal = featuredListings.reduce<GpuListing | null>((best, listing) => {
@@ -902,7 +909,6 @@ export default function App() {
     : isDashboardLoading
       ? "Yükleniyor"
       : "Veri bekleniyor";
-  const hasMoreCatalogListings = visibleCatalogListings.length < filteredCatalogListings.length;
   const selectedModelCategoryOptions = modelCategories.filter((category) => selectedModelCategories.includes(category.key));
   const selectedListingInsight = selectedListing
     ? getCatalogListingInsight(selectedListing, activeCatalogListings, buyabilityIndex)
@@ -1040,6 +1046,14 @@ export default function App() {
   function handleNotificationSelect() {
     setIsNotificationPanelOpen(false);
     navigateToPage("submit");
+  }
+
+  function handleCatalogPageChange(nextPage: number) {
+    const boundedPage = Math.min(Math.max(1, nextPage), catalogTotalPages);
+    setCatalogPage(boundedPage);
+    window.requestAnimationFrame(() => {
+      document.getElementById("listing-feed")?.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
   }
 
   function handleToggleNotifications() {
@@ -1634,7 +1648,7 @@ export default function App() {
                       <div>
                         <span className="market-state__eyebrow">Katalog</span>
                         <h3>İlanlar yükleniyor</h3>
-                        <p>Tam katalog açıldığında ilk ekranda {CATALOG_BATCH_SIZE} ilan gösterilir, devamı tek tıkla yüklenir.</p>
+                        <p>Tam katalog sayfa sayfa açılır; her ekranda {CATALOG_PAGE_SIZE} ilan gösterilir.</p>
                       </div>
                       <div className="market-state__skeleton" aria-hidden="true">
                         <span />
@@ -1676,9 +1690,10 @@ export default function App() {
                   <CatalogGrid
                     listings={visibleCatalogListings}
                     total={filteredCatalogListings.length}
-                    loadedCount={visibleCatalogListings.length}
-                    hasMore={hasMoreCatalogListings}
-                    onLoadMore={() => setVisibleCatalogLimit((current) => current + CATALOG_BATCH_SIZE)}
+                    currentPage={catalogPage}
+                    pageSize={CATALOG_PAGE_SIZE}
+                    totalPages={catalogTotalPages}
+                    onPageChange={handleCatalogPageChange}
                     onOpenListing={navigateToListing}
                     onRemoveListing={handleRemoveListing}
                     canRemoveListing={isAdminUser}

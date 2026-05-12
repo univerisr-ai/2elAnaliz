@@ -83,7 +83,7 @@ interface PublicWatchlistItem {
 }
 
 const CATALOG_DEFAULT_PER_PAGE = 120;
-const CATALOG_MAX_PER_PAGE = 1000;
+const CATALOG_MAX_PER_PAGE = 3000;
 const MODEL_DEFAULT_PER_PAGE = 1000;
 const MODEL_MAX_PER_PAGE = 1000;
 const PUBLIC_LIST_CACHE_HEADER = "public, max-age=60, s-maxage=300, stale-while-revalidate=1800";
