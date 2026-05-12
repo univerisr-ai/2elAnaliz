@@ -265,6 +265,7 @@
 
 .listing-grid {
   padding-bottom: 24px;
+  animation: listing-grid-in 560ms var(--ease-out) both;
 }
 
 .listing-grid__header {
@@ -293,6 +294,8 @@
   width: 24px;
   height: 1px;
   background: var(--accent-secondary);
+  transform-origin: left;
+  animation: listing-line-in 420ms var(--ease-out) 120ms both;
 }
 
 .listing-grid__title {
@@ -337,6 +340,30 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   gap: 12px;
+}
+
+@keyframes listing-grid-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes listing-line-in {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
 }
 
 .listing-grid__empty {

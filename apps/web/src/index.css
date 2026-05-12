@@ -32,8 +32,12 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-full: 9999px;
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-emphasis: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-fast: 150ms var(--ease-standard);
+  --transition-base: 290ms var(--ease-out);
+  --transition-slow: 720ms var(--ease-emphasis);
   --shadow-card: 0 4px 12px rgba(15, 23, 42, 0.05);
   --shadow-card-hover: 0 8px 24px rgba(15, 23, 42, 0.08);
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
@@ -52,6 +56,7 @@ html {
   min-height: 100%;
   background: var(--bg-primary);
   font-size: 16px;
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -135,6 +140,7 @@ button {
   border-radius: 999px;
   background: radial-gradient(circle, rgba(90, 134, 178, 0.12), transparent 68%);
   filter: blur(18px);
+  animation: gpu-backdrop-glow 7s ease-in-out infinite alternate;
 }
 
 .gpu-backdrop__panel {
@@ -144,6 +150,9 @@ button {
   width: min(46vw, 690px);
   aspect-ratio: 1448 / 1086;
   overflow: visible;
+  transform-origin: 55% 52%;
+  will-change: transform;
+  animation: gpu-backdrop-float 9s ease-in-out infinite;
 }
 
 .gpu-backdrop__panel::after {
@@ -164,6 +173,7 @@ button {
   object-fit: contain;
   opacity: 0.17;
   filter: saturate(0.88) contrast(0.98);
+  will-change: transform, opacity;
 }
 
 .gpu-backdrop__fans {
@@ -246,6 +256,29 @@ button {
 
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes gpu-backdrop-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.6deg);
+  }
+
+  50% {
+    transform: translate3d(-10px, 8px, 0) rotate(0.4deg);
+  }
+}
+
+@keyframes gpu-backdrop-glow {
+  from {
+    opacity: 0.7;
+    transform: translate3d(0, 0, 0) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(-16px, 18px, 0) scale(1.08);
   }
 }
 
@@ -343,5 +376,16 @@ button {
 
   .gpu-backdrop__fans {
     opacity: 0.12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
   }
 }
