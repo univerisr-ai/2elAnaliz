@@ -4,6 +4,10 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/latest-summary.json",
+      "destination": "/api/[...path].js"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/[...path].js"
     },
