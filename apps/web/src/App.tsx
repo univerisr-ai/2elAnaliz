@@ -12,6 +12,7 @@ import {
   Info,
   Layers3,
   Lock,
+  Menu,
   Package,
   Plus,
   Search,
@@ -522,6 +523,7 @@ export default function App() {
   const [accountProfile, setAccountProfile] = useState<SubmissionProfile | null>(null);
   const [accountNotifications, setAccountNotifications] = useState<HeaderNotification[]>([]);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   const pushRoute = useCallback((route: AppRouteState, path: string) => {
     setActivePage(route.page);
@@ -688,6 +690,7 @@ export default function App() {
   useEffect(() => {
     if (activePage !== "catalog") {
       setIsCatalogEntryLoading(false);
+      setIsFilterDrawerOpen(false);
       return;
     }
 
@@ -698,6 +701,27 @@ export default function App() {
 
     return () => window.clearTimeout(timer);
   }, [activePage]);
+
+  useEffect(() => {
+    if (!isFilterDrawerOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsFilterDrawerOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFilterDrawerOpen]);
 
   useEffect(() => {
     async function loadCatalogData() {
@@ -910,6 +934,18 @@ export default function App() {
       ? "Yükleniyor"
       : "Veri bekleniyor";
   const selectedModelCategoryOptions = modelCategories.filter((category) => selectedModelCategories.includes(category.key));
+  const activeFilterCount = useMemo(() => {
+    return [
+      catalogFilters.search.trim(),
+      catalogFilters.brand !== "all",
+      catalogFilters.minPrice > 0,
+      catalogFilters.maxPrice > 0 && catalogFilters.maxPrice < 100000,
+      catalogFilters.sortBy !== DEFAULT_CATALOG_FILTERS.sortBy,
+      activePriceCategory !== ALL_CATEGORY_KEY,
+      spotlightFilter,
+      ...selectedModelCategories,
+    ].filter(Boolean).length;
+  }, [activePriceCategory, catalogFilters, selectedModelCategories, spotlightFilter]);
   const selectedListingInsight = selectedListing
     ? getCatalogListingInsight(selectedListing, activeCatalogListings, buyabilityIndex)
     : null;
@@ -1444,7 +1480,30 @@ export default function App() {
               <CatalogLoadingScreen listingCount={catalogDisplayTotal} />
             ) : (
             <section className="catalog-marketplace container">
-              <aside className="catalog-marketplace__sidebar" aria-label="Katalog filtreleri">
+              {isFilterDrawerOpen ? (
+                <button
+                  type="button"
+                  className="catalog-filter-backdrop"
+                  aria-label="Filtreleri kapat"
+                  onClick={() => setIsFilterDrawerOpen(false)}
+                />
+              ) : null}
+
+              <aside
+                id="catalog-filter-drawer"
+                className={`catalog-marketplace__sidebar ${isFilterDrawerOpen ? "is-open" : ""}`}
+                aria-label="Katalog filtreleri"
+              >
+                <div className="catalog-filter-drawer__head">
+                  <div>
+                    <span>Filtreler</span>
+                    <strong>Katalogu daralt</strong>
+                  </div>
+                  <button type="button" aria-label="Filtreleri kapat" onClick={() => setIsFilterDrawerOpen(false)}>
+                    <X size={18} />
+                  </button>
+                </div>
+
                 <CatalogFilterBar filters={catalogFilters} onFilterChange={setCatalogFilters} onReset={resetCatalogView} />
 
                 <section className="catalog-categories catalog-categories--stacked" aria-label="Katalog kategorileri">
@@ -1549,6 +1608,23 @@ export default function App() {
               </aside>
 
               <section className="catalog-marketplace__content">
+                <div className="catalog-mobile-toolbar" aria-label="Mobil katalog araçları">
+                  <button
+                    type="button"
+                    className="catalog-mobile-filter-button"
+                    aria-controls="catalog-filter-drawer"
+                    aria-expanded={isFilterDrawerOpen}
+                    onClick={() => setIsFilterDrawerOpen(true)}
+                  >
+                    <Menu size={18} />
+                    <span>Filtreler</span>
+                    {activeFilterCount > 0 ? <strong>{activeFilterCount}</strong> : null}
+                  </button>
+                  <span className="catalog-mobile-toolbar__page">
+                    Sayfa {catalogPage.toLocaleString("tr-TR")} / {catalogTotalPages.toLocaleString("tr-TR")}
+                  </span>
+                </div>
+
                 <section className="catalog-spotlight" aria-label="Hızlı ilan alanları">
                   <button
                     type="button"
