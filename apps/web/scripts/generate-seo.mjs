@@ -11,6 +11,15 @@ const siteUrl = rawSiteUrl.replace(/\/+$/g, "");
 
 const staticPaths = ["/", "/marketplace", "/sat", "/hakkimizda"];
 const modelSlugs = [
+  "rtx-5090",
+  "rtx-5080",
+  "rtx-5080-16-gb",
+  "rtx-5070",
+  "rtx-5070-16-gb",
+  "rtx-5070-12-gb",
+  "rtx-507",
+  "rtx-5060",
+  "rtx-5060-ti",
   "rtx-4090",
   "rtx-4080",
   "rtx-4070",
