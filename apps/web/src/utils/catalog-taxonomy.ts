@@ -17,6 +17,15 @@ export function getPriceCategoryLabel(listing: CatalogListing): string {
   return listing.segment || "Fiyat belirsiz";
 }
 
+function normalizeGpuText(value: string): string {
+  return value
+    .replace(/[_/]+/g, " ")
+    .replace(/[İı]/g, "I")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
 function normalizeModelModifier(value: string | undefined): string {
   const modifier = value?.replace(/\s+/g, " ").trim().toUpperCase();
 
@@ -45,11 +54,7 @@ function formatGpuModel(prefix: string, model: string, modifier: string | undefi
 }
 
 export function getCanonicalGpuModel(listing: Pick<CatalogListing, "model" | "title">): string {
-  const text = cleanPublicListingText(`${listing.model} ${listing.title}`)
-    .replace(/[_/]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toUpperCase();
+  const text = normalizeGpuText(cleanPublicListingText(`${listing.model} ${listing.title}`));
   const vramLabel = getVramLabel(text);
 
   const nvidiaMatch = text.match(/\b(RTX|GTX|GTS|GT)\s*-?\s*(\d{3,4})\s*(TI\s*SUPER|TI|SUPER)?\b/i);
@@ -57,9 +62,61 @@ export function getCanonicalGpuModel(listing: Pick<CatalogListing, "model" | "ti
     return formatGpuModel(nvidiaMatch[1], nvidiaMatch[2], nvidiaMatch[3], vramLabel);
   }
 
-  const amdMatch = text.match(/\b(RX)\s*-?\s*(\d{3,4})\s*(XTX|XT|GRE)?\b/i);
+  const geforceGMatch = text.match(/\bG\s*-?\s*(210)\b/i);
+  if (geforceGMatch?.[1]) {
+    return formatGpuModel("GT", geforceGMatch[1], undefined, vramLabel);
+  }
+
+  const geforceLowEndMatch = text.match(/\bGEFORCE\s*(210)\b/i);
+  if (geforceLowEndMatch?.[1]) {
+    return formatGpuModel("GT", geforceLowEndMatch[1], undefined, vramLabel);
+  }
+
+  const oldGeForceMatch = text.match(/\b([89]\d{3})\s*GT\b/i);
+  if (oldGeForceMatch?.[1]) {
+    return ["GeForce", oldGeForceMatch[1], "GT", vramLabel].filter(Boolean).join(" ");
+  }
+
+  const amdMatch = text.match(/\b(?:RADEON\s+)?(A?X?RX|RX)\s*-?\s*(\d{3,4})\s*(XTX|XT|GRE)?\b/i);
   if (amdMatch) {
-    return formatGpuModel(amdMatch[1], amdMatch[2], amdMatch[3], vramLabel);
+    return formatGpuModel("RX", amdMatch[2], amdMatch[3], vramLabel);
+  }
+
+  const vegaMatch = text.match(/\b(?:AMD\s+)?(?:RADEON\s+)?(?:RX\s+)?VEGA\s*(\d{2})\b/i);
+  if (vegaMatch?.[1]) {
+    return ["RX Vega", vegaMatch[1], vramLabel].filter(Boolean).join(" ");
+  }
+
+  const radeonRMatch = text.match(/\b(R[579])\s*-?\s*(\d{3})\b/i);
+  if (radeonRMatch?.[1] && radeonRMatch[2]) {
+    return [radeonRMatch[1].toUpperCase(), radeonRMatch[2], vramLabel].filter(Boolean).join(" ");
+  }
+
+  const radeonHdMatch = text.match(/\b(?:RADEON\s+)?(?:HD|R)\s*-?\s*(\d{4})\b/i);
+  if (radeonHdMatch?.[1]) {
+    return ["Radeon HD", radeonHdMatch[1], vramLabel].filter(Boolean).join(" ");
+  }
+
+  const hasAmdContext = /\b(AMD|ATI|RADEON|SAPPHIRE|POWERCOLOR|POWER\s*COLOR|XFX)\b/.test(text);
+  const bareAmdMatch = hasAmdContext
+    ? text.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(XTX|XT|GRE)?\b/i)
+    : null;
+  if (bareAmdMatch) {
+    return formatGpuModel("RX", bareAmdMatch[1], bareAmdMatch[2], vramLabel);
+  }
+
+  const bareAmdWithModifierMatch = text.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(XTX|XT|GRE)\b/i);
+  if (bareAmdWithModifierMatch?.[1]) {
+    return formatGpuModel("RX", bareAmdWithModifierMatch[1], bareAmdWithModifierMatch[2], vramLabel);
+  }
+
+  const bareNvidiaMatch = text.match(
+    /\b(10(?:30|50|60|70|80)|16(?:30|50|60)|20(?:60|70|80)|30(?:50|60|70|80|90)|40(?:50|60|70|80|90)|50(?:60|70|80|90))\s*(TI\s*SUPER|TI|SUPER)?\b/i,
+  );
+  if (bareNvidiaMatch?.[1]) {
+    const model = bareNvidiaMatch[1];
+    const prefix = Number.parseInt(model, 10) >= 2060 ? "RTX" : "GTX";
+    return formatGpuModel(prefix, model, bareNvidiaMatch[2], vramLabel);
   }
 
   const intelArcMatch = text.match(/\b(?:ARC\s*)?([AB])\s*-?\s*(\d{3})\b/i);
@@ -94,10 +151,14 @@ export function getModelSlug(listing: Pick<CatalogListing, "model" | "title">): 
 
 export function getModelFamily(listing: Pick<CatalogListing, "model" | "title">): string {
   const canonicalModel = getCanonicalGpuModel(listing);
-  const text = canonicalModel || `${listing.model} ${listing.title}`.toUpperCase();
+  const text = normalizeGpuText(canonicalModel || `${listing.model} ${listing.title}`);
   const rtxMatch = text.match(/\bRTX\s*-?\s*(\d{4})/);
   const gtxMatch = text.match(/\bGTX\s*-?\s*(\d{3,4})/);
+  const gtMatch = text.match(/\bGT\s*-?\s*(\d{3,4})/);
+  const oldGeForceMatch = text.match(/\bGEFORCE\s+([89]\d{3})\s+GT\b/);
   const rxMatch = text.match(/\bRX\s*-?\s*(\d{3,4})/);
+  const radeonRMatch = text.match(/\bR([579])\s*-?\s*(\d{3})/);
+  const radeonHdMatch = text.match(/\bRADEON HD\s*-?\s*(\d{4})/);
 
   if (rtxMatch) {
     return `RTX ${rtxMatch[1].slice(0, 2)} Serisi`;
@@ -112,6 +173,23 @@ export function getModelFamily(listing: Pick<CatalogListing, "model" | "title">)
     return "GTX Serisi";
   }
 
+  if (gtMatch) {
+    const model = gtMatch[1];
+    if (model.startsWith("10")) return "GT 1000 Serisi";
+    if (model.startsWith("7")) return "GT 700 Serisi";
+    if (model.startsWith("6")) return "GT 600 Serisi";
+    if (model.startsWith("4")) return "GT 400 Serisi";
+    if (model.startsWith("2")) return "GT 200 Serisi";
+    return "GeForce GT Serisi";
+  }
+
+  if (oldGeForceMatch) {
+    const model = oldGeForceMatch[1];
+    if (model.startsWith("9")) return "GeForce 9000 Serisi";
+    if (model.startsWith("8")) return "GeForce 8000 Serisi";
+    return "GeForce GT Serisi";
+  }
+
   if (rxMatch) {
     const model = rxMatch[1];
     if (model.length === 4) return `RX ${model[0]}000 Serisi`;
@@ -120,11 +198,23 @@ export function getModelFamily(listing: Pick<CatalogListing, "model" | "title">)
     return "RX Serisi";
   }
 
+  if (radeonRMatch) {
+    return `R${radeonRMatch[1]} ${radeonRMatch[2]?.charAt(0) ?? ""}00 Serisi`;
+  }
+
+  if (radeonHdMatch) {
+    return `Radeon HD ${radeonHdMatch[1]?.charAt(0) ?? ""}000 Serisi`;
+  }
+
+  if (text.includes("VEGA")) {
+    return "Radeon Vega";
+  }
+
   if (text.includes("ARC") || /\b[AB]\s*-?\s*\d{3}\b/.test(text)) {
     return "Intel Arc";
   }
 
-  if (text.includes("QUADRO") || text.includes("TESLA") || text.includes("FIREPRO")) {
+  if (text.includes("QUADRO") || text.includes("TESLA") || text.includes("FIREPRO") || text.includes("NVS")) {
     return "Profesyonel GPU";
   }
 

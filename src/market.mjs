@@ -7,7 +7,14 @@ const cache = new Map();
 const MODEL_PATTERNS = [
   /(rtx\s?\d{3,4}(?:\s?(?:ti|super))?)/i,
   /(gtx\s?\d{3,4}(?:\s?ti)?)/i,
-  /(rx\s?\d{3,4}(?:\s?(?:xt|xtx))?)/i,
+  /(gt\s?\d{3,4})/i,
+  /(g\s?210)/i,
+  /(geforce\s?210)/i,
+  /([89]\d{3}\s?gt)/i,
+  /((?:a?x?rx|rx)\s?-?\s?\d{3,4}(?:\s?(?:xt|xtx|gre))?)/i,
+  /((?:rx\s?)?vega\s?\d{2})/i,
+  /(r[579]\s?\d{3})/i,
+  /((?:hd|r)\s?\d{4})/i,
   /(arc\s?[a-z]\d{3})/i,
   /(quadro\s?[a-z0-9]+)/i,
 ];
@@ -15,9 +22,16 @@ const MODEL_PATTERNS = [
 function canonicalizeModelKey(key) {
   return String(key || '')
     .toUpperCase()
+    .replace(/[İı]/g, 'I')
+    .replace(/^(?:A?X?RX)(\s|-)?/i, 'RX ')
+    .replace(/^G\s?210$/i, 'GT 210')
+    .replace(/^GEFORCE\s?210$/i, 'GT 210')
+    .replace(/^([89]\d{3})\s?GT$/i, 'GeForce $1 GT')
+    .replace(/^(?:RX\s?)?VEGA\s?(\d{2})$/i, 'RX Vega $1')
+    .replace(/^(?:HD|R)\s?(\d{4})$/i, 'Radeon HD $1')
     .replace(/\s+/g, ' ')
     .replace(/^(RTX|GTX|RX)(\d)/, '$1 $2')
-    .replace(/(\d)(TI|SUPER|XT|XTX)\b/g, '$1 $2')
+    .replace(/(\d)(TI|SUPER|XT|XTX|GRE)\b/g, '$1 $2')
     .trim();
 }
 
@@ -28,13 +42,34 @@ function normalizeSpaces(text) {
 }
 
 export function extractModelKey(title) {
-  const t = normalizeSpaces(title).toLowerCase();
+  const t = normalizeSpaces(title).replace(/[İı]/g, 'i').toLowerCase();
   for (const pattern of MODEL_PATTERNS) {
     const m = t.match(pattern);
     if (m && m[1]) {
       return canonicalizeModelKey(m[1]);
     }
   }
+
+  if (/\b(amd|radeon|sapphire|powercolor|power\s*color|xfx)\b/i.test(t)) {
+    const bareAmdMatch = t.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(xtx|xt|gre)?\b/i);
+    if (bareAmdMatch?.[1]) {
+      return canonicalizeModelKey(`RX ${bareAmdMatch[1]} ${bareAmdMatch[2] || ''}`);
+    }
+  }
+
+  const bareAmdWithModifierMatch = t.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(xtx|xt|gre)\b/i);
+  if (bareAmdWithModifierMatch?.[1]) {
+    return canonicalizeModelKey(`RX ${bareAmdWithModifierMatch[1]} ${bareAmdWithModifierMatch[2] || ''}`);
+  }
+
+  const bareNvidiaMatch = t.match(
+    /\b(10(?:30|50|60|70|80)|16(?:30|50|60)|20(?:60|70|80)|30(?:50|60|70|80|90)|40(?:50|60|70|80|90)|50(?:60|70|80|90))\s*(ti\s*super|ti|super)?\b/i,
+  );
+  if (bareNvidiaMatch?.[1]) {
+    const prefix = Number.parseInt(bareNvidiaMatch[1], 10) >= 2060 ? 'RTX' : 'GTX';
+    return canonicalizeModelKey(`${prefix} ${bareNvidiaMatch[1]} ${bareNvidiaMatch[2] || ''}`);
+  }
+
   return '';
 }
 

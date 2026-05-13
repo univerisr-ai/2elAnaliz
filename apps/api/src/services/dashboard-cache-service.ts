@@ -96,13 +96,22 @@ async function writeJsonFile(fileName: string, data: unknown): Promise<void> {
 }
 
 function detectBrand(text: string): DashboardBrand {
-  const upper = text.toUpperCase();
+  const upper = normalizeGpuText(text);
+  const model = normalizeGpuText(normalizeModel(upper));
 
-  if (upper.includes("RTX") || upper.includes("GTX") || upper.includes("QUADRO") || upper.includes("TITAN")) {
+  if (/^(?:RTX|GTX|GTS|GT|GEFORCE|NVS)\b/.test(model) || upper.includes("QUADRO") || upper.includes("TITAN")) {
     return "NVIDIA";
   }
 
-  if (upper.includes("RADEON") || upper.includes(" RX ") || upper.startsWith("RX ") || upper.includes("VEGA")) {
+  if (
+    /^(?:RX|R[579]|RADEON HD)\b/.test(model) ||
+    model.includes("VEGA") ||
+    upper.includes("RADEON") ||
+    upper.includes("VEGA") ||
+    /\b(?:A?X?RX|RX)\s*-?\s*\d{3,4}\b/.test(upper) ||
+    (/\b(?:AMD|ATI|SAPPHIRE|POWERCOLOR|POWER\s*COLOR|XFX)\b/.test(upper) &&
+      /\b(?:4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(?:XTX|XT|GRE)?\b/.test(upper))
+  ) {
     return "AMD";
   }
 
@@ -113,13 +122,30 @@ function detectBrand(text: string): DashboardBrand {
   return "Bilinmiyor";
 }
 
+function normalizeGpuText(value: string): string {
+  return value
+    .replace(/[_/]+/g, " ")
+    .replace(/[İı]/g, "I")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
 function normalizeModel(title: string): string {
-  const upper = title.toUpperCase();
+  const upper = normalizeGpuText(title);
   const patterns = [
     /\bQUADRO RTX(?:\s+[A-Z0-9-]+)?\b/,
     /\bRTX\s+\d{3,4}\s*(?:TI|SUPER)?\b/,
     /\bGTX\s+\d{3,4}\s*(?:TI|SUPER)?\b/,
-    /\bRX\s+\d{3,4}\s*(?:XT|XTX)?\b/,
+    /\bGT\s+\d{3,4}\b/,
+    /\bG\s*-?\s*210\b/,
+    /\bGEFORCE\s*210\b/,
+    /\b[89]\d{3}\s*GT\b/,
+    /\b(?:RADEON\s+)?(?:A?X?RX|RX)\s*-?\s*\d{3,4}\s*(?:XTX|XT|GRE)?\b/,
+    /\b(?:AMD\s+)?(?:RADEON\s+)?(?:RX\s+)?VEGA\s*\d{2}\b/,
+    /\bR[579]\s*-?\s*\d{3}\b/,
+    /\b(?:RADEON\s+)?(?:HD|R)\s*-?\s*\d{4}\b/,
+    /\bNVS\s*-?\s*\d{3,4}\b/,
     /\bARC\s+[A-Z]?\d{3,4}\b/,
     /\bTITAN(?:\s+[A-Z0-9-]+)?\b/,
   ];
@@ -127,8 +153,37 @@ function normalizeModel(title: string): string {
   for (const pattern of patterns) {
     const match = upper.match(pattern);
     if (match?.[0]) {
-      return match[0].replace(/\s+/g, " ").trim();
+      const normalized = match[0]
+        .replace(/\b(?:RADEON\s+)?A?X?RX\b/i, "RX")
+        .replace(/\bG\s*-?\s*210\b/i, "GT 210")
+        .replace(/\bGEFORCE\s*210\b/i, "GT 210")
+        .replace(/\b([89]\d{3})\s*GT\b/i, "GeForce $1 GT")
+        .replace(/\b(?:AMD\s+)?(?:RADEON\s+)?(?:RX\s+)?VEGA\s*(\d{2})\b/i, "RX Vega $1")
+        .replace(/\b(?:RADEON\s+)?(?:HD|R)\s*-?\s*(\d{4})\b/i, "Radeon HD $1")
+        .replace(/\s+/g, " ")
+        .trim();
+      return normalized;
     }
+  }
+
+  if (/\b(?:AMD|ATI|RADEON|SAPPHIRE|POWERCOLOR|POWER\s*COLOR|XFX)\b/.test(upper)) {
+    const bareAmdMatch = upper.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(XTX|XT|GRE)?\b/);
+    if (bareAmdMatch?.[1]) {
+      return ["RX", bareAmdMatch[1], bareAmdMatch[2] || ""].filter(Boolean).join(" ");
+    }
+  }
+
+  const bareAmdWithModifierMatch = upper.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(XTX|XT|GRE)\b/);
+  if (bareAmdWithModifierMatch?.[1]) {
+    return ["RX", bareAmdWithModifierMatch[1], bareAmdWithModifierMatch[2] || ""].filter(Boolean).join(" ");
+  }
+
+  const bareNvidiaMatch = upper.match(
+    /\b(10(?:30|50|60|70|80)|16(?:30|50|60)|20(?:60|70|80)|30(?:50|60|70|80|90)|40(?:50|60|70|80|90)|50(?:60|70|80|90))\s*(TI\s*SUPER|TI|SUPER)?\b/,
+  );
+  if (bareNvidiaMatch?.[1]) {
+    const prefix = Number.parseInt(bareNvidiaMatch[1], 10) >= 2060 ? "RTX" : "GTX";
+    return [prefix, bareNvidiaMatch[1], bareNvidiaMatch[2] || ""].filter(Boolean).join(" ");
   }
 
   return title.trim();
@@ -153,6 +208,20 @@ function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Harici
   }
 
   return "Harici";
+}
+
+export function isCatalogNoiseListing(listing: Pick<CatalogListing, "title" | "model">): boolean {
+  const text = `${listing.title} ${listing.model}`
+    .toLocaleLowerCase("tr-TR")
+    .replace(/\s+/g, " ");
+
+  return [
+    /bo[şs]\s*kutu/,
+    /gpu\s*holder/,
+    /destek\s*aparat[ıi]/,
+    /ekran\s*kart[ıi]\s*destek/,
+    /sadece\s+(?:kutu|fan|blok|backplate|so[ğg]utucu)/,
+  ].some((pattern) => pattern.test(text));
 }
 
 function toListingId(modelKey: string, price: number, index: number): string {

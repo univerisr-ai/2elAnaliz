@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import AdmZip from "adm-zip";
 import { ENV, assertGitHubSourceConfigured } from "../config/env.js";
 import type { CatalogListing, DashboardSnapshot, DashboardSummary } from "./dashboard-types.js";
-import { mapRawCatalogListing } from "./dashboard-cache-service.js";
+import { isCatalogNoiseListing, mapRawCatalogListing } from "./dashboard-cache-service.js";
 
 interface GitHubWorkflowRunsResponse {
   workflow_runs?: Array<{
@@ -366,5 +366,7 @@ export async function fetchCatalogListingsFromConfiguredSource(summary: Dashboar
   }
 
   const listings = await fetchScraperArtifactListings(summary);
-  return listings.map((listing, index) => mapRawCatalogListing(listing, index));
+  return listings
+    .map((listing, index) => mapRawCatalogListing(listing, index))
+    .filter((listing) => !isCatalogNoiseListing(listing));
 }
