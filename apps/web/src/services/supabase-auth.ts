@@ -4,6 +4,18 @@ let browserClient: SupabaseClient | null = null;
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.trim() || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || "";
+
+export type OAuthProvider = "google" | "apple";
+
+function readBooleanFlag(value: unknown): boolean {
+  return typeof value === "string" && ["1", "true", "yes", "on"].includes(value.trim().toLowerCase());
+}
+
+const OAUTH_PROVIDER_ENABLED: Record<OAuthProvider, boolean> = {
+  google: readBooleanFlag(import.meta.env.VITE_AUTH_GOOGLE_ENABLED),
+  apple: readBooleanFlag(import.meta.env.VITE_AUTH_APPLE_ENABLED),
+};
+
 function resolveApiBase(): string {
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname;
@@ -27,8 +39,6 @@ export interface SignUpResult {
   requiresEmailConfirmation: boolean;
   session: Session | null;
 }
-
-export type OAuthProvider = "google" | "apple";
 
 interface LocalDevAuthPayload {
   success: boolean;
@@ -121,6 +131,10 @@ export function isSupabaseBrowserConfigured(): boolean {
 
 export function isAuthAvailable(): boolean {
   return isLocalDevelopmentBrowser() || isSupabaseBrowserConfigured();
+}
+
+export function isOAuthProviderEnabled(provider: OAuthProvider): boolean {
+  return OAUTH_PROVIDER_ENABLED[provider];
 }
 
 export function getSupabaseBrowserClient(): SupabaseClient {

@@ -29,6 +29,7 @@ import {
 import {
   getCurrentSession,
   isAuthAvailable,
+  isOAuthProviderEnabled,
   isSupabaseBrowserConfigured,
   signInWithEmail,
   signInWithMagicLink,
@@ -397,6 +398,8 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
   const [commentsLoadingId, setCommentsLoadingId] = useState<string | null>(null);
   const isAuthConfigured = isAuthAvailable();
   const isOAuthConfigured = isSupabaseBrowserConfigured();
+  const isGoogleOAuthReady = isOAuthConfigured && isOAuthProviderEnabled("google");
+  const isAppleOAuthReady = isOAuthConfigured && isOAuthProviderEnabled("apple");
 
   const setStatus = useCallback((nextMessage: string, tone: MessageTone) => {
     setMessage(nextMessage);
@@ -541,6 +544,11 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
   }
 
   async function handleOAuthSignIn(provider: OAuthProvider) {
+    if (!isOAuthProviderEnabled(provider)) {
+      setStatus(`${OAUTH_PROVIDER_LABELS[provider]} girişi Supabase tarafında henüz açılmamış.`, "error");
+      return;
+    }
+
     if (!isOAuthConfigured) {
       setStatus("Google ve Apple girişi için canlı Supabase ayarı gerekiyor.", "error");
       return;
@@ -810,7 +818,8 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
                   type="button"
                   className="submission-panel__oauth-button"
                   onClick={() => handleOAuthSignIn("google")}
-                  disabled={isBusy || !isOAuthConfigured}
+                  disabled={isBusy || !isGoogleOAuthReady}
+                  title={!isGoogleOAuthReady ? "Google provider Supabase'de açılınca aktif olur." : undefined}
                 >
                   <span className="submission-panel__provider-mark" aria-hidden="true">
                     G
@@ -821,7 +830,8 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
                   type="button"
                   className="submission-panel__oauth-button"
                   onClick={() => handleOAuthSignIn("apple")}
-                  disabled={isBusy || !isOAuthConfigured}
+                  disabled={isBusy || !isAppleOAuthReady}
+                  title={!isAppleOAuthReady ? "Apple provider Supabase'de açılınca aktif olur." : undefined}
                 >
                   <Apple size={15} />
                   Apple
@@ -893,7 +903,8 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
                   type="button"
                   className="submission-panel__oauth-button"
                   onClick={() => handleOAuthSignIn("google")}
-                  disabled={isBusy || !isOAuthConfigured}
+                  disabled={isBusy || !isGoogleOAuthReady}
+                  title={!isGoogleOAuthReady ? "Google provider Supabase'de açılınca aktif olur." : undefined}
                 >
                   <span className="submission-panel__provider-mark" aria-hidden="true">
                     G
@@ -904,7 +915,8 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
                   type="button"
                   className="submission-panel__oauth-button"
                   onClick={() => handleOAuthSignIn("apple")}
-                  disabled={isBusy || !isOAuthConfigured}
+                  disabled={isBusy || !isAppleOAuthReady}
+                  title={!isAppleOAuthReady ? "Apple provider Supabase'de açılınca aktif olur." : undefined}
                 >
                   <Apple size={15} />
                   Apple
