@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
+  Apple,
   ArrowLeft,
   CheckCircle2,
   ImageOff,
   Link as LinkIcon,
   LogOut,
+  Mail,
   MessageSquareText,
   Plus,
   RefreshCw,
@@ -26,10 +28,14 @@ import {
 import {
   getCurrentSession,
   isAuthAvailable,
+  isSupabaseBrowserConfigured,
   signInWithEmail,
+  signInWithMagicLink,
+  signInWithOAuthProvider,
   signOutUser,
   signUpWithEmail,
   subscribeToAuthChanges,
+  type OAuthProvider,
 } from "../services/supabase-auth";
 import { GPU_BRAND } from "../types/listing";
 import type { SubmissionBundle, SubmissionRecord } from "../types/submission";
@@ -77,6 +83,38 @@ const INITIAL_NATIVE_FORM: NativeFormState = {
 function getErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
+
+function getAuthErrorMessage(error: unknown, fallback: string): string {
+  const message = getErrorMessage(error, fallback);
+  const normalizedMessage = message.toLowerCase();
+
+  if (normalizedMessage.includes("invalid login credentials")) {
+    return "E-posta veya şifre hatalı.";
+  }
+
+  if (normalizedMessage.includes("email not confirmed")) {
+    return "E-postadaki doğrulama linkine tıkladıktan sonra giriş yapabilirsin.";
+  }
+
+  if (normalizedMessage.includes("user already registered")) {
+    return "Bu e-posta zaten kayıtlı. Giriş yapmayı veya e-posta linkini dene.";
+  }
+
+  if (normalizedMessage.includes("signup is disabled")) {
+    return "Yeni kayıtlar Supabase tarafında kapalı görünüyor.";
+  }
+
+  if (normalizedMessage.includes("provider is not enabled") || normalizedMessage.includes("unsupported provider")) {
+    return "Bu giriş seçeneği Supabase tarafında henüz açılmamış.";
+  }
+
+  return message;
+}
+
+const OAUTH_PROVIDER_LABELS: Record<OAuthProvider, string> = {
+  google: "Google",
+  apple: "Apple",
+};
 
 function formatSubmissionStatus(status: SubmissionRecord["status"]): string {
   const labels: Record<SubmissionRecord["status"], string> = {
@@ -355,6 +393,7 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
   const [isMySubmissionsLoading, setIsMySubmissionsLoading] = useState(false);
   const [commentsLoadingId, setCommentsLoadingId] = useState<string | null>(null);
   const isAuthConfigured = isAuthAvailable();
+  const isOAuthConfigured = isSupabaseBrowserConfigured();
 
   const setStatus = useCallback((nextMessage: string, tone: MessageTone) => {
     setMessage(nextMessage);
@@ -384,7 +423,7 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
       })
       .catch((error) => {
         if (isMounted) {
-          setMessage(getErrorMessage(error, "Oturum okunamadı."));
+          setMessage(getAuthErrorMessage(error, "Oturum okunamadı."));
           setMessageTone("error");
         }
       })
@@ -431,7 +470,7 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
       if (authMode === "signup") {
         const result = await signUpWithEmail(email.trim(), password, displayName.trim());
         if (result.requiresEmailConfirmation && !result.session) {
-          setStatus("E-posta doğrulaması bekleniyor.", "neutral");
+          setStatus("Kayıt oluşturuldu. E-postadaki doğrulama linkine tıklayınca giriş aktif olur.", "success");
           return;
         }
 
@@ -447,8 +486,48 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
       setStatus("Oturum hazır.", "success");
       onAccountChanged?.();
     } catch (error) {
-      setStatus(getErrorMessage(error, "Oturum işlemi tamamlanamadı."), "error");
+      setStatus(getAuthErrorMessage(error, "Oturum işlemi tamamlanamadı."), "error");
     } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleMagicLinkSignIn() {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setStatus("E-posta adresini yazınca giriş linki gönderebilirim.", "error");
+      return;
+    }
+
+    if (!isOAuthConfigured) {
+      setStatus("E-posta linki için canlı Supabase ayarı gerekiyor.", "error");
+      return;
+    }
+
+    try {
+      setIsBusy(true);
+      setStatus("", "neutral");
+      await signInWithMagicLink(trimmedEmail);
+      setStatus("Giriş linki e-postana gönderildi.", "success");
+    } catch (error) {
+      setStatus(getAuthErrorMessage(error, "Giriş linki gönderilemedi."), "error");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
+  async function handleOAuthSignIn(provider: OAuthProvider) {
+    if (!isOAuthConfigured) {
+      setStatus("Google ve Apple girişi için canlı Supabase ayarı gerekiyor.", "error");
+      return;
+    }
+
+    try {
+      setIsBusy(true);
+      setStatus(`${OAUTH_PROVIDER_LABELS[provider]} ekranına yönlendiriliyor.`, "neutral");
+      await signInWithOAuthProvider(provider);
+    } catch (error) {
+      setStatus(getAuthErrorMessage(error, "Hızlı giriş başlatılamadı."), "error");
       setIsBusy(false);
     }
   }
@@ -691,6 +770,33 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
                 </button>
               </div>
 
+              <div className="submission-panel__oauth-grid" aria-label="Hızlı giriş seçenekleri">
+                <button
+                  type="button"
+                  className="submission-panel__oauth-button"
+                  onClick={() => handleOAuthSignIn("google")}
+                  disabled={isBusy || !isOAuthConfigured}
+                >
+                  <span className="submission-panel__provider-mark" aria-hidden="true">
+                    G
+                  </span>
+                  Google
+                </button>
+                <button
+                  type="button"
+                  className="submission-panel__oauth-button"
+                  onClick={() => handleOAuthSignIn("apple")}
+                  disabled={isBusy || !isOAuthConfigured}
+                >
+                  <Apple size={15} />
+                  Apple
+                </button>
+              </div>
+
+              <div className="submission-panel__auth-divider">
+                <span>E-posta ile</span>
+              </div>
+
               {authMode === "signup" ? (
                 <label>
                   <span>Ad</span>
@@ -708,6 +814,16 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
                   disabled={!isAuthConfigured}
                 />
               </label>
+
+              <button
+                type="button"
+                className="submission-panel__ghost-button submission-panel__magic-link-button"
+                onClick={handleMagicLinkSignIn}
+                disabled={isBusy || !isOAuthConfigured}
+              >
+                <Mail size={14} />
+                E-posta linki gönder
+              </button>
 
               <label>
                 <span>Şifre</span>

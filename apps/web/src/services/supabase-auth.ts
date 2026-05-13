@@ -28,6 +28,8 @@ export interface SignUpResult {
   session: Session | null;
 }
 
+export type OAuthProvider = "google" | "apple";
+
 interface LocalDevAuthPayload {
   success: boolean;
   data?: {
@@ -168,6 +170,35 @@ export async function signInWithEmail(email: string, password: string): Promise<
   const { error } = await client.auth.signInWithPassword({
     email,
     password,
+  });
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function signInWithMagicLink(email: string): Promise<void> {
+  const client = getSupabaseBrowserClient();
+  const { error } = await client.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo: getAuthRedirectUrl(),
+      shouldCreateUser: true,
+    },
+  });
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function signInWithOAuthProvider(provider: OAuthProvider): Promise<void> {
+  const client = getSupabaseBrowserClient();
+  const { error } = await client.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: getAuthRedirectUrl(),
+    },
   });
 
   if (error) {
