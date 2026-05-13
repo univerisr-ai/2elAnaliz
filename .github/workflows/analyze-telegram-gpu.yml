@@ -97,6 +97,7 @@ jobs:
         run: |
           set -o pipefail
           node src/local-index.mjs ./data/inbox/output.json 2>&1 | tee analyzer.log
+          node scripts/prepare-api-dashboard-cache.mjs ./data/inbox/output.json
 
       - name: Upload sanitized summary artifact
         if: success()
