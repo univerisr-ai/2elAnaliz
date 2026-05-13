@@ -43,7 +43,6 @@ import { buildImageCandidateUrls } from "../utils/media";
 import "./SubmissionPanel.css";
 
 type SubmitMode = "link" | "manual";
-type AuthMode = "signin" | "signup";
 type MessageTone = "neutral" | "success" | "error";
 
 interface NativeFormState {
@@ -374,10 +373,11 @@ function SubmissionImagePreview({ preview }: { readonly preview: SubmissionPrevi
 export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: SubmissionPanelProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
-  const [authMode, setAuthMode] = useState<AuthMode>("signin");
   const [submitMode, setSubmitMode] = useState<SubmitMode>("link");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInPassword, setSignInPassword] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [nativeForm, setNativeForm] = useState(INITIAL_NATIVE_FORM);
@@ -455,7 +455,7 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
     void loadMySubmissions(token);
   }, [loadMySubmissions, session?.access_token]);
 
-  async function handleAuthSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSignInSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!isAuthConfigured) {
@@ -466,23 +466,10 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
     try {
       setIsBusy(true);
       setStatus("", "neutral");
-
-      if (authMode === "signup") {
-        const result = await signUpWithEmail(email.trim(), password, displayName.trim());
-        if (result.requiresEmailConfirmation && !result.session) {
-          setStatus("Kayıt oluşturuldu. E-postadaki doğrulama linkine tıklayınca giriş aktif olur.", "success");
-          return;
-        }
-
-        if (!result.session) {
-          await signInWithEmail(email.trim(), password);
-        }
-      } else {
-        await signInWithEmail(email.trim(), password);
-      }
-
+      await signInWithEmail(signInEmail.trim(), signInPassword);
       const nextSession = await getCurrentSession();
       setSession(nextSession);
+      setSignInPassword("");
       setStatus("Oturum hazır.", "success");
       onAccountChanged?.();
     } catch (error) {
@@ -492,8 +479,42 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
     }
   }
 
+  async function handleSignUpSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!isAuthConfigured) {
+      setStatus("Supabase anahtarları eklenince hesap açma ve ilan gönderimi aktif olur.", "error");
+      return;
+    }
+
+    try {
+      setIsBusy(true);
+      setStatus("", "neutral");
+      const result = await signUpWithEmail(signUpEmail.trim(), signUpPassword, displayName.trim());
+      if (result.requiresEmailConfirmation && !result.session) {
+        setSignUpPassword("");
+        setStatus("Kayıt oluşturuldu. E-postadaki doğrulama linkine tıklayınca giriş aktif olur.", "success");
+        return;
+      }
+
+      if (!result.session) {
+        await signInWithEmail(signUpEmail.trim(), signUpPassword);
+      }
+
+      const nextSession = await getCurrentSession();
+      setSession(nextSession);
+      setSignUpPassword("");
+      setStatus("Oturum hazır.", "success");
+      onAccountChanged?.();
+    } catch (error) {
+      setStatus(getAuthErrorMessage(error, "Hesap açılamadı."), "error");
+    } finally {
+      setIsBusy(false);
+    }
+  }
+
   async function handleMagicLinkSignIn() {
-    const trimmedEmail = email.trim();
+    const trimmedEmail = signInEmail.trim();
     if (!trimmedEmail) {
       setStatus("E-posta adresini yazınca giriş linki gönderebilirim.", "error");
       return;
@@ -734,43 +755,38 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
         </button>
       </div>
 
-      <div className="submission-panel__grid">
-        <aside className="submission-panel__auth" aria-label="Oturum">
+      {session ? (
+        <section className="submission-panel__auth-strip" aria-label="Oturum">
           <div className="submission-panel__auth-head">
             <span className="submission-panel__icon">
               <UserRound size={18} />
             </span>
             <div>
-              <strong>Oturum</strong>
-              <p>{session ? session.user.email : isSessionLoading ? "Kontrol ediliyor" : "Giriş gerekli"}</p>
+              <strong>Oturum açık</strong>
+              <p>{session.user.email}</p>
             </div>
           </div>
-
-          {session ? (
-            <button type="button" className="submission-panel__ghost-button" disabled={isBusy} onClick={handleSignOut}>
-              <LogOut size={14} />
-              Çıkış yap
-            </button>
-          ) : (
-            <form className="submission-panel__auth-form" onSubmit={handleAuthSubmit}>
-              <div className="submission-panel__mode-switch" role="tablist" aria-label="Oturum modu">
-                <button
-                  type="button"
-                  className={authMode === "signin" ? "is-active" : ""}
-                  onClick={() => setAuthMode("signin")}
-                >
-                  Giriş
-                </button>
-                <button
-                  type="button"
-                  className={authMode === "signup" ? "is-active" : ""}
-                  onClick={() => setAuthMode("signup")}
-                >
-                  Kayıt
-                </button>
+          <button type="button" className="submission-panel__ghost-button" disabled={isBusy} onClick={handleSignOut}>
+            <LogOut size={14} />
+            Çıkış yap
+          </button>
+        </section>
+      ) : (
+        <section className="submission-panel__auth-gateway" aria-label="Giriş ve kayıt">
+          <article className="submission-panel__auth-panel">
+            <div className="submission-panel__auth-panel-head">
+              <span className="submission-panel__icon">
+                <UserRound size={18} />
+              </span>
+              <div>
+                <span className="submission-panel__eyebrow">Login</span>
+                <h3>Giriş yap</h3>
+                <p>{isSessionLoading ? "Oturum kontrol ediliyor." : "Kayıtlı hesabınla ilanlarını takip et."}</p>
               </div>
+            </div>
 
-              <div className="submission-panel__oauth-grid" aria-label="Hızlı giriş seçenekleri">
+            <form className="submission-panel__auth-form" onSubmit={handleSignInSubmit}>
+              <div className="submission-panel__oauth-grid" aria-label="Giriş seçenekleri">
                 <button
                   type="button"
                   className="submission-panel__oauth-button"
@@ -797,19 +813,12 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
                 <span>E-posta ile</span>
               </div>
 
-              {authMode === "signup" ? (
-                <label>
-                  <span>Ad</span>
-                  <input value={displayName} onChange={(event) => setDisplayName(event.target.value)} />
-                </label>
-              ) : null}
-
               <label>
                 <span>E-posta</span>
                 <input
                   type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  value={signInEmail}
+                  onChange={(event) => setSignInEmail(event.target.value)}
                   required
                   disabled={!isAuthConfigured}
                 />
@@ -829,8 +838,8 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
                 <span>Şifre</span>
                 <input
                   type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  value={signInPassword}
+                  onChange={(event) => setSignInPassword(event.target.value)}
                   required
                   minLength={8}
                   disabled={!isAuthConfigured}
@@ -838,13 +847,93 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
               </label>
 
               <button type="submit" className="submission-panel__primary-button" disabled={isBusy || !isAuthConfigured}>
-                {authMode === "signin" ? "Giriş yap" : "Hesap aç"}
+                Giriş yap
               </button>
             </form>
-          )}
-        </aside>
+          </article>
 
-        <div className="submission-panel__form-shell">
+          <article className="submission-panel__auth-panel submission-panel__auth-panel--register">
+            <div className="submission-panel__auth-panel-head">
+              <span className="submission-panel__icon">
+                <Plus size={18} />
+              </span>
+              <div>
+                <span className="submission-panel__eyebrow">Register</span>
+                <h3>Kayıt ol</h3>
+                <p>İlan eklemek ve yayın durumunu görmek için hesabını oluştur.</p>
+              </div>
+            </div>
+
+            <form className="submission-panel__auth-form" onSubmit={handleSignUpSubmit}>
+              <div className="submission-panel__oauth-grid" aria-label="Kayıt seçenekleri">
+                <button
+                  type="button"
+                  className="submission-panel__oauth-button"
+                  onClick={() => handleOAuthSignIn("google")}
+                  disabled={isBusy || !isOAuthConfigured}
+                >
+                  <span className="submission-panel__provider-mark" aria-hidden="true">
+                    G
+                  </span>
+                  Google
+                </button>
+                <button
+                  type="button"
+                  className="submission-panel__oauth-button"
+                  onClick={() => handleOAuthSignIn("apple")}
+                  disabled={isBusy || !isOAuthConfigured}
+                >
+                  <Apple size={15} />
+                  Apple
+                </button>
+              </div>
+
+              <div className="submission-panel__auth-divider">
+                <span>E-posta ile</span>
+              </div>
+
+              <label>
+                <span>Ad</span>
+                <input
+                  value={displayName}
+                  onChange={(event) => setDisplayName(event.target.value)}
+                  disabled={!isAuthConfigured}
+                />
+              </label>
+
+              <label>
+                <span>E-posta</span>
+                <input
+                  type="email"
+                  value={signUpEmail}
+                  onChange={(event) => setSignUpEmail(event.target.value)}
+                  required
+                  disabled={!isAuthConfigured}
+                />
+              </label>
+
+              <label>
+                <span>Şifre</span>
+                <input
+                  type="password"
+                  value={signUpPassword}
+                  onChange={(event) => setSignUpPassword(event.target.value)}
+                  required
+                  minLength={8}
+                  disabled={!isAuthConfigured}
+                />
+              </label>
+
+              <button type="submit" className="submission-panel__primary-button" disabled={isBusy || !isAuthConfigured}>
+                Hesap aç
+              </button>
+            </form>
+          </article>
+        </section>
+      )}
+
+      <div className="submission-panel__workspace">
+        <div className="submission-panel__form-shell submission-panel__form-shell--full">
           <div className="submission-panel__mode-switch submission-panel__mode-switch--wide" role="tablist" aria-label="İlan modu">
             <button
               type="button"
