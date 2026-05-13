@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   ImageOff,
   Link as LinkIcon,
+  Lock,
   LogOut,
   Mail,
   MessageSquareText,
@@ -43,6 +44,7 @@ import { buildImageCandidateUrls } from "../utils/media";
 import "./SubmissionPanel.css";
 
 type SubmitMode = "link" | "manual";
+type AuthIntent = "signin" | "signup";
 type MessageTone = "neutral" | "success" | "error";
 
 interface NativeFormState {
@@ -64,6 +66,7 @@ interface SubmissionPreviewState {
 }
 
 interface SubmissionPanelProps {
+  readonly authIntent?: AuthIntent;
   readonly onBackToCatalog: () => void;
   readonly onAccountChanged?: () => void;
 }
@@ -370,7 +373,7 @@ function SubmissionImagePreview({ preview }: { readonly preview: SubmissionPrevi
   );
 }
 
-export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: SubmissionPanelProps) {
+export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAccountChanged }: SubmissionPanelProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
   const [submitMode, setSubmitMode] = useState<SubmitMode>("link");
@@ -747,13 +750,29 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
         <div>
           <span className="submission-panel__eyebrow">İlan Ekle</span>
           <h2 id="submit-title">Kendi ekran kartı ilanını gönder</h2>
-          <p>Gönderilen ilanlar yayınlanmadan önce inceleme kuyruğuna alınır.</p>
+          <p>
+            {session
+              ? "Gönderilen ilanlar yayınlanmadan önce inceleme kuyruğuna alınır."
+              : "Sat bölümüne devam etmek için giriş yap veya kayıt ol."}
+          </p>
         </div>
         <button type="button" className="submission-panel__back" onClick={onBackToCatalog}>
           <ArrowLeft size={15} />
           Kataloğa dön
         </button>
       </div>
+
+      {!session ? (
+        <section className="submission-panel__auth-callout" aria-label="Oturum gerekli">
+          <span className="submission-panel__icon">
+            <Lock size={18} />
+          </span>
+          <div>
+            <strong>İlan formu oturumdan sonra açılır.</strong>
+            <p>Giriş yaparsan mevcut ilanlarını görürsün; kayıt olursan yeni ilan göndermeye başlayabilirsin.</p>
+          </div>
+        </section>
+      ) : null}
 
       {session ? (
         <section className="submission-panel__auth-strip" aria-label="Oturum">
@@ -773,7 +792,7 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
         </section>
       ) : (
         <section className="submission-panel__auth-gateway" aria-label="Giriş ve kayıt">
-          <article className="submission-panel__auth-panel">
+          <article className={`submission-panel__auth-panel ${authIntent === "signin" ? "is-recommended" : ""}`}>
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <UserRound size={18} />
@@ -852,7 +871,11 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
             </form>
           </article>
 
-          <article className="submission-panel__auth-panel submission-panel__auth-panel--register">
+          <article
+            className={`submission-panel__auth-panel submission-panel__auth-panel--register ${
+              authIntent === "signup" ? "is-recommended" : ""
+            }`}
+          >
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <Plus size={18} />
@@ -860,7 +883,7 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
               <div>
                 <span className="submission-panel__eyebrow">Register</span>
                 <h3>Kayıt ol</h3>
-                <p>İlan eklemek ve yayın durumunu görmek için hesabını oluştur.</p>
+                <p>Hesap oluştur, ilan eklemeye başla.</p>
               </div>
             </div>
 
@@ -932,24 +955,32 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
         </section>
       )}
 
-      <div className="submission-panel__workspace">
-        <div className="submission-panel__form-shell submission-panel__form-shell--full">
-          <div className="submission-panel__mode-switch submission-panel__mode-switch--wide" role="tablist" aria-label="İlan modu">
-            <button
-              type="button"
-              className={submitMode === "link" ? "is-active" : ""}
-              onClick={() => setSubmitMode("link")}
-            >
-              Link
-            </button>
-            <button
-              type="button"
-              className={submitMode === "manual" ? "is-active" : ""}
-              onClick={() => setSubmitMode("manual")}
-            >
-              Manuel
-            </button>
-          </div>
+      {message ? (
+        <div className={`submission-panel__message submission-panel__message--${messageTone}`}>
+          {messageTone === "success" ? <CheckCircle2 size={16} /> : null}
+          <span>{message}</span>
+        </div>
+      ) : null}
+
+      {session ? (
+        <div className="submission-panel__workspace">
+          <div className="submission-panel__form-shell submission-panel__form-shell--full">
+            <div className="submission-panel__mode-switch submission-panel__mode-switch--wide" role="tablist" aria-label="İlan modu">
+              <button
+                type="button"
+                className={submitMode === "link" ? "is-active" : ""}
+                onClick={() => setSubmitMode("link")}
+              >
+                Link
+              </button>
+              <button
+                type="button"
+                className={submitMode === "manual" ? "is-active" : ""}
+                onClick={() => setSubmitMode("manual")}
+              >
+                Manuel
+              </button>
+            </div>
 
           {submitMode === "link" ? (
             <form className="submission-panel__listing-form" onSubmit={handleLinkSubmit}>
@@ -1064,13 +1095,6 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
             </form>
           )}
 
-          {message ? (
-            <div className={`submission-panel__message submission-panel__message--${messageTone}`}>
-              {messageTone === "success" ? <CheckCircle2 size={16} /> : null}
-              <span>{message}</span>
-            </div>
-          ) : null}
-
           {submittedPreview ? (
             <SubmissionImagePreview
               key={`${submittedPreview.title}-${submittedPreview.imageUrl ?? "no-image"}`}
@@ -1079,6 +1103,7 @@ export function SubmissionPanel({ onBackToCatalog, onAccountChanged }: Submissio
           ) : null}
         </div>
       </div>
+      ) : null}
 
       {session ? (
         <MySubmissionsPanel

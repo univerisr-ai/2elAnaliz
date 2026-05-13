@@ -2,6 +2,7 @@ import { Bell, Search, UserCircle } from "lucide-react";
 import "./Header.css";
 
 type PageView = "home" | "catalog" | "submit" | "admin" | "about";
+type AuthIntent = "signin" | "signup";
 
 export interface HeaderNotification {
   readonly id: string;
@@ -20,7 +21,9 @@ interface HeaderProps {
   readonly onSearchChange: (value: string) => void;
   readonly onSearchSubmit: () => void;
   readonly isSignedIn: boolean;
+  readonly accountLabel: string | null;
   readonly isAdmin: boolean;
+  readonly onAuthNavigate: (intent: AuthIntent) => void;
   readonly notifications: readonly HeaderNotification[];
   readonly isNotificationPanelOpen: boolean;
   readonly onToggleNotifications: () => void;
@@ -44,7 +47,9 @@ export function Header({
   onSearchChange,
   onSearchSubmit,
   isSignedIn,
+  accountLabel,
   isAdmin,
+  onAuthNavigate,
   notifications,
   isNotificationPanelOpen,
   onToggleNotifications,
@@ -137,9 +142,22 @@ export function Header({
               </section>
             ) : null}
           </div>
-          <button type="button" className="header__icon-btn" aria-label="Hesap" onClick={() => onNavigate("submit")}>
-            <UserCircle size={21} />
-          </button>
+
+          {isSignedIn ? (
+            <button type="button" className="header__account-chip" aria-label="Hesap" onClick={() => onNavigate("submit")}>
+              <UserCircle size={18} />
+              <span>{accountLabel ?? "Hesabım"}</span>
+            </button>
+          ) : (
+            <div className="header__auth-actions" aria-label="Oturum işlemleri">
+              <button type="button" className="header__auth-link" onClick={() => onAuthNavigate("signin")}>
+                Giriş yap
+              </button>
+              <button type="button" className="header__auth-primary" onClick={() => onAuthNavigate("signup")}>
+                Kayıt ol
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

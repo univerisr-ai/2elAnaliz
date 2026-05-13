@@ -160,6 +160,65 @@
   position: relative;
 }
 
+.header__auth-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header__auth-link,
+.header__auth-primary,
+.header__account-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  border-radius: var(--radius-md);
+  font-size: 0.76rem;
+  font-weight: 850;
+  white-space: nowrap;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast),
+    color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.header__auth-link {
+  padding: 0 12px;
+  border: 1px solid var(--border-card);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--text-primary);
+}
+
+.header__auth-primary {
+  padding: 0 13px;
+  border: 1px solid var(--accent-primary);
+  background: var(--accent-primary);
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(0, 51, 160, 0.16);
+}
+
+.header__account-chip {
+  max-width: 148px;
+  padding: 0 12px;
+  border: 1px solid var(--border-card);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text-primary);
+}
+
+.header__account-chip span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header__auth-link:hover,
+.header__auth-primary:hover,
+.header__account-chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-card);
+}
+
 .header__notification-panel {
   position: absolute;
   top: calc(100% + 14px);
@@ -326,11 +385,17 @@
   .header__tools {
     width: 100%;
     margin-left: 0;
+    flex-wrap: wrap;
   }
 
   .header__search {
     flex: 1;
     width: auto;
+  }
+
+  .header__auth-actions,
+  .header__account-chip {
+    margin-left: auto;
   }
 }
 
@@ -386,6 +451,22 @@
   .header__icon-btn,
   .header__notifications {
     display: none;
+  }
+
+  .header__auth-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .header__auth-link,
+  .header__auth-primary {
+    flex: 1;
+  }
+
+  .header__account-chip {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
   }
 }
 

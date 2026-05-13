@@ -67,6 +67,7 @@ import "./components/ListingCard.css";
 import "./App.css";
 
 type PageView = "home" | "catalog" | "submit" | "admin" | "about";
+type SubmitAuthIntent = "signin" | "signup";
 type CatalogSpotlightFilter = "cheap" | "popular" | "expensive" | "buyable" | null;
 
 interface CatalogWatchItem {
@@ -521,6 +522,7 @@ export default function App() {
   const [isCatalogEntryLoading, setIsCatalogEntryLoading] = useState(false);
   const [accountSession, setAccountSession] = useState<Session | null>(null);
   const [accountProfile, setAccountProfile] = useState<SubmissionProfile | null>(null);
+  const [submitAuthIntent, setSubmitAuthIntent] = useState<SubmitAuthIntent>("signin");
   const [accountNotifications, setAccountNotifications] = useState<HeaderNotification[]>([]);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
@@ -1081,6 +1083,13 @@ export default function App() {
 
   function handleNotificationSelect() {
     setIsNotificationPanelOpen(false);
+    setSubmitAuthIntent("signin");
+    navigateToPage("submit");
+  }
+
+  function handleAuthNavigate(intent: SubmitAuthIntent) {
+    setIsNotificationPanelOpen(false);
+    setSubmitAuthIntent(intent);
     navigateToPage("submit");
   }
 
@@ -1116,6 +1125,7 @@ export default function App() {
 
   function handleRequireCommentAuth() {
     setSelectedListing(null);
+    setSubmitAuthIntent("signin");
     navigateToPage("submit");
   }
 
@@ -1323,7 +1333,9 @@ export default function App() {
         onSearchChange={handleHeaderSearchChange}
         onSearchSubmit={handleHeaderSearchSubmit}
         isSignedIn={Boolean(accountSession)}
+        accountLabel={getSessionDisplayName(accountSession)}
         isAdmin={isAdminUser}
+        onAuthNavigate={handleAuthNavigate}
         notifications={accountNotifications}
         isNotificationPanelOpen={isNotificationPanelOpen}
         onToggleNotifications={handleToggleNotifications}
@@ -1810,7 +1822,11 @@ export default function App() {
 
         {activePage === "submit" && (
           <section className="page page--submit container" aria-labelledby="submit-title">
-            <SubmissionPanel onBackToCatalog={() => navigateToPage("catalog")} onAccountChanged={handleAccountChanged} />
+            <SubmissionPanel
+              authIntent={submitAuthIntent}
+              onBackToCatalog={() => navigateToPage("catalog")}
+              onAccountChanged={handleAccountChanged}
+            />
           </section>
         )}
 
