@@ -7,12 +7,25 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || "";
 
 export type OAuthProvider = "google" | "apple";
 
-function readBooleanFlag(value: unknown): boolean {
-  return typeof value === "string" && ["1", "true", "yes", "on"].includes(value.trim().toLowerCase());
+function readBooleanFlag(value: unknown, fallback = false): boolean {
+  if (typeof value !== "string") {
+    return fallback;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (["1", "true", "yes", "on"].includes(normalized)) {
+    return true;
+  }
+
+  if (["0", "false", "no", "off"].includes(normalized)) {
+    return false;
+  }
+
+  return fallback;
 }
 
 const OAUTH_PROVIDER_ENABLED: Record<OAuthProvider, boolean> = {
-  google: readBooleanFlag(import.meta.env.VITE_AUTH_GOOGLE_ENABLED),
+  google: readBooleanFlag(import.meta.env.VITE_AUTH_GOOGLE_ENABLED, true),
   apple: readBooleanFlag(import.meta.env.VITE_AUTH_APPLE_ENABLED),
 };
 
