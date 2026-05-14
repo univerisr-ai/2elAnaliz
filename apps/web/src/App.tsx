@@ -87,7 +87,9 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
 const CATALOG_FETCH_LIMIT = 3000;
 const CATALOG_PAGE_SIZE = 120;
 const CATALOG_ENTRY_LOADING_MS = 4000;
-const SITE_URL = (import.meta.env.VITE_SITE_URL?.trim() || "https://gpupusula.shop").replace(/\/+$/g, "");
+const SITE_URL = (import.meta.env.VITE_SITE_URL?.trim() || "https://www.gpupusula.shop").replace(/\/+$/g, "");
+const DEFAULT_SEO_KEYWORDS =
+  "ikinci el ekran kartı, 2 el ekran kartı, ikinci el GPU, ekran kartı fiyatları, RTX ikinci el, GTX ikinci el, RX ikinci el, GPU Pusula";
 const SHOWCASE_IMAGES = [gpuCard1, gpuCard2, gpuCard3];
 const REMOVED_CATALOG_IDS_STORAGE_KEY = "gpupusula.removedCatalogListingIds";
 const CATALOG_WATCHLIST_STORAGE_KEY = "gpupusula.catalogWatchlist";
@@ -481,6 +483,20 @@ function setMetaContent(name: string, content: string) {
   meta.content = content;
 }
 
+function setMetaProperty(property: string, content: string) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  let meta = document.querySelector<HTMLMetaElement>(`meta[property="${property}"]`);
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.setAttribute("property", property);
+    document.head.appendChild(meta);
+  }
+  meta.content = content;
+}
+
 function setCanonicalHref(path: string) {
   if (typeof document === "undefined") {
     return;
@@ -493,6 +509,34 @@ function setCanonicalHref(path: string) {
     document.head.appendChild(link);
   }
   link.href = `${SITE_URL}${path}`;
+}
+
+function setSeoJsonLd(title: string, description: string, canonicalPath: string) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  let script = document.querySelector<HTMLScriptElement>("#site-jsonld");
+  if (!script) {
+    script = document.createElement("script");
+    script.id = "site-jsonld";
+    script.type = "application/ld+json";
+    document.head.appendChild(script);
+  }
+
+  script.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: title,
+    url: `${SITE_URL}${canonicalPath}`,
+    inLanguage: "tr-TR",
+    description,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "GPU Pusula",
+      url: `${SITE_URL}/`,
+    },
+  });
 }
 
 export default function App() {
@@ -982,8 +1026,9 @@ export default function App() {
 
   useEffect(() => {
     const firstSelectedModel = selectedModelCategoryOptions[0];
-    let title = "GPU Pusula — İkinci El GPU Pazarı";
-    let description = "İkinci el ekran kartı ilanlarını model, fiyat ve alınabilirlik skoruna göre karşılaştır.";
+    let title = "İkinci El Ekran Kartı Fiyatları ve GPU İlanları | GPU Pusula";
+    let description =
+      "GPU Pusula ile ikinci el ekran kartı fiyatlarını, RTX, GTX, RX ve Intel Arc GPU ilanlarını alınabilirlik skoru ve güncel piyasa referansıyla karşılaştır.";
     let canonicalPath = buildPagePath(activePage);
 
     if (selectedListing) {
@@ -995,18 +1040,32 @@ export default function App() {
       description = `${firstSelectedModel.label} ilanlarını en ucuz, pahalı, popüler ve alınabilir seçeneklere göre incele.`;
       canonicalPath = `/model/${encodeURIComponent(slugifyModelLabel(firstSelectedModel.label))}`;
     } else if (activePage === "catalog") {
-      title = "İkinci el ekran kartı ilanları | GPU Pusula";
+      title = "İkinci El Ekran Kartı İlanları ve Fiyatları | GPU Pusula";
+      description =
+        "Güncel ikinci el ekran kartı ilanlarını model, fiyat, konum ve alınabilirlik skoruyla filtrele. RTX, GTX, RX ve Intel Arc GPU seçeneklerini karşılaştır.";
     } else if (activePage === "submit") {
       title = "Ekran kartı ilanı gönder | GPU Pusula";
       description = "Ekran kartı ilanını görselli gönder, analiz ve yayın incelemesini hesabından takip et.";
     } else if (activePage === "about") {
-      title = "GPU Pusula nasıl çalışır?";
+      title = "GPU Pusula Nedir? İkinci El GPU Rehberi";
       description = "GPU Pusula ikinci el GPU ilanlarını model, fiyat, yorum ve risk sinyalleriyle okunabilir hale getirir.";
     }
 
     document.title = title;
     setMetaContent("description", description);
+    setMetaContent("keywords", DEFAULT_SEO_KEYWORDS);
+    setMetaContent("robots", "index, follow, max-image-preview:large");
+    setMetaProperty("og:title", title);
+    setMetaProperty("og:description", description);
+    setMetaProperty("og:url", `${SITE_URL}${canonicalPath}`);
+    setMetaProperty("og:type", selectedListing ? "product" : "website");
+    setMetaProperty("og:site_name", "GPU Pusula");
+    setMetaProperty("og:locale", "tr_TR");
+    setMetaContent("twitter:card", "summary_large_image");
+    setMetaContent("twitter:title", title);
+    setMetaContent("twitter:description", description);
     setCanonicalHref(canonicalPath);
+    setSeoJsonLd(title, description, canonicalPath);
   }, [activePage, selectedListing, selectedModelCategoryOptions]);
   const catalogHighlights = useMemo(() => {
     const pool = baseFilteredCatalogListings.length ? baseFilteredCatalogListings : categoryBaseListings;
@@ -1349,12 +1408,12 @@ export default function App() {
               <div className="home-hero__copy">
                 <span className="home-hero__eyebrow">GPU PUSULA</span>
                 <h2 id="home-title">
-                  GPU ilanlarını tara,
-                  <span>doğru fiyata yaklaş.</span>
+                  İkinci el ekran kartı fiyatlarını tara,
+                  <span>doğru GPU ilanına yaklaş.</span>
                 </h2>
                 <p>
-                  Model kategorileri ve alınabilirlik tek yerde.
-                  <span>Kataloğa girince tüm havuzu görürsün.</span>
+                  RTX, GTX, RX ve Intel Arc ilanlarını model, fiyat ve alınabilirlik skoruyla tek yerde karşılaştır.
+                  <span>Kataloğa girince güncel ikinci el GPU havuzunu görürsün.</span>
                 </p>
 
                 <div className="home-hero__actions">
@@ -1424,8 +1483,8 @@ export default function App() {
                 </div>
                 <div>
                   <span>Tam katalog</span>
-                  <strong>Tüm ilan havuzu tek ekranda</strong>
-                  <p>Arama, model kategorisi ve fiyat sıralaması aynı akışta çalışır.</p>
+                  <strong>İkinci el ekran kartı ilanları tek ekranda</strong>
+                  <p>Arama, model kategorisi, fiyat sıralaması ve alınabilirlik skoru aynı akışta çalışır.</p>
                 </div>
                 <button type="button" className="home-highlights__link" onClick={() => navigateToPage("catalog")}>
                   Kataloğa git
@@ -1454,8 +1513,8 @@ export default function App() {
             <section className="catalog-page__intro container">
               <div>
                 <span className="catalog-page__eyebrow">Ekran Kartları</span>
-                <h2 id="catalog-title">Tam ilan kataloğu</h2>
-                <p>Kategoriler, arama ve fiyat filtreleri doğrudan katalog verisi üzerinde çalışır.</p>
+                <h2 id="catalog-title">İkinci el ekran kartı ilanları</h2>
+                <p>Güncel GPU kataloğunda model, fiyat, konum ve alınabilirlik skoruna göre arama yap.</p>
               </div>
               <div className="catalog-page__status-cards" aria-label="Katalog durumu">
                 <article className="catalog-page__status-card">
