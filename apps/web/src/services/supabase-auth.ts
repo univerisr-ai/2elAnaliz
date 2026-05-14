@@ -5,7 +5,7 @@ let browserClient: SupabaseClient | null = null;
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL?.trim() || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() || "";
 
-export type OAuthProvider = "google" | "apple";
+export type OAuthProvider = "google";
 
 function readBooleanFlag(value: unknown, fallback = false): boolean {
   if (typeof value !== "string") {
@@ -26,7 +26,6 @@ function readBooleanFlag(value: unknown, fallback = false): boolean {
 
 const OAUTH_PROVIDER_ENABLED: Record<OAuthProvider, boolean> = {
   google: readBooleanFlag(import.meta.env.VITE_AUTH_GOOGLE_ENABLED, true),
-  apple: readBooleanFlag(import.meta.env.VITE_AUTH_APPLE_ENABLED),
 };
 
 function resolveApiBase(): string {

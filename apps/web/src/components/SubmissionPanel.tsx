@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
-  Apple,
   ArrowLeft,
   CheckCircle2,
   ImageOff,
@@ -116,7 +115,6 @@ function getAuthErrorMessage(error: unknown, fallback: string): string {
 
 const OAUTH_PROVIDER_LABELS: Record<OAuthProvider, string> = {
   google: "Google",
-  apple: "Apple",
 };
 
 function formatSubmissionStatus(status: SubmissionRecord["status"]): string {
@@ -399,7 +397,6 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
   const isAuthConfigured = isAuthAvailable();
   const isOAuthConfigured = isSupabaseBrowserConfigured();
   const isGoogleOAuthReady = isOAuthConfigured && isOAuthProviderEnabled("google");
-  const isAppleOAuthReady = isOAuthConfigured && isOAuthProviderEnabled("apple");
 
   const setStatus = useCallback((nextMessage: string, tone: MessageTone) => {
     setMessage(nextMessage);
@@ -550,7 +547,7 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
     }
 
     if (!isOAuthConfigured) {
-      setStatus("Google ve Apple girişi için canlı Supabase ayarı gerekiyor.", "error");
+      setStatus("Google girişi için canlı Supabase ayarı gerekiyor.", "error");
       return;
     }
 
@@ -826,16 +823,6 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
                   </span>
                   Google
                 </button>
-                <button
-                  type="button"
-                  className="submission-panel__oauth-button"
-                  onClick={() => handleOAuthSignIn("apple")}
-                  disabled={isBusy || !isAppleOAuthReady}
-                  title={!isAppleOAuthReady ? "Apple provider Supabase'de açılınca aktif olur." : undefined}
-                >
-                  <Apple size={15} />
-                  Apple
-                </button>
               </div>
 
               <div className="submission-panel__auth-divider">
@@ -910,16 +897,6 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
                     G
                   </span>
                   Google
-                </button>
-                <button
-                  type="button"
-                  className="submission-panel__oauth-button"
-                  onClick={() => handleOAuthSignIn("apple")}
-                  disabled={isBusy || !isAppleOAuthReady}
-                  title={!isAppleOAuthReady ? "Apple provider Supabase'de açılınca aktif olur." : undefined}
-                >
-                  <Apple size={15} />
-                  Apple
                 </button>
               </div>
 
