@@ -2,7 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 const DIST_DIR = path.resolve("dist");
-const SITE_URL = (process.env.VITE_SITE_URL || process.env.SITE_URL || "https://www.gpupusula.shop").replace(/\/+$/g, "");
+const DEFAULT_SITE_URL = "https://www.gpupusula.shop";
+const rawSiteUrl = process.env.VITE_SITE_URL || process.env.SITE_URL || DEFAULT_SITE_URL;
+const SITE_URL = rawSiteUrl.replace(/\/+$/g, "") === "https://gpupusula.shop"
+  ? DEFAULT_SITE_URL
+  : rawSiteUrl.replace(/\/+$/g, "");
 const indexPath = path.join(DIST_DIR, "index.html");
 const sitemapPath = path.join(DIST_DIR, "sitemap.xml");
 

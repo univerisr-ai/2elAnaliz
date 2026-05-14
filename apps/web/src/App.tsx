@@ -87,7 +87,8 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
 const CATALOG_FETCH_LIMIT = 3000;
 const CATALOG_PAGE_SIZE = 120;
 const CATALOG_ENTRY_LOADING_MS = 4000;
-const SITE_URL = (import.meta.env.VITE_SITE_URL?.trim() || "https://www.gpupusula.shop").replace(/\/+$/g, "");
+const SITE_URL_RAW = (import.meta.env.VITE_SITE_URL?.trim() || "https://www.gpupusula.shop").replace(/\/+$/g, "");
+const SITE_URL = SITE_URL_RAW === "https://gpupusula.shop" ? "https://www.gpupusula.shop" : SITE_URL_RAW;
 const DEFAULT_SEO_KEYWORDS =
   "ikinci el ekran kartı, 2 el ekran kartı, ikinci el GPU, ekran kartı fiyatları, RTX ikinci el, GTX ikinci el, RX ikinci el, GPU Pusula";
 const SHOWCASE_IMAGES = [gpuCard1, gpuCard2, gpuCard3];

@@ -7,7 +7,9 @@ const publicDir = path.resolve(__dirname, "../public");
 
 const DEFAULT_SITE_URL = "https://www.gpupusula.shop";
 const rawSiteUrl = process.env.VITE_SITE_URL || process.env.SITE_URL || DEFAULT_SITE_URL;
-const siteUrl = rawSiteUrl.replace(/\/+$/g, "");
+const siteUrl = rawSiteUrl.replace(/\/+$/g, "") === "https://gpupusula.shop"
+  ? DEFAULT_SITE_URL
+  : rawSiteUrl.replace(/\/+$/g, "");
 
 const staticPaths = [
   { pathname: "/", priority: "1.0", changefreq: "hourly" },
