@@ -281,6 +281,8 @@ function enrichSummaryWithListingImages(summary, rawListings) {
 }
 
 function buildSeedSource(generatedAt, catalogListings) {
+  const catalogJsonLiteral = JSON.stringify(JSON.stringify(catalogListings));
+
   return [
     'import type { CatalogListing } from "../services/dashboard-types.js";',
     '',
@@ -288,7 +290,8 @@ function buildSeedSource(generatedAt, catalogListings) {
     '// Private workflow and run metadata must not be added to this seed.',
     `export const CATALOG_GENERATED_AT = ${JSON.stringify(generatedAt)};`,
     '',
-    `export const CATALOG_SEED: readonly CatalogListing[] = ${JSON.stringify(catalogListings, null, 2)};`,
+    `const CATALOG_SEED_JSON = ${catalogJsonLiteral};`,
+    'export const CATALOG_SEED = JSON.parse(CATALOG_SEED_JSON) as readonly CatalogListing[];',
     '',
   ].join('\n');
 }
