@@ -830,6 +830,12 @@
   top: 88px;
   display: grid;
   gap: 16px;
+  max-height: calc(100svh - 108px);
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 6px;
+  scrollbar-gutter: stable;
 }
 
 .catalog-marketplace__content {
@@ -1296,9 +1302,13 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 320px;
+  max-height: min(224px, 28svh);
   overflow-y: auto;
   padding-bottom: 2px;
+}
+
+.catalog-categories__group:last-child .catalog-categories__rail {
+  max-height: min(188px, 24svh);
 }
 
 .catalog-categories__item {
@@ -1703,6 +1713,10 @@
 
   .catalog-marketplace__sidebar {
     position: static;
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+    scrollbar-gutter: auto;
   }
 
   .catalog-page__status-cards {
@@ -1746,7 +1760,9 @@
     padding: 12px;
     flex-direction: column;
     gap: 12px;
+    max-height: none;
     overflow-y: auto;
+    overscroll-behavior: contain;
     border-left: 1px solid var(--border-card);
     background: #f7f8ff;
     box-shadow: -20px 0 50px rgba(15, 23, 42, 0.18);
@@ -1757,6 +1773,11 @@
     transition: transform 360ms var(--ease-out), opacity 240ms var(--ease-out), visibility 0ms linear 360ms,
       box-shadow 360ms var(--ease-out);
     will-change: transform, opacity;
+  }
+
+  .catalog-categories__rail,
+  .catalog-categories__group:last-child .catalog-categories__rail {
+    max-height: min(220px, 30svh);
   }
 
   .catalog-marketplace__sidebar.is-open {

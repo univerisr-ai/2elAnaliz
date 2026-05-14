@@ -32,6 +32,23 @@ function getBrandClass(brand: string): string {
   }
 }
 
+function getSourceTone(listing: CatalogListing, sourceLabel: string): "sahibinden" | "letgo" | "pecid" | "external" {
+  if (listing.isInternal) {
+    return "pecid";
+  }
+
+  const sourceNeedle = `${sourceLabel} ${listing.externalUrl ?? ""}`.toLocaleLowerCase("tr-TR");
+  if (sourceNeedle.includes("sahibinden")) {
+    return "sahibinden";
+  }
+
+  if (sourceNeedle.includes("letgo")) {
+    return "letgo";
+  }
+
+  return "external";
+}
+
 export function CatalogCard({
   listing,
   onOpenDetails,
@@ -54,6 +71,7 @@ export function CatalogCard({
   const publicModel = getCanonicalGpuModel(listing) || cleanPublicListingText(listing.model);
   const sourceLabel = getSourceLabel(listing);
   const externalListingUrl = getExternalListingUrl(listing);
+  const sourceTone = getSourceTone(listing, sourceLabel);
 
   function handleImageError() {
     if (imageIndex < imageCandidates.length - 1) {
@@ -63,7 +81,7 @@ export function CatalogCard({
 
   return (
     <article
-      className="catalog-card"
+      className={`catalog-card catalog-card--source-${sourceTone}`}
       role="button"
       tabIndex={0}
       onClick={() => onOpenDetails(listing)}
@@ -92,6 +110,7 @@ export function CatalogCard({
         )}
 
         <div className="catalog-card__badges">
+          <span className="catalog-card__source-badge">{sourceLabel}</span>
           <span className={`catalog-card__brand ${getBrandClass(listing.brand)}`}>{listing.brand}</span>
         </div>
 
