@@ -37,28 +37,60 @@ jobs:
           DISPATCH_SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository }}
           DISPATCH_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name }}
           DEFAULT_SOURCE_REPOSITORY: ${{ vars.SCRAPER_SOURCE_REPOSITORY }}
+          LETGO_SOURCE_REPOSITORY: ${{ vars.LETGO_SOURCE_REPOSITORY }}
         run: |
           set -euo pipefail
+          rm -rf ./data/inbox ./data/sources
           mkdir -p ./data/inbox
+          mkdir -p ./data/sources
 
-          SOURCE_REPO="${DISPATCH_SOURCE_REPOSITORY:-${DEFAULT_SOURCE_REPOSITORY:-univerisr-ai/ahibinden-ekran-karti}}"
+          DEFAULT_REPO="${DEFAULT_SOURCE_REPOSITORY:-univerisr-ai/ahibinden-ekran-karti}"
+          LETGO_REPO="${LETGO_SOURCE_REPOSITORY:-univerisr-ai/letgo-ekran-karti}"
 
-          if [ -n "${DISPATCH_RUN_ID:-}" ]; then
-            SCRAPER_RUN_ID="${DISPATCH_RUN_ID}"
-            ARTIFACT_NAME="${DISPATCH_ARTIFACT_NAME:-scraper-results-${DISPATCH_RUN_ID}}"
-            echo "Dispatch artifact indiriliyor: repo=${SOURCE_REPO}, run=${DISPATCH_RUN_ID}, artifact=${ARTIFACT_NAME}"
-            gh run download "${SCRAPER_RUN_ID}" \
-              --repo "${SOURCE_REPO}" \
-              --name "${ARTIFACT_NAME}" \
-              --dir ./data/inbox
-          else
-            echo "Dispatch run id yok; ${SOURCE_REPO} icindeki son basarili scraper artifact'i aranacak."
-            FOUND_ARTIFACT=""
-            SCRAPER_RUN_ID=""
+          sanitize_repo() {
+            printf '%s' "$1" | tr '/:' '__'
+          }
 
+          write_metadata() {
+            local dir="$1"
+            local repo="$2"
+            local run_id="$3"
+            local artifact_name="$4"
+
+            cat > "${dir}/metadata.json" <<JSON
+          {
+            "source_repository": "${repo}",
+            "scraper_run_id": "${run_id}",
+            "scraper_run_url": "https://github.com/${repo}/actions/runs/${run_id}",
+            "artifact_name": "${artifact_name}"
+          }
+          JSON
+          }
+
+          download_specific_artifact() {
+            local repo="$1"
+            local run_id="$2"
+            local artifact_name="$3"
+            local dir="$4"
+
+            mkdir -p "$dir"
+            echo "Dispatch artifact indiriliyor: repo=${repo}, run=${run_id}, artifact=${artifact_name}"
+            gh run download "${run_id}" \
+              --repo "${repo}" \
+              --name "${artifact_name}" \
+              --dir "${dir}"
+            write_metadata "$dir" "$repo" "$run_id" "$artifact_name"
+          }
+
+          download_latest_artifact() {
+            local repo="$1"
+            local dir="$2"
+
+            mkdir -p "$dir"
+            echo "${repo} icindeki son basarili scraper artifact'i aranacak."
             mapfile -t RUN_IDS < <(
               gh run list \
-                --repo "${SOURCE_REPO}" \
+                --repo "${repo}" \
                 --status success \
                 --limit 25 \
                 --json databaseId \
@@ -66,34 +98,71 @@ jobs:
             )
 
             for RUN_ID in "${RUN_IDS[@]}"; do
-              ARTIFACT_NAME="scraper-results-${RUN_ID}"
-              echo "Deneniyor: run=${RUN_ID}, artifact=${ARTIFACT_NAME}"
+              local artifact_name="scraper-results-${RUN_ID}"
+              echo "Deneniyor: repo=${repo}, run=${RUN_ID}, artifact=${artifact_name}"
               if gh run download "${RUN_ID}" \
-                --repo "${SOURCE_REPO}" \
-                --name "${ARTIFACT_NAME}" \
-                --dir ./data/inbox; then
-                FOUND_ARTIFACT="${ARTIFACT_NAME}"
-                SCRAPER_RUN_ID="${RUN_ID}"
-                break
+                --repo "${repo}" \
+                --name "${artifact_name}" \
+                --dir "${dir}"; then
+                write_metadata "$dir" "$repo" "$RUN_ID" "$artifact_name"
+                return 0
               fi
             done
 
-            if [ -z "${FOUND_ARTIFACT}" ]; then
-              echo "Son basarili scraper artifact'i bulunamadi; bos katalog deploy etmemek icin workflow durduruluyor." >&2
-              exit 1
-            fi
+            return 1
+          }
+
+          DOWNLOADED=0
+
+          if [ -n "${DISPATCH_RUN_ID:-}" ]; then
+            SCRAPER_RUN_ID="${DISPATCH_RUN_ID}"
+            ARTIFACT_NAME="${DISPATCH_ARTIFACT_NAME:-scraper-results-${DISPATCH_RUN_ID}}"
+            SOURCE_REPO="${DISPATCH_SOURCE_REPOSITORY:-${DEFAULT_REPO}}"
+            SOURCE_DIR="./data/sources/dispatch-$(sanitize_repo "${SOURCE_REPO}")"
+            download_specific_artifact "${SOURCE_REPO}" "${SCRAPER_RUN_ID}" "${ARTIFACT_NAME}" "${SOURCE_DIR}"
+            DOWNLOADED=$((DOWNLOADED + 1))
           fi
 
-          if [ ! -s ./data/inbox/output.json ]; then
-            echo "Artifact indirildi ama output.json yok veya bos; bos katalog deploy etmemek icin workflow durduruluyor." >&2
+          for SOURCE_REPO in "${DEFAULT_REPO}" "${LETGO_REPO}"; do
+            if [ -z "${SOURCE_REPO:-}" ]; then
+              continue
+            fi
+
+            if [ -n "${DISPATCH_SOURCE_REPOSITORY:-}" ] && [ "${SOURCE_REPO}" = "${DISPATCH_SOURCE_REPOSITORY}" ]; then
+              echo "Dispatch kaynagi zaten indirildi, atlandi: ${SOURCE_REPO}"
+              continue
+            fi
+
+            SOURCE_DIR="./data/sources/$(sanitize_repo "${SOURCE_REPO}")"
+            if download_latest_artifact "${SOURCE_REPO}" "${SOURCE_DIR}"; then
+              DOWNLOADED=$((DOWNLOADED + 1))
+            else
+              echo "Uyari: ${SOURCE_REPO} icin indirilebilir scraper artifact'i bulunamadi." >&2
+            fi
+          done
+
+          if [ "${DOWNLOADED}" -eq 0 ]; then
+            echo "Hiç scraper artifact'i indirilemedi; bos katalog deploy etmemek icin workflow durduruluyor." >&2
             exit 1
           fi
 
+          node scripts/merge-scraper-outputs.mjs ./data/sources ./data/inbox/output.json ./data/inbox/pipeline-messages.json
+
+          if [ ! -s ./data/inbox/output.json ]; then
+            echo "Merge tamamlandi ama output.json yok veya bos; bos katalog deploy etmemek icin workflow durduruluyor." >&2
+            exit 1
+          fi
+
+          MERGE_LISTING_COUNT="$(node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('./data/inbox/output.json','utf8')); console.log(j.totalClean || j.runMeta?.listingCount || 0)")"
+          MERGE_SCRAPE_STATUS="$(node -e "const fs=require('fs'); const j=JSON.parse(fs.readFileSync('./data/inbox/output.json','utf8')); console.log(j.runMeta?.scrapeStatus || 'SCRAPE_COMPLETED')")"
+
           {
-            echo "source_repository=${SOURCE_REPO}"
-            echo "scraper_run_id=${SCRAPER_RUN_ID}"
-            echo "scraper_run_url=https://github.com/${SOURCE_REPO}/actions/runs/${SCRAPER_RUN_ID}"
-            echo "artifact_name=${ARTIFACT_NAME}"
+            echo "source_repository=multi-source"
+            echo "scraper_run_id=${DISPATCH_RUN_ID:-latest}"
+            echo "scraper_run_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "artifact_name=merged-scraper-results"
+            echo "listing_count=${MERGE_LISTING_COUNT}"
+            echo "scrape_status=${MERGE_SCRAPE_STATUS}"
           } >> "$GITHUB_OUTPUT"
 
       - name: Prepare fallback inbox files
@@ -133,12 +202,12 @@ jobs:
           MAX_RESULTS: ${{ vars.MAX_RESULTS }}
           DEPLOY_TARGET: vercel
           VERCEL_PROJECT_NAME: ${{ vars.VERCEL_PROJECT_NAME }}
-          SCRAPER_SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository || steps.scraper_artifact.outputs.source_repository }}
-          SCRAPER_RUN_URL: ${{ github.event.client_payload.source_run_url || steps.scraper_artifact.outputs.scraper_run_url }}
-          SCRAPER_GITHUB_RUN_ID: ${{ github.event.client_payload.github_run_id || steps.scraper_artifact.outputs.scraper_run_id }}
-          SCRAPER_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name || steps.scraper_artifact.outputs.artifact_name }}
-          SCRAPER_STATUS: ${{ github.event.client_payload.scrape_status }}
-          SCRAPER_LISTING_COUNT: ${{ github.event.client_payload.listing_count }}
+          SCRAPER_SOURCE_REPOSITORY: ${{ steps.scraper_artifact.outputs.source_repository || github.event.client_payload.source_repository }}
+          SCRAPER_RUN_URL: ${{ steps.scraper_artifact.outputs.scraper_run_url || github.event.client_payload.source_run_url }}
+          SCRAPER_GITHUB_RUN_ID: ${{ steps.scraper_artifact.outputs.scraper_run_id || github.event.client_payload.github_run_id }}
+          SCRAPER_ARTIFACT_NAME: ${{ steps.scraper_artifact.outputs.artifact_name || github.event.client_payload.artifact_name }}
+          SCRAPER_STATUS: ${{ steps.scraper_artifact.outputs.scrape_status || github.event.client_payload.scrape_status }}
+          SCRAPER_LISTING_COUNT: ${{ steps.scraper_artifact.outputs.listing_count || github.event.client_payload.listing_count }}
           SCRAPER_STARTED_AT: ${{ github.event.client_payload.started_at }}
           SCRAPER_FINISHED_AT: ${{ github.event.client_payload.finished_at }}
           SCRAPER_PIPELINE_MESSAGE: ${{ github.event.client_payload.pipeline_message }}
