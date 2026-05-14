@@ -92,7 +92,6 @@ interface PublicWatchlistItem {
 const CATALOG_DEFAULT_PER_PAGE = 120;
 const CATALOG_MAX_PER_PAGE = 3000;
 const CATALOG_PUBLIC_MIN_BUYABILITY_SCORE = 50;
-const CATALOG_PUBLIC_MAX_LISTINGS = 800;
 const MODEL_DEFAULT_PER_PAGE = 1000;
 const MODEL_MAX_PER_PAGE = 1000;
 const PUBLIC_LIST_CACHE_HEADER = "public, max-age=60, s-maxage=300, stale-while-revalidate=1800";
@@ -313,7 +312,6 @@ function filterPublicCatalogListings(
     }))
     .filter((entry) => entry.score > CATALOG_PUBLIC_MIN_BUYABILITY_SCORE)
     .sort((a, b) => b.score - a.score || a.listing.price - b.listing.price)
-    .slice(0, CATALOG_PUBLIC_MAX_LISTINGS)
     .map((entry) => entry.listing);
 }
 

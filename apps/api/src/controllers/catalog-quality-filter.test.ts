@@ -37,8 +37,8 @@ async function main(): Promise<void> {
 
     const payload = (await response.json()) as CatalogResponse;
     assert.equal(payload.success, true);
-    assert.ok(payload.meta.total <= 800, `expected at most 800 public catalog listings, got ${payload.meta.total}`);
-    assert.ok(payload.data.length <= 800, `expected response page to stay capped, got ${payload.data.length}`);
+    assert.ok(payload.meta.total > 800, `expected no hard 800 listing cap, got ${payload.meta.total}`);
+    assert.equal(payload.data.length, payload.meta.total);
     assert.ok(
       payload.data.every((listing) => listing.buyability.score > 50),
       "expected every public catalog listing to have buyability score above 50",
