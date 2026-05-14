@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types: [telegram_file_ready]
   workflow_dispatch:
+  schedule:
+    # Refresh market price references from the latest scraper artifact every 6 hours.
+    - cron: '17 */6 * * *'
 
 permissions:
   contents: read
@@ -27,17 +30,71 @@ jobs:
         run: npm ci
 
       - name: Download scraper artifact
-        if: github.event.client_payload.github_run_id != ''
+        id: scraper_artifact
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN || github.token }}
+          DISPATCH_RUN_ID: ${{ github.event.client_payload.github_run_id }}
+          DISPATCH_SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository }}
+          DISPATCH_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name }}
+          DEFAULT_SOURCE_REPOSITORY: ${{ vars.SCRAPER_SOURCE_REPOSITORY }}
         run: |
           set -euo pipefail
           mkdir -p ./data/inbox
 
-          gh run download "${{ github.event.client_payload.github_run_id }}" \
-            --repo "${{ github.event.client_payload.source_repository || 'univerisr-ai/yenitest' }}" \
-            --name "${{ github.event.client_payload.artifact_name || format('scraper-results-{0}', github.event.client_payload.github_run_id) }}" \
-            --dir ./data/inbox || echo "Artifact indirilemedi, fallback inbox dosyalari kullanilacak."
+          SOURCE_REPO="${DISPATCH_SOURCE_REPOSITORY:-${DEFAULT_SOURCE_REPOSITORY:-univerisr-ai/ahibinden-ekran-karti}}"
+
+          if [ -n "${DISPATCH_RUN_ID:-}" ]; then
+            SCRAPER_RUN_ID="${DISPATCH_RUN_ID}"
+            ARTIFACT_NAME="${DISPATCH_ARTIFACT_NAME:-scraper-results-${DISPATCH_RUN_ID}}"
+            echo "Dispatch artifact indiriliyor: repo=${SOURCE_REPO}, run=${DISPATCH_RUN_ID}, artifact=${ARTIFACT_NAME}"
+            gh run download "${SCRAPER_RUN_ID}" \
+              --repo "${SOURCE_REPO}" \
+              --name "${ARTIFACT_NAME}" \
+              --dir ./data/inbox
+          else
+            echo "Dispatch run id yok; ${SOURCE_REPO} icindeki son basarili scraper artifact'i aranacak."
+            FOUND_ARTIFACT=""
+            SCRAPER_RUN_ID=""
+
+            mapfile -t RUN_IDS < <(
+              gh run list \
+                --repo "${SOURCE_REPO}" \
+                --status success \
+                --limit 25 \
+                --json databaseId \
+                --jq '.[].databaseId'
+            )
+
+            for RUN_ID in "${RUN_IDS[@]}"; do
+              ARTIFACT_NAME="scraper-results-${RUN_ID}"
+              echo "Deneniyor: run=${RUN_ID}, artifact=${ARTIFACT_NAME}"
+              if gh run download "${RUN_ID}" \
+                --repo "${SOURCE_REPO}" \
+                --name "${ARTIFACT_NAME}" \
+                --dir ./data/inbox; then
+                FOUND_ARTIFACT="${ARTIFACT_NAME}"
+                SCRAPER_RUN_ID="${RUN_ID}"
+                break
+              fi
+            done
+
+            if [ -z "${FOUND_ARTIFACT}" ]; then
+              echo "Son basarili scraper artifact'i bulunamadi; bos katalog deploy etmemek icin workflow durduruluyor." >&2
+              exit 1
+            fi
+          fi
+
+          if [ ! -s ./data/inbox/output.json ]; then
+            echo "Artifact indirildi ama output.json yok veya bos; bos katalog deploy etmemek icin workflow durduruluyor." >&2
+            exit 1
+          fi
+
+          {
+            echo "source_repository=${SOURCE_REPO}"
+            echo "scraper_run_id=${SCRAPER_RUN_ID}"
+            echo "scraper_run_url=https://github.com/${SOURCE_REPO}/actions/runs/${SCRAPER_RUN_ID}"
+            echo "artifact_name=${ARTIFACT_NAME}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Prepare fallback inbox files
         shell: bash
@@ -46,16 +103,8 @@ jobs:
           mkdir -p ./data/inbox
 
           if [ ! -f ./data/inbox/output.json ]; then
-            cat > ./data/inbox/output.json <<'JSON'
-          {
-            "timestamp": null,
-            "totalRaw": 0,
-            "totalClean": 0,
-            "topDeals": [],
-            "allListings": [],
-            "runMeta": {}
-          }
-          JSON
+            echo "output.json bulunamadi; bos katalog deploy etmemek icin workflow durduruluyor." >&2
+            exit 1
           fi
 
           if [ ! -f ./data/inbox/pipeline-messages.json ]; then
@@ -84,10 +133,10 @@ jobs:
           MAX_RESULTS: ${{ vars.MAX_RESULTS }}
           DEPLOY_TARGET: vercel
           VERCEL_PROJECT_NAME: ${{ vars.VERCEL_PROJECT_NAME }}
-          SCRAPER_SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository }}
-          SCRAPER_RUN_URL: ${{ github.event.client_payload.source_run_url }}
-          SCRAPER_GITHUB_RUN_ID: ${{ github.event.client_payload.github_run_id }}
-          SCRAPER_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name }}
+          SCRAPER_SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository || steps.scraper_artifact.outputs.source_repository }}
+          SCRAPER_RUN_URL: ${{ github.event.client_payload.source_run_url || steps.scraper_artifact.outputs.scraper_run_url }}
+          SCRAPER_GITHUB_RUN_ID: ${{ github.event.client_payload.github_run_id || steps.scraper_artifact.outputs.scraper_run_id }}
+          SCRAPER_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name || steps.scraper_artifact.outputs.artifact_name }}
           SCRAPER_STATUS: ${{ github.event.client_payload.scrape_status }}
           SCRAPER_LISTING_COUNT: ${{ github.event.client_payload.listing_count }}
           SCRAPER_STARTED_AT: ${{ github.event.client_payload.started_at }}

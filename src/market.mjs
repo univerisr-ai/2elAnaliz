@@ -41,25 +41,39 @@ function normalizeSpaces(text) {
     .trim();
 }
 
+function extractVramLabel(text) {
+  const match = String(text || '').match(/\b(2|3|4|6|8|10|11|12|16|20|24|32|48)\s*(?:gb|gddr|g\b)/i);
+  return match?.[1] ? `${match[1]}GB` : '';
+}
+
+function addVramToModelKey(modelKey, title) {
+  if (!modelKey || /\b\d+\s*GB\b/i.test(modelKey)) return modelKey;
+  const vramLabel = extractVramLabel(title);
+  return vramLabel ? `${modelKey} ${vramLabel}` : modelKey;
+}
+
 export function extractModelKey(title) {
   const t = normalizeSpaces(title).replace(/[İı]/g, 'i').toLowerCase();
   for (const pattern of MODEL_PATTERNS) {
     const m = t.match(pattern);
     if (m && m[1]) {
-      return canonicalizeModelKey(m[1]);
+      return addVramToModelKey(canonicalizeModelKey(m[1]), title);
     }
   }
 
   if (/\b(amd|radeon|sapphire|powercolor|power\s*color|xfx)\b/i.test(t)) {
     const bareAmdMatch = t.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(xtx|xt|gre)?\b/i);
     if (bareAmdMatch?.[1]) {
-      return canonicalizeModelKey(`RX ${bareAmdMatch[1]} ${bareAmdMatch[2] || ''}`);
+      return addVramToModelKey(canonicalizeModelKey(`RX ${bareAmdMatch[1]} ${bareAmdMatch[2] || ''}`), title);
     }
   }
 
   const bareAmdWithModifierMatch = t.match(/\b(4[6-9]0|5[5-9]0|6[4-9]\d{2}|7[0-9]\d{2}|90[6-7]0)\s*(xtx|xt|gre)\b/i);
   if (bareAmdWithModifierMatch?.[1]) {
-    return canonicalizeModelKey(`RX ${bareAmdWithModifierMatch[1]} ${bareAmdWithModifierMatch[2] || ''}`);
+    return addVramToModelKey(
+      canonicalizeModelKey(`RX ${bareAmdWithModifierMatch[1]} ${bareAmdWithModifierMatch[2] || ''}`),
+      title,
+    );
   }
 
   const bareNvidiaMatch = t.match(
@@ -67,7 +81,10 @@ export function extractModelKey(title) {
   );
   if (bareNvidiaMatch?.[1]) {
     const prefix = Number.parseInt(bareNvidiaMatch[1], 10) >= 2060 ? 'RTX' : 'GTX';
-    return canonicalizeModelKey(`${prefix} ${bareNvidiaMatch[1]} ${bareNvidiaMatch[2] || ''}`);
+    return addVramToModelKey(
+      canonicalizeModelKey(`${prefix} ${bareNvidiaMatch[1]} ${bareNvidiaMatch[2] || ''}`),
+      title,
+    );
   }
 
   return '';
@@ -87,7 +104,7 @@ function extractTlValues(text) {
 }
 
 async function fetchDuckDuckGoReference(modelKey) {
-  const q = `${modelKey} ikinci el ekran karti fiyat tl`;
+  const q = `${modelKey} ekran karti sifir fiyat TL Turkiye Akakce Cimri Vatan Inventus`;
   try {
     const { data } = await axios.get('https://duckduckgo.com/html/', {
       timeout: 35000,
@@ -105,7 +122,7 @@ async function fetchDuckDuckGoReference(modelKey) {
     }
 
     return {
-      source: 'web',
+      source: 'web-retail',
       fairPrice: Math.round(median(values)),
       sampleCount: values.length,
       confidence: Math.min(0.75, 0.45 + values.length * 0.02),
@@ -116,7 +133,7 @@ async function fetchDuckDuckGoReference(modelKey) {
 }
 
 async function fetchJinaSearchReference(modelKey) {
-  const q = encodeURIComponent(`${modelKey} ikinci el ekran karti fiyat tl`);
+  const q = encodeURIComponent(`${modelKey} ekran karti sifir fiyat TL Turkiye Akakce Cimri Vatan Inventus`);
   const url = `https://r.jina.ai/http://duckduckgo.com/?q=${q}`;
 
   try {
@@ -132,7 +149,7 @@ async function fetchJinaSearchReference(modelKey) {
     if (values.length < 2) return null;
 
     return {
-      source: 'web-jina',
+      source: 'web-retail-jina',
       fairPrice: Math.round(median(values)),
       sampleCount: values.length,
       confidence: Math.min(0.68, 0.38 + values.length * 0.03),

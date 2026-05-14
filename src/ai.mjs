@@ -19,16 +19,17 @@ export async function fetchAiPriceReference(modelKey, localMedian = 0) {
     return null;
   }
 
-  // Provide local context to the AI so it doesn't hallucinate wildly
+  // Provide local context to the AI so it doesn't hallucinate wildly.
   const localContext = localMedian > 0 
-    ? `We currently see a local median price of ${localMedian} TRY on the market.`
+    ? `We currently see a second-hand local median price of ${localMedian} TRY on the marketplace.`
     : `We have no local median price available.`;
 
   const prompt = [
     `GPU model: ${modelKey}`,
     `Context: ${localContext}`,
-    'Task: Estimate the true Turkish second-hand fair market price in TRY.',
-    'Consider factors like current mining deprecation, new GPU generation releases, and realistic seller markup.',
+    'Task: Estimate the current Turkish new/retail reference price in TRY for this GPU model.',
+    'Use Turkey retail context, current stock reality, new GPU generation releases, and realistic seller markup.',
+    'If the model is old and rarely sold new, estimate the closest clean retail/new-old-stock reference instead of the used median.',
     'Return strict JSON only with keys: fair_min, fair_max, confidence, note.', 
     'Rules: confidence must be 0..1, fair_min/fair_max must be integers in TRY.',
     'Do not include markdown blocks like ```json, just output the raw JSON object.'
