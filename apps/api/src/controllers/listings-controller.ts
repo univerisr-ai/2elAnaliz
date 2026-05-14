@@ -91,6 +91,8 @@ interface PublicWatchlistItem {
 
 const CATALOG_DEFAULT_PER_PAGE = 120;
 const CATALOG_MAX_PER_PAGE = 3000;
+const CATALOG_PUBLIC_MIN_BUYABILITY_SCORE = 50;
+const CATALOG_PUBLIC_MAX_LISTINGS = 800;
 const MODEL_DEFAULT_PER_PAGE = 1000;
 const MODEL_MAX_PER_PAGE = 1000;
 const PUBLIC_LIST_CACHE_HEADER = "public, max-age=60, s-maxage=300, stale-while-revalidate=1800";
@@ -298,6 +300,21 @@ function sanitizeCatalogListing(listing: CatalogListing, context: PublicCatalogC
     externalUrl: isInternal ? null : normalizePublicExternalUrl(listing.url),
     isInternal,
   };
+}
+
+function filterPublicCatalogListings(
+  listings: readonly CatalogListing[],
+  context: PublicCatalogContext,
+): CatalogListing[] {
+  return listings
+    .map((listing) => ({
+      listing,
+      score: getBuyabilityInsight(listing, context.allListings, context.buyabilityIndex).score,
+    }))
+    .filter((entry) => entry.score > CATALOG_PUBLIC_MIN_BUYABILITY_SCORE)
+    .sort((a, b) => b.score - a.score || a.listing.price - b.listing.price)
+    .slice(0, CATALOG_PUBLIC_MAX_LISTINGS)
+    .map((entry) => entry.listing);
 }
 
 function sanitizePublishedListing(listing: PublishedListingRecord): PublicPublishedListing {
@@ -1050,6 +1067,8 @@ listingsRouter.get("/catalog", async (req: Request, res: Response): Promise<void
         `${listing.title} ${listing.model} ${listing.location} ${listing.segment}`.toLowerCase().includes(needle),
       );
     }
+
+    listings = filterPublicCatalogListings(listings, context);
 
     switch (sort) {
       case "price_asc":
