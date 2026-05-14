@@ -27,11 +27,11 @@ function getBearerToken(request: Request): string | null {
   return token.trim();
 }
 
-function sendAuthError(response: Response, statusCode: number, message: string): void {
+function sendAuthError(response: Response, statusCode: number, message: string, code = "AUTH_ERROR"): void {
   response.status(statusCode).json({
     success: false,
     error: {
-      code: "AUTH_ERROR",
+      code,
       message,
       statusCode,
     },
@@ -91,7 +91,12 @@ export async function requireAuthenticatedUser(request: Request, response: Respo
     }
 
     if (message.startsWith("[ENV]")) {
-      sendAuthError(response, 503, "Uyelik sistemi henuz yapilandirilmamis.");
+      sendAuthError(
+        response,
+        503,
+        "Giriş yapıldı, ama ilan sistemi için sunucu bağlantısı henüz tamamlanmamış. Yönetici Supabase servis anahtarını Vercel'e eklemeli.",
+        "AUTH_CONFIG_MISSING",
+      );
       return;
     }
 

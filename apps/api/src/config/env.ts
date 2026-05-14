@@ -58,7 +58,7 @@ export const ENV = {
   PORT: parseInt(optionalEnv("PORT", "3001"), 10),
   CORS_ORIGIN: optionalEnv("CORS_ORIGIN", "http://localhost:5173"),
   SYNC_CRON: optionalEnv("SYNC_CRON", "0 */6 * * *"),
-  SUPABASE_URL: optionalEnv("SUPABASE_URL", ""),
+  SUPABASE_URL: optionalSecret(["SUPABASE_URL", "VITE_SUPABASE_URL"]),
   SUPABASE_ANON_KEY: optionalSecret(["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"]),
   SUPABASE_SERVICE_ROLE_KEY: optionalSecret(["SUPABASE_SERVICE_ROLE_KEY"]),
   SUPABASE_STORAGE_BUCKET: optionalEnv("SUPABASE_STORAGE_BUCKET", "listing-images"),
@@ -117,6 +117,6 @@ export function assertSubmissionsConfigured(): void {
   }
 
   if (!isSupabaseConfigured()) {
-    throw new Error("[ENV] SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY zorunlu. Submission sistemi icin Supabase baglantisi kurulmalidir.");
+    throw new Error("[ENV] SUPABASE_URL/VITE_SUPABASE_URL ve SUPABASE_SERVICE_ROLE_KEY zorunlu. Submission sistemi icin Supabase baglantisi kurulmalidir.");
   }
 }
