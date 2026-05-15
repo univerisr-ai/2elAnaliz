@@ -278,6 +278,10 @@ export async function getCatalogListings(): Promise<CatalogListing[]> {
   return readJsonFile<CatalogListing[]>(CATALOG_FILE, []);
 }
 
+export function getEmbeddedCatalogListings(): CatalogListing[] {
+  return CATALOG_SEED.map((listing) => ({ ...listing }));
+}
+
 export async function saveCatalogListings(listings: readonly CatalogListing[]): Promise<void> {
   await writeJsonFile(CATALOG_FILE, listings);
 }

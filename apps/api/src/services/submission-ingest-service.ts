@@ -1,4 +1,4 @@
-import { getCatalogListings, getDashboardListings } from "./dashboard-cache-service.js";
+import { getCatalogListings, getDashboardListings, getEmbeddedCatalogListings } from "./dashboard-cache-service.js";
 import type { CatalogListing, DashboardListing } from "./dashboard-types.js";
 import { fetchWithSafeRedirects, readLimitedText } from "./network-security-service.js";
 import type { CreateLinkSubmissionInput, SourceType } from "./submission-types.js";
@@ -142,6 +142,22 @@ function pickCatalogMatch(url: string, catalog: CatalogListing[], dashboard: Das
   return dashboardById ? mapDashboardListing(dashboardById, url) : null;
 }
 
+function mergeWithEmbeddedCatalog(catalog: CatalogListing[]): CatalogListing[] {
+  const seen = new Set(catalog.map((listing) => listing.id));
+  const merged = [...catalog];
+
+  for (const listing of getEmbeddedCatalogListings()) {
+    if (seen.has(listing.id)) {
+      continue;
+    }
+
+    seen.add(listing.id);
+    merged.push(listing);
+  }
+
+  return merged;
+}
+
 function extractMetaTag(html: string, patterns: RegExp[]): string | null {
   for (const pattern of patterns) {
     const match = html.match(pattern);
@@ -282,7 +298,8 @@ export async function ingestSubmissionLink(
   const parsed = await validateIngestUrlSecure(url);
   const normalizedUrl = parsed.toString();
 
-  const [catalog, dashboard] = await Promise.all([getCatalogListings(), getDashboardListings()]);
+  const [runtimeCatalog, dashboard] = await Promise.all([getCatalogListings(), getDashboardListings()]);
+  const catalog = mergeWithEmbeddedCatalog(runtimeCatalog);
   const catalogMatch = pickCatalogMatch(normalizedUrl, catalog, dashboard);
   if (catalogMatch) {
     return {
@@ -325,6 +342,7 @@ export async function resolveNativeSubmissionCoverImage(input: {
   readonly model: string | null;
   readonly brand: string | null;
 }): Promise<string | null> {
-  const [catalog, dashboard] = await Promise.all([getCatalogListings(), getDashboardListings()]);
+  const [runtimeCatalog, dashboard] = await Promise.all([getCatalogListings(), getDashboardListings()]);
+  const catalog = mergeWithEmbeddedCatalog(runtimeCatalog);
   return pickRepresentativeImage(`${input.brand ?? ""} ${input.model ?? ""} ${input.title}`, catalog, dashboard);
 }

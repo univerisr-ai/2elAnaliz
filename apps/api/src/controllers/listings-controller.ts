@@ -6,6 +6,7 @@
 import { Router, type Request, type Response } from "express";
 import { assertSubmissionsConfigured, ENV } from "../config/env.js";
 import {
+  getEmbeddedCatalogListings,
   getCatalogListings,
   getDashboardLastUpdated,
   getDashboardListings,
@@ -376,7 +377,10 @@ async function resolveListingImageSource(listingId: string): Promise<{ src: stri
     }),
   ]);
 
-  const catalogListing = [...publishedListings, ...catalogListings].find((listing) => listing.id === listingId);
+  const embeddedCatalogListings = getEmbeddedCatalogListings();
+  const catalogListing = [...publishedListings, ...catalogListings, ...embeddedCatalogListings].find(
+    (listing) => listing.id === listingId,
+  );
   const dashboardListing = dashboardListings.find((listing) => listing.id === listingId);
   const imageUrl = catalogListing?.imageUrl ?? dashboardListing?.imageUrl ?? null;
   const label = catalogListing?.title ?? dashboardListing?.title ?? "İlan görseli";
