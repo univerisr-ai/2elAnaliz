@@ -1,4 +1,4 @@
-import type { CatalogFilterState, CatalogSortOption, GpuBrand } from "../types/listing";
+import type { CatalogFilterState, CatalogSortOption, CatalogSourceFilter, GpuBrand } from "../types/listing";
 import { CATALOG_SORT_OPTIONS, GPU_BRAND } from "../types/listing";
 import { RotateCcw, Search } from "lucide-react";
 import "./CatalogFilterBar.css";
@@ -12,6 +12,7 @@ interface CatalogFilterBarProps {
 const DEFAULT_FILTERS: CatalogFilterState = {
   search: "",
   brand: "all",
+  source: "all",
   minPrice: 0,
   maxPrice: 100000,
   sortBy: CATALOG_SORT_OPTIONS.LATEST,
@@ -51,6 +52,18 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFi
             <option value={GPU_BRAND.NVIDIA}>NVIDIA</option>
             <option value={GPU_BRAND.AMD}>AMD</option>
             <option value={GPU_BRAND.INTEL}>Intel</option>
+          </select>
+
+          <select
+            className="catalog-filter__select"
+            value={filters.source}
+            aria-label="Mağaza seç"
+            onChange={(event) => update("source", event.target.value as CatalogSourceFilter)}
+          >
+            <option value="all">Tüm mağazalar</option>
+            <option value="sahibinden">Sahibinden</option>
+            <option value="letgo">Letgo</option>
+            <option value="pecid">GPU Pusula</option>
           </select>
 
           <input

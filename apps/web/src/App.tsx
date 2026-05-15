@@ -22,7 +22,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import type { CatalogFilterState, CatalogListing, DashboardSummary, GpuListing } from "./types/listing";
+import type { CatalogFilterState, CatalogListing, CatalogSourceFilter, DashboardSummary, GpuListing } from "./types/listing";
 import { CATALOG_SORT_OPTIONS } from "./types/listing";
 import { Header, type HeaderNotification } from "./components/Header";
 import { CatalogFilterBar } from "./components/CatalogFilterBar";
@@ -60,6 +60,7 @@ import {
   getBuyabilityInsight,
   type BuyabilityIndex,
 } from "./utils/buyability";
+import { getSourceLabel } from "./utils/source";
 import gpuCard1 from "./assets/gpu-card-1.png";
 import gpuCard2 from "./assets/gpu-card-2.png";
 import gpuCard3 from "./assets/gpu-card-3.png";
@@ -79,6 +80,7 @@ interface CatalogWatchItem {
 const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   search: "",
   brand: "all",
+  source: "all",
   minPrice: 0,
   maxPrice: 100000,
   sortBy: CATALOG_SORT_OPTIONS.LATEST,
@@ -220,6 +222,23 @@ function getCatalogListingInsight(
   return listing.buyability ?? getBuyabilityInsight(listing, comparisonListings, buyabilityIndex);
 }
 
+function getCatalogSourceFilterKey(listing: CatalogListing): Exclude<CatalogSourceFilter, "all"> {
+  if (listing.isInternal) {
+    return "pecid";
+  }
+
+  const sourceNeedle = `${getSourceLabel(listing)} ${listing.externalUrl ?? ""}`.toLocaleLowerCase("tr-TR");
+  if (sourceNeedle.includes("sahibinden")) {
+    return "sahibinden";
+  }
+
+  if (sourceNeedle.includes("letgo")) {
+    return "letgo";
+  }
+
+  return "external";
+}
+
 function isCatalogReferenceBuyableListing(
   listing: CatalogListing,
   comparisonListings: readonly CatalogListing[],
@@ -275,6 +294,10 @@ function filterCatalogListings(
     }
 
     if (filters.brand !== "all" && listing.brand !== filters.brand) {
+      return false;
+    }
+
+    if (filters.source !== "all" && getCatalogSourceFilterKey(listing) !== filters.source) {
       return false;
     }
 
@@ -985,6 +1008,7 @@ export default function App() {
     return [
       catalogFilters.search.trim(),
       catalogFilters.brand !== "all",
+      catalogFilters.source !== "all",
       catalogFilters.minPrice > 0,
       catalogFilters.maxPrice > 0 && catalogFilters.maxPrice < 100000,
       catalogFilters.sortBy !== DEFAULT_CATALOG_FILTERS.sortBy,
