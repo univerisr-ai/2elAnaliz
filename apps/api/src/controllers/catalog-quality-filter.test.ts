@@ -32,7 +32,7 @@ async function main(): Promise<void> {
     assert.ok(address);
 
     const baseUrl = `http://127.0.0.1:${(address as AddressInfo).port}/api`;
-    const response = await fetch(`${baseUrl}/catalog?perPage=3000`);
+    const response = await fetch(`${baseUrl}/catalog?perPage=5000`);
     assert.equal(response.status, 200);
 
     const payload = (await response.json()) as CatalogResponse;

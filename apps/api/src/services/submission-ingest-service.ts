@@ -1,4 +1,9 @@
-import { getCatalogListings, getDashboardListings, getEmbeddedCatalogListings } from "./dashboard-cache-service.js";
+import {
+  getCatalogImageFallbacks,
+  getCatalogListings,
+  getDashboardListings,
+  getEmbeddedCatalogListings,
+} from "./dashboard-cache-service.js";
 import type { CatalogListing, DashboardListing } from "./dashboard-types.js";
 import { fetchWithSafeRedirects, readLimitedText } from "./network-security-service.js";
 import type { CreateLinkSubmissionInput, SourceType } from "./submission-types.js";
@@ -156,6 +161,16 @@ function mergeWithEmbeddedCatalog(catalog: CatalogListing[]): CatalogListing[] {
   }
 
   return merged;
+}
+
+function pickLegacyImageForUrl(url: string): string | null {
+  const listingId = extractListingId(url);
+  if (!listingId) {
+    return null;
+  }
+
+  const match = getCatalogImageFallbacks().find((listing) => listing.id === listingId);
+  return isUsableImageUrl(match?.imageUrl) ? match.imageUrl : null;
 }
 
 function extractMetaTag(html: string, patterns: RegExp[]): string | null {
@@ -333,7 +348,7 @@ export async function ingestSubmissionLink(
     price: metadata.price ?? 0,
     currency: "TRY",
     location: null,
-    coverImageUrl: metadata.coverImageUrl ?? null,
+    coverImageUrl: metadata.coverImageUrl ?? pickLegacyImageForUrl(normalizedUrl),
   };
 }
 

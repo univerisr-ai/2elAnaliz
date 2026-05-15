@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { CATALOG_IMAGE_FALLBACK } from "../data/catalog-image-fallback.js";
 import { CATALOG_GENERATED_AT, CATALOG_SEED } from "../data/catalog-seed.js";
 import type {
   DashboardBrand,
@@ -9,6 +10,8 @@ import type {
   DashboardSnapshot,
   DashboardSummary,
 } from "./dashboard-types.js";
+
+export type CatalogImageFallback = (typeof CATALOG_IMAGE_FALLBACK)[number];
 
 const DATA_DIRS = Array.from(
   new Set([
@@ -280,6 +283,10 @@ export async function getCatalogListings(): Promise<CatalogListing[]> {
 
 export function getEmbeddedCatalogListings(): CatalogListing[] {
   return CATALOG_SEED.map((listing) => ({ ...listing }));
+}
+
+export function getCatalogImageFallbacks(): readonly CatalogImageFallback[] {
+  return CATALOG_IMAGE_FALLBACK;
 }
 
 export async function saveCatalogListings(listings: readonly CatalogListing[]): Promise<void> {

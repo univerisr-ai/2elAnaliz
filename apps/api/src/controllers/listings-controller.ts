@@ -6,6 +6,7 @@
 import { Router, type Request, type Response } from "express";
 import { assertSubmissionsConfigured, ENV } from "../config/env.js";
 import {
+  getCatalogImageFallbacks,
   getEmbeddedCatalogListings,
   getCatalogListings,
   getDashboardLastUpdated,
@@ -91,7 +92,7 @@ interface PublicWatchlistItem {
 }
 
 const CATALOG_DEFAULT_PER_PAGE = 120;
-const CATALOG_MAX_PER_PAGE = 3000;
+const CATALOG_MAX_PER_PAGE = 5000;
 const CATALOG_PUBLIC_MIN_BUYABILITY_SCORE = 50;
 const MODEL_DEFAULT_PER_PAGE = 1000;
 const MODEL_MAX_PER_PAGE = 1000;
@@ -382,8 +383,9 @@ async function resolveListingImageSource(listingId: string): Promise<{ src: stri
     (listing) => listing.id === listingId,
   );
   const dashboardListing = dashboardListings.find((listing) => listing.id === listingId);
-  const imageUrl = catalogListing?.imageUrl ?? dashboardListing?.imageUrl ?? null;
-  const label = catalogListing?.title ?? dashboardListing?.title ?? "İlan görseli";
+  const imageFallback = getCatalogImageFallbacks().find((listing) => listing.id === listingId);
+  const imageUrl = catalogListing?.imageUrl ?? dashboardListing?.imageUrl ?? imageFallback?.imageUrl ?? null;
+  const label = catalogListing?.title ?? dashboardListing?.title ?? imageFallback?.title ?? "İlan görseli";
 
   return imageUrl ? { src: imageUrl, label } : null;
 }
