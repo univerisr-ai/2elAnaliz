@@ -356,7 +356,7 @@ submissionsRouter.post("/submissions/link", requireAuthenticatedUser, submission
     });
 
     try {
-      const ingestSourceType = (submission.sourceType === "pecid" ? "external" : submission.sourceType) as "sahibinden" | "letgo" | "external";
+      const ingestSourceType = (submission.sourceType === "pecid" ? "external" : submission.sourceType) as "sahibinden" | "letgo" | "dolap" | "external";
       await createExternalLinkIngestJob({
         submissionId: submission.id,
         sourceType: ingestSourceType,

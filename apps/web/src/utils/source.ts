@@ -1,7 +1,7 @@
 type ListingLike = {
   readonly source?: string;
   readonly sourceLabel?: string | null;
-  readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "external";
+  readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "external";
   readonly isInternal?: boolean;
   readonly externalUrl?: string | null;
 };

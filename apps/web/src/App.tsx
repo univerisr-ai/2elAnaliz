@@ -236,6 +236,10 @@ function getCatalogSourceFilterKey(listing: CatalogListing): Exclude<CatalogSour
     return "letgo";
   }
 
+  if (sourceNeedle.includes("dolap")) {
+    return "dolap";
+  }
+
   return "external";
 }
 

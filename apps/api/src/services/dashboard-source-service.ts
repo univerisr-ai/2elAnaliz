@@ -26,14 +26,25 @@ interface GitHubArtifactsResponse {
 
 interface ScraperArtifactListing {
   readonly ilan_id?: string;
+  readonly id?: string;
+  readonly sourceListingId?: string;
   readonly baslik?: string;
+  readonly title?: string;
   readonly fiyat?: number;
+  readonly price?: number;
   readonly fiyat_str?: string;
+  readonly priceText?: string;
   readonly konum?: string;
+  readonly location?: string;
   readonly tarih?: string;
+  readonly listedAtLabel?: string;
+  readonly listedAt?: string;
   readonly url?: string;
   readonly resim?: string | null;
+  readonly imageUrl?: string | null;
   readonly segment?: string;
+  readonly source?: string;
+  readonly sourceType?: CatalogListing["sourceType"];
 }
 
 interface ScraperOutputPayload {

@@ -105,6 +105,7 @@ const PUBLIC_TEXT_REDACTIONS: ReadonlyArray<readonly [RegExp, string]> = [
   [/github_artifact/gi, "server cache"],
   [/sahibinden/gi, "harici kaynak"],
   [/letgo/gi, "harici kaynak"],
+  [/dolap/gi, "harici kaynak"],
 ];
 
 const BLOCKED_PUBLIC_LINK_HOST_PARTS = ["github.com", "githubusercontent.com", "vercel.app"];
@@ -157,6 +158,10 @@ function getPublicSourceLabel(
 
   if (sourceType === "letgo" || /letgo/i.test(normalizedSource)) {
     return "Letgo";
+  }
+
+  if (sourceType === "dolap" || /dolap/i.test(normalizedSource)) {
+    return "Dolap";
   }
 
   if (normalizedSource && normalizedSource.toLowerCase() !== "harici") {

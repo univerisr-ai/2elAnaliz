@@ -48,7 +48,7 @@ export const CATALOG_SORT_OPTIONS = {
 } as const;
 
 export type CatalogSortOption = typeof CATALOG_SORT_OPTIONS[keyof typeof CATALOG_SORT_OPTIONS];
-export type CatalogSourceFilter = "all" | "sahibinden" | "letgo" | "pecid" | "external";
+export type CatalogSourceFilter = "all" | "sahibinden" | "letgo" | "dolap" | "pecid" | "external";
 
 export interface CatalogFilterState {
   search: string;

@@ -71,6 +71,10 @@ export function detectSourceTypeFromUrl(url: string): SourceType {
     return SOURCE_TYPE.LETGO;
   }
 
+  if (value.includes("dolap")) {
+    return SOURCE_TYPE.DOLAP;
+  }
+
   if (value.includes("sahibinden") || value.includes("shbdn.com")) {
     return SOURCE_TYPE.SAHIBINDEN;
   }
@@ -86,6 +90,8 @@ export function detectSourceLabel(sourceType: SourceType): string {
       return "Sahibinden";
     case SOURCE_TYPE.LETGO:
       return "Letgo";
+    case SOURCE_TYPE.DOLAP:
+      return "Dolap";
     default:
       return "Harici";
   }

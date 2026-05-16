@@ -34,6 +34,13 @@
   --source-chip-text: #9d0058;
 }
 
+.catalog-card--source-dolap {
+  --source-accent: #00a884;
+  --source-border: rgba(0, 168, 132, 0.3);
+  --source-chip-bg: #e7fbf5;
+  --source-chip-text: #00634f;
+}
+
 .catalog-card--source-pecid {
   --source-accent: #0033a0;
   --source-border: rgba(0, 51, 160, 0.3);

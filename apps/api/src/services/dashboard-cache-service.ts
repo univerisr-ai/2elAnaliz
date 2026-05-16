@@ -199,11 +199,15 @@ function normalizeLocation(location: string): string {
     .replace(/\s+/g, " ");
 }
 
-function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Harici" {
+function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap" | "Harici" {
   const value = url?.toLowerCase() ?? "";
 
   if (value.includes("letgo")) {
     return "Letgo";
+  }
+
+  if (value.includes("dolap")) {
+    return "Dolap";
   }
 
   if (value.includes("sahibinden") || value.includes("shbdn.com")) {
@@ -296,34 +300,47 @@ export async function saveCatalogListings(listings: readonly CatalogListing[]): 
 export function mapRawCatalogListing(
   listing: {
     readonly ilan_id?: string;
+    readonly id?: string;
+    readonly sourceListingId?: string;
     readonly baslik?: string;
+    readonly title?: string;
     readonly fiyat?: number;
+    readonly price?: number;
     readonly fiyat_str?: string;
+    readonly priceText?: string;
     readonly konum?: string;
+    readonly location?: string;
     readonly tarih?: string;
+    readonly listedAtLabel?: string;
+    readonly listedAt?: string;
     readonly url?: string;
     readonly resim?: string | null;
+    readonly imageUrl?: string | null;
     readonly segment?: string;
+    readonly source?: string;
+    readonly sourceType?: CatalogListing["sourceType"];
   },
   index: number,
 ): CatalogListing {
-  const title = listing.baslik?.trim() || "Baslik bulunamadi";
+  const title = listing.baslik?.trim() || listing.title?.trim() || "Baslik bulunamadi";
   const model = normalizeModel(title);
-  const price = Number.isFinite(listing.fiyat) ? Number(listing.fiyat) : 0;
+  const price = Number.isFinite(listing.fiyat) ? Number(listing.fiyat) : Number.isFinite(listing.price) ? Number(listing.price) : 0;
+  const source = listing.source?.trim() || detectSource(listing.url);
 
   return {
-    id: listing.ilan_id?.trim() || toListingId(model || title, price, index),
+    id: listing.ilan_id?.trim() || listing.id?.trim() || listing.sourceListingId?.trim() || toListingId(model || title, price, index),
     title,
     model,
     brand: detectBrand(`${model} ${title}`),
     price,
-    priceText: listing.fiyat_str?.trim() || `${price.toLocaleString("tr-TR")} TL`,
+    priceText: listing.fiyat_str?.trim() || listing.priceText?.trim() || `${price.toLocaleString("tr-TR")} TL`,
     url: listing.url?.trim() || "#",
-    imageUrl: listing.resim?.trim() || null,
-    location: normalizeLocation(listing.konum || "Konum yok"),
+    imageUrl: listing.resim?.trim() || listing.imageUrl?.trim() || null,
+    location: normalizeLocation(listing.konum || listing.location || "Konum yok"),
     segment: listing.segment?.trim() || "Arsiv",
-    listedAtLabel: listing.tarih?.trim() || "Tarih yok",
-    source: detectSource(listing.url),
+    listedAtLabel: listing.tarih?.trim() || listing.listedAtLabel?.trim() || listing.listedAt?.trim() || "Tarih yok",
+    source: source as CatalogListing["source"],
+    sourceType: listing.sourceType,
   };
 }
 

@@ -14,7 +14,7 @@ export type SubmissionStatus =
 export type ExternalLinkIngestStatus = "queued" | "processing" | "completed" | "failed" | "blocked";
 
 export type SubmissionType = "link" | "native";
-export type SourceType = "pecid" | "sahibinden" | "letgo" | "external";
+export type SourceType = "pecid" | "sahibinden" | "letgo" | "dolap" | "external";
 export type AnalysisVerdict = "good_price" | "market_ok" | "expensive" | "too_cheap_review" | "insufficient_data";
 
 export interface SubmissionProfile {

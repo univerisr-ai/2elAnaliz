@@ -23,6 +23,7 @@ export const SOURCE_TYPE = {
   PECID: "pecid",
   SAHIBINDEN: "sahibinden",
   LETGO: "letgo",
+  DOLAP: "dolap",
   EXTERNAL: "external",
 } as const;
 
