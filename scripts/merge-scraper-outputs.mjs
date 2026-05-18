@@ -55,6 +55,7 @@ async function listSourceDirs(sourceRoot) {
 function statusRank(status) {
   const value = String(status || '').toUpperCase();
   if (value === 'SCRAPE_COMPLETED') return 3;
+  if (value === 'SCRAPE_PARTIAL') return 3;
   if (value === 'SCRAPE_EMPTY') return 2;
   if (value === 'SCRAPE_FAILED') return 1;
   return 0;

@@ -38,6 +38,7 @@ jobs:
           DISPATCH_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name }}
           DEFAULT_SOURCE_REPOSITORY: ${{ vars.SCRAPER_SOURCE_REPOSITORY }}
           LETGO_SOURCE_REPOSITORY: ${{ vars.LETGO_SOURCE_REPOSITORY }}
+          DOLAP_SOURCE_REPOSITORY: ${{ vars.DOLAP_SOURCE_REPOSITORY }}
         run: |
           set -euo pipefail
           rm -rf ./data/inbox ./data/sources
@@ -46,6 +47,7 @@ jobs:
 
           DEFAULT_REPO="${DEFAULT_SOURCE_REPOSITORY:-univerisr-ai/ahibinden-ekran-karti}"
           LETGO_REPO="${LETGO_SOURCE_REPOSITORY:-univerisr-ai/letgo-ekran-karti}"
+          DOLAP_REPO="${DOLAP_SOURCE_REPOSITORY:-univerisr-ai/dolap-ekran-kart-}"
 
           sanitize_repo() {
             printf '%s' "$1" | tr '/:' '__'
@@ -123,7 +125,7 @@ jobs:
             DOWNLOADED=$((DOWNLOADED + 1))
           fi
 
-          for SOURCE_REPO in "${DEFAULT_REPO}" "${LETGO_REPO}"; do
+          for SOURCE_REPO in "${DEFAULT_REPO}" "${LETGO_REPO}" "${DOLAP_REPO}"; do
             if [ -z "${SOURCE_REPO:-}" ]; then
               continue
             fi

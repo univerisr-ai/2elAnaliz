@@ -26,6 +26,7 @@ function pickListings(root) {
 function normalizeListing(raw, idx) {
   const title = String(firstField(raw, ['baslik', 'title', 'ilan_baslik', 'ad', 'name'])).trim();
   const url = String(firstField(raw, ['link', 'url', 'ilan_url', 'href'])).trim();
+  const explicitModel = String(firstField(raw, ['modelName', 'model', 'modelKey', 'gpuModel'])).trim();
 
   const rawPrice = firstField(raw, ['fiyat', 'price', 'fiyat_str', 'amount', 'priceTl']);
   const price = parsePriceTl(rawPrice);
@@ -42,6 +43,7 @@ function normalizeListing(raw, idx) {
     url,
     price,
     rawPrice,
+    explicitModel,
     suspicious,
   };
 }
@@ -66,7 +68,7 @@ export async function analyzeFile(inputPath) {
 
   const byModel = new Map();
   for (const listing of normalized) {
-    const modelKey = extractModelKey(listing.title);
+    const modelKey = extractModelKey(listing.explicitModel || listing.title);
     if (!modelKey) continue;
     if (!byModel.has(modelKey)) byModel.set(modelKey, []);
     byModel.get(modelKey).push({ ...listing, modelKey });

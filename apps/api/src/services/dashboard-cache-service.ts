@@ -304,6 +304,10 @@ export function mapRawCatalogListing(
     readonly sourceListingId?: string;
     readonly baslik?: string;
     readonly title?: string;
+    readonly model?: string;
+    readonly modelName?: string;
+    readonly modelKey?: string;
+    readonly gpuModel?: string;
     readonly fiyat?: number;
     readonly price?: number;
     readonly fiyat_str?: string;
@@ -323,9 +327,15 @@ export function mapRawCatalogListing(
   index: number,
 ): CatalogListing {
   const title = listing.baslik?.trim() || listing.title?.trim() || "Baslik bulunamadi";
-  const model = normalizeModel(title);
+  const explicitModel =
+    listing.modelName?.trim() ||
+    listing.model?.trim() ||
+    listing.modelKey?.trim() ||
+    listing.gpuModel?.trim() ||
+    "";
+  const model = explicitModel ? normalizeModel(explicitModel) : normalizeModel(title);
   const price = Number.isFinite(listing.fiyat) ? Number(listing.fiyat) : Number.isFinite(listing.price) ? Number(listing.price) : 0;
-  const source = listing.source?.trim() || detectSource(listing.url);
+  const source = listing.source?.trim() || (listing.sourceType === "dolap" ? "Dolap" : detectSource(listing.url));
 
   return {
     id: listing.ilan_id?.trim() || listing.id?.trim() || listing.sourceListingId?.trim() || toListingId(model || title, price, index),
