@@ -162,11 +162,31 @@ function normalizeLocation(location) {
     .replace(/\s+/g, ' ');
 }
 
-function detectSource(url) {
+function normalizeSourceType(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (['sahibinden', 'letgo', 'dolap', 'pecid'].includes(normalized)) return normalized;
+  return '';
+}
+
+function detectSource(url, explicitSourceType = '', explicitSource = '') {
+  const sourceType = normalizeSourceType(explicitSourceType);
+  if (sourceType === 'dolap') return { source: 'Dolap', sourceType: 'dolap' };
+  if (sourceType === 'letgo') return { source: 'Letgo', sourceType: 'letgo' };
+  if (sourceType === 'sahibinden') return { source: 'Sahibinden', sourceType: 'sahibinden' };
+
+  const sourceText = String(explicitSource || '').trim();
+  if (/dolap/i.test(sourceText)) return { source: 'Dolap', sourceType: 'dolap' };
+  if (/letgo/i.test(sourceText)) return { source: 'Letgo', sourceType: 'letgo' };
+  if (/sahibinden/i.test(sourceText)) return { source: 'Sahibinden', sourceType: 'sahibinden' };
+
   const value = String(url || '').toLowerCase();
 
   if (value.includes('letgo')) {
     return { source: 'Letgo', sourceType: 'letgo' };
+  }
+
+  if (value.includes('dolap')) {
+    return { source: 'Dolap', sourceType: 'dolap' };
   }
 
   if (value.includes('sahibinden') || value.includes('shbdn.com')) {
@@ -224,9 +244,10 @@ function toListingId(modelKey, price, index) {
 function mapRawCatalogListing(raw, index) {
   const title = toStr(firstField(raw, ['baslik', 'title', 'ilan_baslik', 'ad', 'name']), 'Baslik bulunamadi');
   const url = toStr(firstField(raw, ['url', 'link', 'ilan_url', 'href']));
-  const model = normalizeModel(title);
+  const explicitModel = toStr(firstField(raw, ['modelName', 'model', 'modelKey', 'gpuModel']));
+  const model = normalizeModel(explicitModel || title);
   const price = parsePriceTl(firstField(raw, ['fiyat', 'price', 'fiyat_str', 'amount', 'priceTl']));
-  const source = detectSource(url);
+  const source = detectSource(url, raw?.sourceType, raw?.source);
   const id =
     toStr(firstField(raw, ['ilan_id', 'id', 'ilan_no', 'listingId', 'uid'])) ||
     extractListingId(url) ||
