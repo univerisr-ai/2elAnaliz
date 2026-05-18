@@ -39,6 +39,7 @@ jobs:
           DEFAULT_SOURCE_REPOSITORY: ${{ vars.SCRAPER_SOURCE_REPOSITORY }}
           LETGO_SOURCE_REPOSITORY: ${{ vars.LETGO_SOURCE_REPOSITORY }}
           DOLAP_SOURCE_REPOSITORY: ${{ vars.DOLAP_SOURCE_REPOSITORY }}
+          DOLAP_MIN_LISTINGS: ${{ vars.DOLAP_MIN_LISTINGS }}
         run: |
           set -euo pipefail
           rm -rf ./data/inbox ./data/sources
@@ -48,6 +49,7 @@ jobs:
           DEFAULT_REPO="${DEFAULT_SOURCE_REPOSITORY:-univerisr-ai/ahibinden-ekran-karti}"
           LETGO_REPO="${LETGO_SOURCE_REPOSITORY:-univerisr-ai/letgo-ekran-karti}"
           DOLAP_REPO="${DOLAP_SOURCE_REPOSITORY:-univerisr-ai/dolap-ekran-kart-}"
+          DOLAP_MIN_LISTINGS="${DOLAP_MIN_LISTINGS:-50}"
 
           sanitize_repo() {
             printf '%s' "$1" | tr '/:' '__'
@@ -87,7 +89,9 @@ jobs:
           download_latest_artifact() {
             local repo="$1"
             local dir="$2"
+            local min_listings="${3:-1}"
 
+            rm -rf "$dir"
             mkdir -p "$dir"
             echo "${repo} icindeki son basarili scraper artifact'i aranacak."
             mapfile -t RUN_IDS < <(
@@ -101,14 +105,27 @@ jobs:
 
             for RUN_ID in "${RUN_IDS[@]}"; do
               local artifact_name="scraper-results-${RUN_ID}"
+              local temp_dir="${dir}.tmp-${RUN_ID}"
               echo "Deneniyor: repo=${repo}, run=${RUN_ID}, artifact=${artifact_name}"
+              rm -rf "${temp_dir}"
+              mkdir -p "${temp_dir}"
               if gh run download "${RUN_ID}" \
                 --repo "${repo}" \
                 --name "${artifact_name}" \
-                --dir "${dir}"; then
+                --dir "${temp_dir}"; then
+                local listing_count
+                listing_count="$(node -e "const fs=require('fs'); const p='${temp_dir}/output.json'; if(!fs.existsSync(p)){console.log(0); process.exit(0)} const j=JSON.parse(fs.readFileSync(p,'utf8')); console.log(Number(j.totalClean ?? j.runMeta?.listingCount ?? j.allListings?.length ?? 0) || 0)")"
+                if [ "${listing_count}" -lt "${min_listings}" ]; then
+                  echo "Artifact atlandi: repo=${repo}, run=${RUN_ID}, listings=${listing_count}, min=${min_listings}" >&2
+                  rm -rf "${temp_dir}"
+                  continue
+                fi
+                rm -rf "${dir}"
+                mv "${temp_dir}" "${dir}"
                 write_metadata "$dir" "$repo" "$RUN_ID" "$artifact_name"
                 return 0
               fi
+              rm -rf "${temp_dir}"
             done
 
             return 1
@@ -136,7 +153,12 @@ jobs:
             fi
 
             SOURCE_DIR="./data/sources/$(sanitize_repo "${SOURCE_REPO}")"
-            if download_latest_artifact "${SOURCE_REPO}" "${SOURCE_DIR}"; then
+            MIN_LISTINGS=1
+            if [ "${SOURCE_REPO}" = "${DOLAP_REPO}" ]; then
+              MIN_LISTINGS="${DOLAP_MIN_LISTINGS}"
+            fi
+
+            if download_latest_artifact "${SOURCE_REPO}" "${SOURCE_DIR}" "${MIN_LISTINGS}"; then
               DOWNLOADED=$((DOWNLOADED + 1))
             else
               echo "Uyari: ${SOURCE_REPO} icin indirilebilir scraper artifact'i bulunamadi." >&2
