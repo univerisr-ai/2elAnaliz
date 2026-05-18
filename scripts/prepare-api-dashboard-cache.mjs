@@ -51,6 +51,53 @@ function firstField(obj, keys) {
   return '';
 }
 
+function imageUrlFromUnknown(value) {
+  if (typeof value === 'string') {
+    return value.trim();
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const imageUrl = imageUrlFromUnknown(item);
+      if (imageUrl) return imageUrl;
+    }
+    return '';
+  }
+
+  if (value && typeof value === 'object') {
+    for (const key of ['url', 'src', 'imageUrl', 'image_url', 'thumbnailUrl', 'thumbnail', 'photoUrl', 'photo']) {
+      const imageUrl = imageUrlFromUnknown(value[key]);
+      if (imageUrl) return imageUrl;
+    }
+  }
+
+  return '';
+}
+
+function pickImageUrl(listing) {
+  for (const key of [
+    'resim',
+    'imageUrl',
+    'image',
+    'img',
+    'thumbnail',
+    'thumbnailUrl',
+    'photo',
+    'photoUrl',
+    'image_url',
+    'coverImageUrl',
+    'cover_image_url',
+    'images',
+    'imageUrls',
+    'photos',
+  ]) {
+    const imageUrl = imageUrlFromUnknown(listing?.[key]);
+    if (imageUrl) return imageUrl;
+  }
+
+  return '';
+}
+
 function pickListings(root) {
   if (Array.isArray(root)) return root;
   if (!root || typeof root !== 'object') return [];
@@ -261,7 +308,7 @@ function mapRawCatalogListing(raw, index) {
     price,
     priceText: toStr(firstField(raw, ['fiyat_str', 'priceText', 'rawPrice'])) || `${price.toLocaleString('tr-TR')} TL`,
     url: url || '#',
-    imageUrl: toStr(firstField(raw, ['resim', 'imageUrl', 'image', 'img', 'thumbnail'])) || null,
+    imageUrl: pickImageUrl(raw) || null,
     location: normalizeLocation(firstField(raw, ['konum', 'location', 'city'])) || 'Konum yok',
     segment: toStr(firstField(raw, ['segment', 'priceSegment']), 'Arsiv'),
     listedAtLabel: toStr(firstField(raw, ['tarih', 'listedAtLabel', 'date']), 'Tarih yok'),
@@ -275,7 +322,7 @@ function enrichSummaryWithListingImages(summary, rawListings) {
   const imageById = new Map();
 
   for (const listing of rawListings) {
-    const imageUrl = toStr(firstField(listing, ['resim', 'imageUrl', 'image', 'img', 'thumbnail']));
+    const imageUrl = pickImageUrl(listing);
     if (!imageUrl) continue;
 
     const url = toStr(firstField(listing, ['url', 'link', 'ilan_url', 'href']));

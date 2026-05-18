@@ -123,16 +123,12 @@ export async function saveListings(newListings: ParsedGpuListing[]): Promise<num
   // Yeni ilanları başa ekle (en yeniler üstte)
   const merged = [...uniqueNew, ...existing];
 
-  // Maksimum 5000 ilan tut (eski ilanları kes)
-  const MAX_LISTINGS = 5000;
-  const trimmed = merged.slice(0, MAX_LISTINGS);
-
   await writeJsonFile(LISTINGS_FILE, {
-    listings: trimmed,
+    listings: merged,
     lastUpdated: new Date().toISOString(),
   } satisfies StoredData);
 
-  console.log(`[DATA] 💾 ${uniqueNew.length} yeni ilan kaydedildi (toplam: ${trimmed.length})`);
+  console.log(`[DATA] 💾 ${uniqueNew.length} yeni ilan kaydedildi (toplam: ${merged.length})`);
   return uniqueNew.length;
 }
 

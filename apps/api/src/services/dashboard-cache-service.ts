@@ -217,6 +217,19 @@ function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap"
   return "Harici";
 }
 
+function detectSourceType(
+  url: string | undefined,
+  source: CatalogListing["source"],
+): CatalogListing["sourceType"] {
+  const value = `${url ?? ""} ${source}`.toLowerCase();
+
+  if (value.includes("letgo")) return "letgo";
+  if (value.includes("dolap")) return "dolap";
+  if (value.includes("sahibinden") || value.includes("shbdn.com")) return "sahibinden";
+  if (value.includes("pecid") || value.includes("gpu pusula")) return "pecid";
+  return "external";
+}
+
 export function isCatalogNoiseListing(listing: Pick<CatalogListing, "title" | "model">): boolean {
   const text = `${listing.title} ${listing.model}`
     .toLocaleLowerCase("tr-TR")
@@ -238,6 +251,88 @@ function toListingId(modelKey: string, price: number, index: number): string {
     .replace(/^-+|-+$/g, "");
 
   return `${safeKey || "gpu"}-${price || 0}-${index + 1}`;
+}
+
+function imageUrlFromUnknown(value: unknown): string {
+  if (typeof value === "string") {
+    return value.trim();
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const imageUrl = imageUrlFromUnknown(item);
+      if (imageUrl) {
+        return imageUrl;
+      }
+    }
+    return "";
+  }
+
+  if (value && typeof value === "object") {
+    const candidate = value as Record<string, unknown>;
+    for (const key of ["url", "src", "imageUrl", "image_url", "thumbnailUrl", "thumbnail", "photoUrl", "photo"]) {
+      const imageUrl = imageUrlFromUnknown(candidate[key]);
+      if (imageUrl) {
+        return imageUrl;
+      }
+    }
+  }
+
+  return "";
+}
+
+export function pickRawListingImageUrl(listing: Record<string, unknown>): string | null {
+  for (const key of [
+    "resim",
+    "imageUrl",
+    "image",
+    "img",
+    "thumbnail",
+    "thumbnailUrl",
+    "photo",
+    "photoUrl",
+    "image_url",
+    "coverImageUrl",
+    "cover_image_url",
+    "images",
+    "imageUrls",
+    "photos",
+  ]) {
+    const imageUrl = imageUrlFromUnknown(listing[key]);
+    if (imageUrl) {
+      return imageUrl;
+    }
+  }
+
+  return null;
+}
+
+interface RawCatalogListingInput {
+  readonly [key: string]: unknown;
+  readonly ilan_id?: string;
+  readonly id?: string;
+  readonly sourceListingId?: string;
+  readonly baslik?: string;
+  readonly title?: string;
+  readonly model?: string;
+  readonly modelName?: string;
+  readonly modelKey?: string;
+  readonly gpuModel?: string;
+  readonly fiyat?: number;
+  readonly price?: number;
+  readonly fiyat_str?: string;
+  readonly priceText?: string;
+  readonly konum?: string;
+  readonly location?: string;
+  readonly tarih?: string;
+  readonly listedAtLabel?: string;
+  readonly listedAt?: string;
+  readonly url?: string;
+  readonly resim?: string | null;
+  readonly imageUrl?: string | null;
+  readonly segment?: string;
+  readonly source?: string;
+  readonly sourceType?: CatalogListing["sourceType"];
 }
 
 export async function getDashboardSnapshot(): Promise<DashboardSnapshot | null> {
@@ -298,32 +393,7 @@ export async function saveCatalogListings(listings: readonly CatalogListing[]): 
 }
 
 export function mapRawCatalogListing(
-  listing: {
-    readonly ilan_id?: string;
-    readonly id?: string;
-    readonly sourceListingId?: string;
-    readonly baslik?: string;
-    readonly title?: string;
-    readonly model?: string;
-    readonly modelName?: string;
-    readonly modelKey?: string;
-    readonly gpuModel?: string;
-    readonly fiyat?: number;
-    readonly price?: number;
-    readonly fiyat_str?: string;
-    readonly priceText?: string;
-    readonly konum?: string;
-    readonly location?: string;
-    readonly tarih?: string;
-    readonly listedAtLabel?: string;
-    readonly listedAt?: string;
-    readonly url?: string;
-    readonly resim?: string | null;
-    readonly imageUrl?: string | null;
-    readonly segment?: string;
-    readonly source?: string;
-    readonly sourceType?: CatalogListing["sourceType"];
-  },
+  listing: RawCatalogListingInput,
   index: number,
 ): CatalogListing {
   const title = listing.baslik?.trim() || listing.title?.trim() || "Baslik bulunamadi";
@@ -336,6 +406,7 @@ export function mapRawCatalogListing(
   const model = explicitModel ? normalizeModel(explicitModel) : normalizeModel(title);
   const price = Number.isFinite(listing.fiyat) ? Number(listing.fiyat) : Number.isFinite(listing.price) ? Number(listing.price) : 0;
   const source = listing.source?.trim() || (listing.sourceType === "dolap" ? "Dolap" : detectSource(listing.url));
+  const sourceType = listing.sourceType ?? detectSourceType(listing.url, source as CatalogListing["source"]);
 
   return {
     id: listing.ilan_id?.trim() || listing.id?.trim() || listing.sourceListingId?.trim() || toListingId(model || title, price, index),
@@ -345,12 +416,12 @@ export function mapRawCatalogListing(
     price,
     priceText: listing.fiyat_str?.trim() || listing.priceText?.trim() || `${price.toLocaleString("tr-TR")} TL`,
     url: listing.url?.trim() || "#",
-    imageUrl: listing.resim?.trim() || listing.imageUrl?.trim() || null,
+    imageUrl: pickRawListingImageUrl(listing) || null,
     location: normalizeLocation(listing.konum || listing.location || "Konum yok"),
     segment: listing.segment?.trim() || "Arsiv",
     listedAtLabel: listing.tarih?.trim() || listing.listedAtLabel?.trim() || listing.listedAt?.trim() || "Tarih yok",
     source: source as CatalogListing["source"],
-    sourceType: listing.sourceType,
+    sourceType,
   };
 }
 

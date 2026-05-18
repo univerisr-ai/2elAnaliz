@@ -69,7 +69,10 @@ export const ENV = {
   IP_COMMENT_HOURLY_LIMIT: parseInt(optionalEnv("IP_COMMENT_HOURLY_LIMIT", "120"), 10),
   MAX_UPLOAD_IMAGES: parseInt(optionalEnv("MAX_UPLOAD_IMAGES", "8"), 10),
   MAX_UPLOAD_IMAGE_MB: parseInt(optionalEnv("MAX_UPLOAD_IMAGE_MB", "8"), 10),
-  ALLOWED_INGEST_HOSTS: optionalEnv("ALLOWED_INGEST_HOSTS", "sahibinden.com,shbdn.com,letgo.com,dolap.com"),
+  ALLOWED_INGEST_HOSTS: optionalEnv(
+    "ALLOWED_INGEST_HOSTS",
+    "sahibinden.com,shbdn.com,letgo.com,dolap.com,cdn.dolap.com,static.dolap.com,dolapcdn.com,dsmcdn.com",
+  ),
 } as const;
 
 /** Telegram Bot API base URL */

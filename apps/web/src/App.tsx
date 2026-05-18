@@ -57,6 +57,7 @@ import {
 } from "./utils/catalog-taxonomy";
 import {
   buildBuyabilityIndex,
+  getCatalogRankingScore,
   getBuyabilityInsight,
   type BuyabilityIndex,
 } from "./utils/buyability";
@@ -83,7 +84,7 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   source: "all",
   minPrice: 0,
   maxPrice: 100000,
-  sortBy: CATALOG_SORT_OPTIONS.LATEST,
+  sortBy: CATALOG_SORT_OPTIONS.BUYABLE_DESC,
 };
 
 const CATALOG_FETCH_PAGE_SIZE = 1000;
@@ -281,11 +282,15 @@ function sortCatalogListings(
 
   switch (sortBy) {
     case CATALOG_SORT_OPTIONS.BUYABLE_DESC:
-      return result.sort(
-        (a, b) =>
-          getCatalogListingInsight(b, comparisonListings, buyabilityIndex).score -
-          getCatalogListingInsight(a, comparisonListings, buyabilityIndex).score,
-      );
+      return result.sort((a, b) => {
+        const insightA = getCatalogListingInsight(a, comparisonListings, buyabilityIndex);
+        const insightB = getCatalogListingInsight(b, comparisonListings, buyabilityIndex);
+        return (
+          getCatalogRankingScore(b, insightB) - getCatalogRankingScore(a, insightA) ||
+          insightB.score - insightA.score ||
+          a.price - b.price
+        );
+      });
     case CATALOG_SORT_OPTIONS.PRICE_ASC:
       return result.sort((a, b) => a.price - b.price);
     case CATALOG_SORT_OPTIONS.PRICE_DESC:
@@ -307,8 +312,13 @@ function filterCatalogListings(
 ): CatalogListing[] {
   const query = filters.search.trim().toLowerCase();
   const hasMaxPriceFilter = filters.maxPrice > 0 && filters.maxPrice < DEFAULT_CATALOG_FILTERS.maxPrice;
+  const resolvedBuyabilityIndex = buyabilityIndex ?? buildBuyabilityIndex(listings);
 
   const filtered = listings.filter((listing) => {
+    if (getCatalogListingInsight(listing, listings, resolvedBuyabilityIndex).score < 50) {
+      return false;
+    }
+
     if (activePriceCategory !== ALL_CATEGORY_KEY && getPriceCategoryKey(listing) !== activePriceCategory) {
       return false;
     }
@@ -338,7 +348,7 @@ function filterCatalogListings(
       .includes(query);
   });
 
-  return sortCatalogListings(filtered, filters.sortBy, listings, buyabilityIndex);
+  return sortCatalogListings(filtered, filters.sortBy, listings, resolvedBuyabilityIndex);
 }
 
 function applySpotlightFilter(
@@ -353,11 +363,15 @@ function applySpotlightFilter(
     case "buyable":
       return result
         .filter((listing) => isCatalogReferenceBuyableListing(listing, comparisonListings, buyabilityIndex))
-        .sort(
-          (a, b) =>
-            getCatalogListingInsight(b, comparisonListings, buyabilityIndex).score -
-            getCatalogListingInsight(a, comparisonListings, buyabilityIndex).score,
-        );
+        .sort((a, b) => {
+          const insightA = getCatalogListingInsight(a, comparisonListings, buyabilityIndex);
+          const insightB = getCatalogListingInsight(b, comparisonListings, buyabilityIndex);
+          return (
+            getCatalogRankingScore(b, insightB) - getCatalogRankingScore(a, insightA) ||
+            insightB.score - insightA.score ||
+            a.price - b.price
+          );
+        });
     case "cheap":
       return result.sort((a, b) => a.price - b.price);
     case "expensive":
@@ -365,11 +379,15 @@ function applySpotlightFilter(
     case "popular":
       return result
         .filter((listing) => isCatalogReferenceBuyableListing(listing, comparisonListings, buyabilityIndex))
-        .sort(
-          (a, b) =>
-            getCatalogListingInsight(b, comparisonListings, buyabilityIndex).score -
-            getCatalogListingInsight(a, comparisonListings, buyabilityIndex).score,
-        );
+        .sort((a, b) => {
+          const insightA = getCatalogListingInsight(a, comparisonListings, buyabilityIndex);
+          const insightB = getCatalogListingInsight(b, comparisonListings, buyabilityIndex);
+          return (
+            getCatalogRankingScore(b, insightB) - getCatalogRankingScore(a, insightA) ||
+            insightB.score - insightA.score ||
+            a.price - b.price
+          );
+        });
     default:
       return result;
   }

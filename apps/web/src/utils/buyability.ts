@@ -40,24 +40,126 @@ function getReferenceLabels(listing: Pick<CatalogListing, "model" | "title">): s
   return Array.from(new Set([canonical, base].filter(Boolean)));
 }
 
-function isLikelyAccessoryOrFaulty(listing: Pick<CatalogListing, "title" | "model">): boolean {
+function normalizeGpuText(value: string): string {
+  return value
+    .replace(/[_/]+/g, " ")
+    .replace(/[İı]/g, "I")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+function getRiskFlags(listing: Pick<CatalogListing, "title" | "model">): string[] {
   const text = `${listing.title} ${listing.model}`.toLocaleLowerCase("tr-TR");
-  const patterns = [
-    /bo[şs]\s*kutu/,
-    /gpu\s*yok/,
-    /kart\s*yok/,
-    /sadece\s+(blok|kutu|fan|so[ğg]utucu)/,
-    /su\s*blo[ğg]u/,
-    /yedek\s*par[çc]a/,
-    /ar[ıi]zal[ıi]/,
-    /tamir/,
-    /çalışmıyor/,
-    /calismiyor/,
-    /riser/,
-    /backplate/,
+  const checks: ReadonlyArray<readonly [RegExp, string]> = [
+    [/bo[şs]\s*kutu|gpu\s*yok|kart\s*yok/, "Gerçek kart yerine kutu veya eksik ürün olabilir."],
+    [/sadece\s+(blok|kutu|fan|so[ğg]utucu)|su\s*blo[ğg]u|backplate|braket/, "Aksesuar veya parça ilanı olabilir."],
+    [
+      /yedek\s*par[çc]a|par[çc]a\s*niyetine|ar[ıi]zal[ıi]|ariza|tamir|tamirlik|bozuk|hasarl[ıi]|sorunlu|çalışmıyor|calismiyor|g[öo]r[üu]nt[üu]\s*(?:yok|vermiyor)|ekran\s*gelmiyor|artefakt|artifact|[çc]izgi|fan\s*k[ıi]r[ıi]k/,
+      "Arızalı veya tamirlik ürün sinyali var.",
+    ],
+    [/riser|mining|kaz[ıi]m/, "Yoğun kullanım veya mining geçmişi olabilir."],
   ];
 
-  return patterns.some((pattern) => pattern.test(text));
+  return checks.filter(([pattern]) => pattern.test(text)).map(([, message]) => message);
+}
+
+function getLegacyLowPriorityReason(listing: Pick<CatalogListing, "title" | "model">): string | null {
+  const text = normalizeGpuText(`${listing.title} ${listing.model}`);
+
+  if (/\b(?:ATI\s+)?(?:RADEON\s+)?HD\s*-?\s*\d{4}\b/.test(text) || /\bVOODOO\b/.test(text)) {
+    return "Cok eski Radeon HD/retro kart ana akistan kaldirildi.";
+  }
+
+  if (/\b(?:GEFORCE\s*)?[89]\d{3}\s*GT\b/.test(text) || /\b(?:GTS|GT)\s*-?\s*\d{3,4}\b/.test(text)) {
+    return "Cok eski GeForce GT/GTS modeli ana akistan kaldirildi.";
+  }
+
+  if (/\bR[579]\s*-?\s*\d{3}\b/.test(text) || /\b(?:RX\s*)?VEGA\s*\d{2}\b/.test(text)) {
+    return "Eski Radeon R/Vega modeli ana akistan kaldirildi.";
+  }
+
+  if (/\bRX\s*-?\s*(?:4\d{2}|5\d{2})\b/.test(text)) {
+    return "RX 400/500 serisi ana akista dusuk oncelikli kabul edildi.";
+  }
+
+  if (/\bGTX\s*-?\s*(?:[4-9]\d{2}|10(?:30|50|60|70|80))\b/.test(text)) {
+    return "Cok eski GTX modeli ana akistan kaldirildi.";
+  }
+
+  return null;
+}
+
+function getAmbiguousModelReason(listing: Pick<CatalogListing, "title" | "model">): string | null {
+  if (getCanonicalGpuModel(listing)) {
+    return null;
+  }
+
+  const text = normalizeGpuText(`${listing.title} ${listing.model}`);
+  if (/\b(EKRAN\s*KARTI|GPU|OYUNCU\s*BILGISAYARI|OYUN\s*BILGISAYARI)\b/.test(text)) {
+    return "Model net secilemedigi icin ana akista gosterilmiyor.";
+  }
+
+  return null;
+}
+
+function getSuspiciousLowPriceReason(
+  listing: Pick<CatalogListing, "price" | "title" | "model">,
+  referencePrice: number | null,
+  medianPrice: number | null,
+): string | null {
+  if (listing.price <= 0) {
+    return "Fiyat okunamadigi icin ilan gizlendi.";
+  }
+
+  if (listing.price <= 100) {
+    return "Fiyat 1 TL/placeholder gibi gorunuyor.";
+  }
+
+  if (referencePrice && listing.price < Math.max(750, referencePrice * 0.08)) {
+    return "Fiyat sifir referansa gore gercek disi dusuk gorunuyor.";
+  }
+
+  if (medianPrice && listing.price < Math.max(750, medianPrice * 0.12)) {
+    return "Fiyat benzer ilanlara gore gercek disi dusuk gorunuyor.";
+  }
+
+  return null;
+}
+
+function isIndexableMarketPrice(listing: CatalogListing): boolean {
+  return (
+    listing.price >= 750 &&
+    getRiskFlags(listing).length === 0 &&
+    !getLegacyLowPriorityReason(listing) &&
+    !getAmbiguousModelReason(listing)
+  );
+}
+
+export function getModelPriorityScore(listing: Pick<CatalogListing, "title" | "model">): number {
+  const text = normalizeGpuText(`${getCanonicalGpuModel(listing)} ${listing.title} ${listing.model}`);
+
+  if (/\bRTX\s*-?\s*50\d{2}/.test(text)) return 45;
+  if (/\bRX\s*-?\s*90\d{2}/.test(text)) return 44;
+  if (/\bRTX\s*-?\s*40\d{2}/.test(text)) return 40;
+  if (/\bRX\s*-?\s*7\d{3}/.test(text)) return 39;
+  if (/\bRTX\s*-?\s*30\d{2}/.test(text)) return 34;
+  if (/\bRX\s*-?\s*6\d{3}/.test(text)) return 33;
+  if (/\bRTX\s*-?\s*20\d{2}/.test(text)) return 26;
+  if (/\bRX\s*-?\s*5[5-9]\d{2}/.test(text)) return 22;
+  if (/\bGTX\s*-?\s*16\d{2}/.test(text)) return 20;
+  if (/\b(?:INTEL\s*)?ARC\s*B\d{3}\b/.test(text)) return 24;
+  if (/\b(?:INTEL\s*)?ARC\s*A\d{3}\b/.test(text)) return 18;
+  if (/\b(QUADRO|TESLA|FIREPRO|NVS)\b/.test(text)) return 8;
+
+  return 12;
+}
+
+export function getCatalogRankingScore(
+  listing: Pick<CatalogListing, "title" | "model">,
+  insight: Pick<BuyabilityInsight, "score">,
+): number {
+  return insight.score * 10 + getModelPriorityScore(listing);
 }
 
 export function buildBuyabilityIndex(
@@ -81,7 +183,7 @@ export function buildBuyabilityIndex(
   });
 
   listings.forEach((listing) => {
-    if (listing.price <= 0) {
+    if (!isIndexableMarketPrice(listing)) {
       return;
     }
 
@@ -137,8 +239,9 @@ export function getBuyabilityInsight(
   const minPrice = stats?.minPrice ?? null;
   const maxPrice = stats?.maxPrice ?? null;
   const referencePrice = stats?.referencePrice ?? null;
+  const riskFlags = getRiskFlags(listing);
 
-  if (isLikelyAccessoryOrFaulty(listing)) {
+  if (riskFlags.length > 0) {
     return {
       score: 24,
       label: "İnceleme dışı",
@@ -152,7 +255,68 @@ export function getBuyabilityInsight(
       isReferenceBased: Boolean(referencePrice),
       priceDeltaPercent: null,
       rankText: "Aksesuar veya arızalı ilan olabilir",
-      reason: "Başlık gerçek ekran kartı yerine kutu, blok, parça veya arızalı ürün sinyali taşıyor.",
+      reason: riskFlags[0] ?? "Başlık gerçek ekran kartı yerine kutu, blok, parça veya arızalı ürün sinyali taşıyor.",
+      riskFlags,
+    };
+  }
+
+  const legacyReason = getLegacyLowPriorityReason(listing);
+  if (legacyReason) {
+    return {
+      score: 42,
+      label: "İnceleme dışı",
+      tone: "expensive",
+      modelName,
+      comparableCount: prices.length,
+      medianPrice,
+      minPrice,
+      maxPrice,
+      referencePrice,
+      isReferenceBased: Boolean(referencePrice),
+      priceDeltaPercent: null,
+      rankText: "Eski model",
+      reason: legacyReason,
+      riskFlags: [legacyReason],
+    };
+  }
+
+  const ambiguousReason = getAmbiguousModelReason(listing);
+  if (ambiguousReason) {
+    return {
+      score: 44,
+      label: "İnceleme dışı",
+      tone: "expensive",
+      modelName,
+      comparableCount: prices.length,
+      medianPrice,
+      minPrice,
+      maxPrice,
+      referencePrice,
+      isReferenceBased: Boolean(referencePrice),
+      priceDeltaPercent: null,
+      rankText: "Model belirsiz",
+      reason: ambiguousReason,
+      riskFlags: [ambiguousReason],
+    };
+  }
+
+  const suspiciousLowPriceReason = getSuspiciousLowPriceReason(listing, referencePrice, medianPrice);
+  if (suspiciousLowPriceReason) {
+    return {
+      score: 28,
+      label: "İnceleme dışı",
+      tone: "expensive",
+      modelName,
+      comparableCount: prices.length,
+      medianPrice,
+      minPrice,
+      maxPrice,
+      referencePrice,
+      isReferenceBased: Boolean(referencePrice),
+      priceDeltaPercent: null,
+      rankText: "Fiyat dogrulanamadi",
+      reason: suspiciousLowPriceReason,
+      riskFlags: [suspiciousLowPriceReason],
     };
   }
 

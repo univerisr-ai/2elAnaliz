@@ -25,6 +25,7 @@ import {
   buildBuyabilityIndex,
   buildCatalogModelSummaries,
   getBuyabilityInsight,
+  getCatalogRankingScore,
   getModelFamily,
   getModelSlug,
   matchesModelSlug,
@@ -315,10 +316,15 @@ function filterPublicCatalogListings(
   return listings
     .map((listing) => ({
       listing,
-      score: getBuyabilityInsight(listing, context.allListings, context.buyabilityIndex).score,
+      insight: getBuyabilityInsight(listing, context.allListings, context.buyabilityIndex),
     }))
-    .filter((entry) => entry.score > CATALOG_PUBLIC_MIN_BUYABILITY_SCORE)
-    .sort((a, b) => b.score - a.score || a.listing.price - b.listing.price)
+    .filter((entry) => entry.insight.score >= CATALOG_PUBLIC_MIN_BUYABILITY_SCORE)
+    .sort(
+      (a, b) =>
+        getCatalogRankingScore(b.listing, b.insight) - getCatalogRankingScore(a.listing, a.insight) ||
+        b.insight.score - a.insight.score ||
+        a.listing.price - b.listing.price,
+    )
     .map((entry) => entry.listing);
 }
 
@@ -1129,7 +1135,8 @@ listingsRouter.get("/models", async (req: Request, res: Response): Promise<void>
   try {
     const catalog = await loadCombinedCatalogListings();
     const context = buildCatalogContext(catalog.listings, catalog.referenceListings);
-    let models = buildCatalogModelSummaries(catalog.listings, context.buyabilityIndex).filter((model) => model.label !== "Model belirsiz");
+    const publicListings = filterPublicCatalogListings(catalog.listings, context);
+    let models = buildCatalogModelSummaries(publicListings, context.buyabilityIndex).filter((model) => model.label !== "Model belirsiz");
     const search = typeof req.query.search === "string" ? req.query.search.trim().toLocaleLowerCase("tr-TR") : "";
     const limit = Math.max(1, Math.min(500, parseInt(String(req.query.limit || "500"), 10) || 500));
 
@@ -1163,7 +1170,11 @@ listingsRouter.get("/models/:slug", async (req: Request, res: Response): Promise
   try {
     const slug = String(req.params.slug ?? "").trim().toLocaleLowerCase("tr-TR");
     const catalog = await loadCombinedCatalogListings();
-    const modelListings = catalog.listings.filter((listing) => matchesModelSlug(listing, slug));
+    const context = buildCatalogContext(catalog.listings, catalog.referenceListings);
+    const modelListings = filterPublicCatalogListings(
+      catalog.listings.filter((listing) => matchesModelSlug(listing, slug)),
+      context,
+    );
 
     if (modelListings.length === 0) {
       res.status(404).json({
@@ -1177,7 +1188,6 @@ listingsRouter.get("/models/:slug", async (req: Request, res: Response): Promise
       return;
     }
 
-    const context = buildCatalogContext(catalog.listings, catalog.referenceListings);
     const model = buildCatalogModelSummaries(modelListings, context.buyabilityIndex)[0];
     const sort = String(req.query.sort || "buyable_desc");
     let sortedListings = [...modelListings];
@@ -1194,9 +1204,15 @@ listingsRouter.get("/models/:slug", async (req: Request, res: Response): Promise
       case "buyable_desc":
       default:
         sortedListings = sortedListings.sort(
-          (a, b) =>
-            getBuyabilityInsight(b, catalog.listings, context.buyabilityIndex).score -
-            getBuyabilityInsight(a, catalog.listings, context.buyabilityIndex).score,
+          (a, b) => {
+            const insightA = getBuyabilityInsight(a, catalog.listings, context.buyabilityIndex);
+            const insightB = getBuyabilityInsight(b, catalog.listings, context.buyabilityIndex);
+            return (
+              getCatalogRankingScore(b, insightB) - getCatalogRankingScore(a, insightA) ||
+              insightB.score - insightA.score ||
+              a.price - b.price
+            );
+          },
         );
         break;
     }

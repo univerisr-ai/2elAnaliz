@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import AdmZip from "adm-zip";
 import { ENV, assertGitHubSourceConfigured } from "../config/env.js";
 import type { CatalogListing, DashboardSnapshot, DashboardSummary } from "./dashboard-types.js";
-import { isCatalogNoiseListing, mapRawCatalogListing } from "./dashboard-cache-service.js";
+import { isCatalogNoiseListing, mapRawCatalogListing, pickRawListingImageUrl } from "./dashboard-cache-service.js";
 
 interface GitHubWorkflowRunsResponse {
   workflow_runs?: Array<{
@@ -25,6 +25,7 @@ interface GitHubArtifactsResponse {
 }
 
 interface ScraperArtifactListing {
+  readonly [key: string]: unknown;
   readonly ilan_id?: string;
   readonly id?: string;
   readonly sourceListingId?: string;
@@ -304,7 +305,7 @@ function enrichSummaryWithImages(
   const imageById = new Map<string, string>();
 
   for (const listing of scraperListings) {
-    const imageUrl = String(listing.resim || "").trim();
+    const imageUrl = pickRawListingImageUrl(listing);
     if (!imageUrl) {
       continue;
     }

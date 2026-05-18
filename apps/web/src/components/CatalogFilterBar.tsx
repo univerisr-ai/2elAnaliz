@@ -15,7 +15,7 @@ const DEFAULT_FILTERS: CatalogFilterState = {
   source: "all",
   minPrice: 0,
   maxPrice: 100000,
-  sortBy: CATALOG_SORT_OPTIONS.LATEST,
+  sortBy: CATALOG_SORT_OPTIONS.BUYABLE_DESC,
 };
 
 export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFilterBarProps) {
@@ -88,10 +88,10 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFi
             value={filters.sortBy}
             onChange={(event) => update("sortBy", event.target.value as CatalogSortOption)}
           >
+            <option value={CATALOG_SORT_OPTIONS.BUYABLE_DESC}>Alınabilir</option>
             <option value={CATALOG_SORT_OPTIONS.LATEST}>En yeni akış</option>
             <option value={CATALOG_SORT_OPTIONS.PRICE_ASC}>En ucuz</option>
             <option value={CATALOG_SORT_OPTIONS.PRICE_DESC}>En pahalı</option>
-            <option value={CATALOG_SORT_OPTIONS.BUYABLE_DESC}>Alınabilir</option>
             <option value={CATALOG_SORT_OPTIONS.TITLE_ASC}>Ada göre</option>
           </select>
 

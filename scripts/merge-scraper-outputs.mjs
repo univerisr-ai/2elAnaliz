@@ -30,6 +30,7 @@ function sourceFromListing(listing) {
 
   const url = String(listing?.url || '').toLowerCase();
   if (url.includes('letgo')) return 'letgo';
+  if (url.includes('dolap')) return 'dolap';
   if (url.includes('sahibinden') || url.includes('shbdn.com')) return 'sahibinden';
   return 'external';
 }
