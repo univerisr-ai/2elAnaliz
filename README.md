@@ -4,9 +4,9 @@ Vercel uzerinde calisan ozel GPU kontrol paneli. `yenitest` reposundaki scraper 
 
 ## Mimari
 
-1. `yenitest` scraper workflow'u `output.json` ve `pipeline-messages.json` artifact'ini uretir.
-2. Scraper, `repository_dispatch` ile bu repo workflow'unu tetikler.
-3. Bu repo artifact'i indirir, analizi calistirir ve sadece guvenli alanlari iceren `docs/latest-summary.json` dosyasini uretir.
+1. Sahibinden, Letgo ve Dolap scraper workflow'lari `output.json` ve `pipeline-messages.json` artifact'lerini uretir.
+2. Scraper, `repository_dispatch` ile bu repo workflow'unu tetikleyebilir; dispatch gelmezse analyzer son basarili source artifact'lerini kendi indirir.
+3. Bu repo artifact'leri birlestirir, analizi calistirir ve sadece guvenli alanlari iceren `docs/latest-summary.json` dosyasini uretir.
 4. `api/*` altindaki Vercel Function route'lari GitHub API uzerinden run durumu, rerun ve pause islemlerini sunar.
 5. Dashboard, Vercel Authentication ile korunmus deployment URL'sinden acilir.
 
@@ -88,6 +88,9 @@ Variables:
 - `MIN_DISCOUNT_RATIO`
 - `MAX_RESULTS`
 - `TELEGRAM_FORCE_CHAT_ID`
+- `SCRAPER_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/ahibinden-ekran-karti`)
+- `LETGO_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/letgo-ekran-karti`)
+- `DOLAP_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/dolap-ekran-kart-`)
 
 ## Vercel koruma notu
 

@@ -30,6 +30,10 @@ interface ScraperArtifactListing {
   readonly sourceListingId?: string;
   readonly baslik?: string;
   readonly title?: string;
+  readonly model?: string;
+  readonly modelName?: string;
+  readonly modelKey?: string;
+  readonly gpuModel?: string;
   readonly fiyat?: number;
   readonly price?: number;
   readonly fiyat_str?: string;
