@@ -306,6 +306,7 @@ function filterCatalogListings(
   buyabilityIndex?: BuyabilityIndex,
 ): CatalogListing[] {
   const query = filters.search.trim().toLowerCase();
+  const hasMaxPriceFilter = filters.maxPrice > 0 && filters.maxPrice < DEFAULT_CATALOG_FILTERS.maxPrice;
 
   const filtered = listings.filter((listing) => {
     if (activePriceCategory !== ALL_CATEGORY_KEY && getPriceCategoryKey(listing) !== activePriceCategory) {
@@ -324,7 +325,7 @@ function filterCatalogListings(
       return false;
     }
 
-    if (listing.price < filters.minPrice || listing.price > filters.maxPrice) {
+    if (listing.price < filters.minPrice || (hasMaxPriceFilter && listing.price > filters.maxPrice)) {
       return false;
     }
 
