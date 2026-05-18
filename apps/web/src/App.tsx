@@ -86,7 +86,8 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   sortBy: CATALOG_SORT_OPTIONS.LATEST,
 };
 
-const CATALOG_FETCH_LIMIT = 3000;
+const CATALOG_FETCH_PAGE_SIZE = 1000;
+const CATALOG_FETCH_CONCURRENCY = 3;
 const CATALOG_PAGE_SIZE = 120;
 const CATALOG_ENTRY_LOADING_MS = 4000;
 const SITE_URL_RAW = (import.meta.env.VITE_SITE_URL?.trim() || "https://www.gpupusula.shop").replace(/\/+$/g, "");
@@ -178,6 +179,24 @@ function writeCatalogWatchItems(items: readonly CatalogWatchItem[]) {
   }
 
   window.localStorage.setItem(CATALOG_WATCHLIST_STORAGE_KEY, JSON.stringify(items));
+}
+
+function mergeCatalogListingPages(current: readonly CatalogListing[], nextPage: readonly CatalogListing[]): CatalogListing[] {
+  if (current.length === 0) {
+    return [...nextPage];
+  }
+
+  const seenIds = new Set(current.map((listing) => listing.id));
+  const additions = nextPage.filter((listing) => {
+    if (seenIds.has(listing.id)) {
+      return false;
+    }
+
+    seenIds.add(listing.id);
+    return true;
+  });
+
+  return additions.length > 0 ? [...current, ...additions] : [...current];
 }
 
 function getSegmentSortValue(segment: string): number {
@@ -798,27 +817,77 @@ export default function App() {
   }, [isFilterDrawerOpen]);
 
   useEffect(() => {
+    let isCancelled = false;
+
     async function loadCatalogData() {
       try {
         setIsCatalogLoading(true);
         setCatalogError(null);
 
-        const catalog = await fetchCatalog(DEFAULT_CATALOG_FILTERS, 1, CATALOG_FETCH_LIMIT);
-        setCatalogListings(catalog.listings);
-        setCatalogTotal(catalog.total);
+        const firstPage = await fetchCatalog(DEFAULT_CATALOG_FILTERS, 1, CATALOG_FETCH_PAGE_SIZE);
+        if (isCancelled) {
+          return;
+        }
 
-        if (catalog.lastUpdated) {
-          setLastUpdated(formatDate(catalog.lastUpdated));
+        let mergedListings = mergeCatalogListingPages([], firstPage.listings);
+        let totalPages = Math.max(1, firstPage.totalPages);
+
+        setCatalogListings(mergedListings);
+        setCatalogTotal(firstPage.total);
+        setIsCatalogLoading(false);
+
+        if (firstPage.lastUpdated) {
+          setLastUpdated(formatDate(firstPage.lastUpdated));
+        }
+
+        for (let nextPage = 2; nextPage <= totalPages; nextPage += CATALOG_FETCH_CONCURRENCY) {
+          const batchPages = Array.from(
+            { length: Math.min(CATALOG_FETCH_CONCURRENCY, totalPages - nextPage + 1) },
+            (_, index) => nextPage + index,
+          );
+
+          const batchResults = await Promise.all(
+            batchPages.map((page) => fetchCatalog(DEFAULT_CATALOG_FILTERS, page, CATALOG_FETCH_PAGE_SIZE)),
+          );
+          if (isCancelled) {
+            return;
+          }
+
+          for (const catalog of batchResults) {
+            totalPages = Math.max(totalPages, catalog.totalPages);
+            mergedListings = mergeCatalogListingPages(mergedListings, catalog.listings);
+            setCatalogTotal(catalog.total);
+
+            if (catalog.lastUpdated) {
+              setLastUpdated(formatDate(catalog.lastUpdated));
+            }
+          }
+
+          setCatalogListings(mergedListings);
+
+          if (batchResults.some((catalog) => catalog.listings.length === 0)) {
+            break;
+          }
         }
       } catch (loadError) {
+        if (isCancelled) {
+          return;
+        }
+
         console.error("Katalog yüklenemedi:", loadError);
         setCatalogError("Tam katalog yüklenemedi. API bağlantısını ve katalog cache verisini kontrol edin.");
       } finally {
-        setIsCatalogLoading(false);
+        if (!isCancelled) {
+          setIsCatalogLoading(false);
+        }
       }
     }
 
     loadCatalogData();
+
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -998,7 +1067,7 @@ export default function App() {
 
   const catalogDisplayTotal = isCatalogLoading
     ? catalogTotal || summary?.listingCount || featuredListings.length
-    : activeCatalogListings.length;
+    : catalogTotal || activeCatalogListings.length;
   const isCatalogScreenLoading = isCatalogLoading || isCatalogEntryLoading;
   const recognizedModelCount = summary?.recognizedModelCount ?? 0;
   const candidateCount = summary?.candidateCount ?? 0;
