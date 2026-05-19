@@ -23,6 +23,46 @@ function pickListings(root) {
   return [];
 }
 
+function normalizeRuleText(value) {
+  return String(value || '')
+    .replace(/[çÇ]/g, 'c')
+    .replace(/[ğĞ]/g, 'g')
+    .replace(/[ıIİ]/g, 'i')
+    .replace(/[öÖ]/g, 'o')
+    .replace(/[şŞ]/g, 's')
+    .replace(/[üÜ]/g, 'u')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function isSuspiciousListingTitle(title) {
+  const text = normalizeRuleText(title);
+  if (!text) return true;
+
+  return [
+    /\b(arizali|bozuk|sorunlu|tamir|tamirlik|defolu|calismiyor|broken|repair|artefakt)\b/,
+    /\b(yedek parca|parca niyetine|mining rig|sadece takas)\b/,
+    /\b(12vhpwr|riser|backplate|braket|kablo|guc kaynagi|power supply|psu|adapter|donusturucu)\b/,
+    /\b(?:ekran karti\s*)?kutusu\b|\bbos\s*kutu\b|\bgpu\s*yok\b|\bkart\s*yok\b/,
+    /\bsadece\s+(?:kutu|fan|blok|backplate|sogutucu)\b|\bsu\s*blogu\b|\bwater\s*block\b/,
+  ].some((pattern) => pattern.test(text));
+}
+
+export function isModernCandidateModel(modelKey) {
+  const model = normalizeRuleText(modelKey);
+  return (
+    /\brtx\s*(?:20|30|40|50)\d{2}\b/.test(model) ||
+    /\brx\s*(?:6|7|9)\d{3}\b/.test(model) ||
+    /\barc\s*[ab]\d{3}\b/.test(model)
+  );
+}
+
+export function isUnrealisticCandidatePrice(price, fairPrice) {
+  if (!(price > 0) || !(fairPrice > 0)) return true;
+  return price < Math.max(1000, fairPrice * 0.08);
+}
+
 function normalizeListing(raw, idx) {
   const title = String(firstField(raw, ['baslik', 'title', 'ilan_baslik', 'ad', 'name'])).trim();
   const url = String(firstField(raw, ['link', 'url', 'ilan_url', 'href'])).trim();
@@ -34,8 +74,7 @@ function normalizeListing(raw, idx) {
   const id =
     String(firstField(raw, ['id', 'ilan_no', 'listingId', 'uid']) || `row-${idx + 1}`).trim() || `row-${idx + 1}`;
 
-  const suspicious =
-    /ar[ıi]z|bozuk|sorunlu|tamir|defolu|cal[ıi]sm[ıi]yor|broken|repair/i.test(title.toLowerCase());
+  const suspicious = isSuspiciousListingTitle(title);
 
   return {
     id,
@@ -101,7 +140,11 @@ export async function analyzeFile(inputPath) {
     for (const row of modelListings) {
       const discountRatio = (market.fairPrice - row.price) / market.fairPrice;
       const score = discountRatio * 100 + market.confidence * 20 - (row.suspicious ? 30 : 0);
-      const isBuyable = discountRatio >= dynamicMinDiscount && !row.suspicious;
+      const isBuyable =
+        discountRatio >= dynamicMinDiscount &&
+        !row.suspicious &&
+        isModernCandidateModel(modelKey) &&
+        !isUnrealisticCandidatePrice(row.price, market.fairPrice);
 
       if (!isBuyable) continue;
 
