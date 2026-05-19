@@ -79,6 +79,10 @@ export function detectSourceTypeFromUrl(url: string): SourceType {
     return SOURCE_TYPE.DONANIMHABER;
   }
 
+  if (value.includes("facebook.com") || value.includes("fb.com")) {
+    return SOURCE_TYPE.FACEBOOK;
+  }
+
   if (value.includes("sahibinden") || value.includes("shbdn.com")) {
     return SOURCE_TYPE.SAHIBINDEN;
   }
@@ -98,6 +102,8 @@ export function detectSourceLabel(sourceType: SourceType): string {
       return "Dolap";
     case SOURCE_TYPE.DONANIMHABER:
       return "Donanim Haber";
+    case SOURCE_TYPE.FACEBOOK:
+      return "Facebook";
     default:
       return "Harici";
   }

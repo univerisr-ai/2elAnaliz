@@ -32,6 +32,7 @@ function sourceFromListing(listing) {
   if (url.includes('letgo')) return 'letgo';
   if (url.includes('dolap')) return 'dolap';
   if (url.includes('donanimhaber')) return 'donanimhaber';
+  if (url.includes('facebook.com') || url.includes('fb.com')) return 'facebook';
   if (url.includes('sahibinden') || url.includes('shbdn.com')) return 'sahibinden';
   return 'external';
 }

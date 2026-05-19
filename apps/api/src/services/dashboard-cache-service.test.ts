@@ -46,6 +46,22 @@ async function main(): Promise<void> {
 
   assert.equal(fromDonanimHaber.sourceType, "donanimhaber");
   assert.equal(fromDonanimHaber.source, "Donanim Haber");
+
+  const fromFacebook = mapRawCatalogListing(
+    {
+      id: "facebook-123",
+      title: "RTX 4070 Facebook ilani",
+      model: "RTX 4070",
+      price: 22000,
+      url: "https://www.facebook.com/marketplace/item/123",
+      source: "Facebook",
+      sourceType: "facebook",
+    },
+    3,
+  );
+
+  assert.equal(fromFacebook.sourceType, "facebook");
+  assert.equal(fromFacebook.source, "Facebook");
 }
 
 main().catch((error: unknown) => {

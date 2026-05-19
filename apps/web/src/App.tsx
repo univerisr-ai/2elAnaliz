@@ -264,6 +264,10 @@ function getCatalogSourceFilterKey(listing: CatalogListing): Exclude<CatalogSour
     return "donanimhaber";
   }
 
+  if (sourceNeedle.includes("facebook") || sourceNeedle.includes("fb.com")) {
+    return "facebook";
+  }
+
   return "external";
 }
 

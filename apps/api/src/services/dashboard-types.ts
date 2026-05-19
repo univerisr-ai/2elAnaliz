@@ -70,8 +70,8 @@ export interface DashboardListing {
   readonly url: string;
   readonly analysisNote: string;
   readonly listedAt: string;
-  readonly source: "PECID Ilani" | "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Harici";
-  readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "external";
+  readonly source: "PECID Ilani" | "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Facebook" | "Harici";
+  readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "facebook" | "external";
   readonly isInternal?: boolean;
   readonly imageUrl?: string | null;
 }
@@ -88,8 +88,8 @@ export interface CatalogListing {
   readonly location: string;
   readonly segment: string;
   readonly listedAtLabel: string;
-  readonly source: "PECID Ilani" | "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Harici";
-  readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "external";
+  readonly source: "PECID Ilani" | "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Facebook" | "Harici";
+  readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "facebook" | "external";
   readonly isInternal?: boolean;
 }
 

@@ -211,7 +211,7 @@ function normalizeLocation(location) {
 
 function normalizeSourceType(value) {
   const normalized = String(value || '').trim().toLowerCase();
-  if (['sahibinden', 'letgo', 'dolap', 'donanimhaber', 'pecid'].includes(normalized)) return normalized;
+  if (['sahibinden', 'letgo', 'dolap', 'donanimhaber', 'facebook', 'pecid'].includes(normalized)) return normalized;
   return '';
 }
 
@@ -219,12 +219,14 @@ function detectSource(url, explicitSourceType = '', explicitSource = '') {
   const sourceType = normalizeSourceType(explicitSourceType);
   if (sourceType === 'dolap') return { source: 'Dolap', sourceType: 'dolap' };
   if (sourceType === 'donanimhaber') return { source: 'Donanim Haber', sourceType: 'donanimhaber' };
+  if (sourceType === 'facebook') return { source: 'Facebook', sourceType: 'facebook' };
   if (sourceType === 'letgo') return { source: 'Letgo', sourceType: 'letgo' };
   if (sourceType === 'sahibinden') return { source: 'Sahibinden', sourceType: 'sahibinden' };
 
   const sourceText = String(explicitSource || '').trim();
   if (/dolap/i.test(sourceText)) return { source: 'Dolap', sourceType: 'dolap' };
   if (/donanim\s*haber/i.test(sourceText)) return { source: 'Donanim Haber', sourceType: 'donanimhaber' };
+  if (/facebook/i.test(sourceText)) return { source: 'Facebook', sourceType: 'facebook' };
   if (/letgo/i.test(sourceText)) return { source: 'Letgo', sourceType: 'letgo' };
   if (/sahibinden/i.test(sourceText)) return { source: 'Sahibinden', sourceType: 'sahibinden' };
 
@@ -240,6 +242,10 @@ function detectSource(url, explicitSourceType = '', explicitSource = '') {
 
   if (value.includes('donanimhaber')) {
     return { source: 'Donanim Haber', sourceType: 'donanimhaber' };
+  }
+
+  if (value.includes('facebook.com') || value.includes('fb.com')) {
+    return { source: 'Facebook', sourceType: 'facebook' };
   }
 
   if (value.includes('sahibinden') || value.includes('shbdn.com')) {

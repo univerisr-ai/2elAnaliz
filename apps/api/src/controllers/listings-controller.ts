@@ -108,6 +108,7 @@ const PUBLIC_TEXT_REDACTIONS: ReadonlyArray<readonly [RegExp, string]> = [
   [/letgo/gi, "harici kaynak"],
   [/dolap/gi, "harici kaynak"],
   [/donanim\s*haber/gi, "harici kaynak"],
+  [/facebook/gi, "harici kaynak"],
 ];
 
 const BLOCKED_PUBLIC_LINK_HOST_PARTS = ["github.com", "githubusercontent.com", "vercel.app"];
@@ -168,6 +169,10 @@ function getPublicSourceLabel(
 
   if (sourceType === "donanimhaber" || /donanim\s*haber/i.test(normalizedSource)) {
     return "Donanim Haber";
+  }
+
+  if (sourceType === "facebook" || /facebook/i.test(normalizedSource)) {
+    return "Facebook";
   }
 
   if (normalizedSource && normalizedSource.toLowerCase() !== "harici") {

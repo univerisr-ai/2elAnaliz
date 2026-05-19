@@ -199,7 +199,7 @@ function normalizeLocation(location: string): string {
     .replace(/\s+/g, " ");
 }
 
-function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Harici" {
+function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Facebook" | "Harici" {
   const value = url?.toLowerCase() ?? "";
 
   if (value.includes("letgo")) {
@@ -212,6 +212,10 @@ function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap"
 
   if (value.includes("donanimhaber")) {
     return "Donanim Haber";
+  }
+
+  if (value.includes("facebook.com") || value.includes("fb.com")) {
+    return "Facebook";
   }
 
   if (value.includes("sahibinden") || value.includes("shbdn.com")) {
@@ -230,6 +234,7 @@ function detectSourceType(
   if (value.includes("letgo")) return "letgo";
   if (value.includes("dolap")) return "dolap";
   if (value.includes("donanimhaber") || value.includes("donanim haber")) return "donanimhaber";
+  if (value.includes("facebook") || value.includes("fb.com")) return "facebook";
   if (value.includes("sahibinden") || value.includes("shbdn.com")) return "sahibinden";
   if (value.includes("pecid") || value.includes("gpu pusula")) return "pecid";
   return "external";
@@ -410,7 +415,7 @@ export function mapRawCatalogListing(
     "";
   const model = explicitModel ? normalizeModel(explicitModel) : normalizeModel(title);
   const price = Number.isFinite(listing.fiyat) ? Number(listing.fiyat) : Number.isFinite(listing.price) ? Number(listing.price) : 0;
-  const source = listing.source?.trim() || (listing.sourceType === "dolap" ? "Dolap" : detectSource(listing.url));
+  const source = listing.source?.trim() || (listing.sourceType === "dolap" ? "Dolap" : listing.sourceType === "facebook" ? "Facebook" : detectSource(listing.url));
   const sourceType = listing.sourceType ?? detectSourceType(listing.url, source as CatalogListing["source"]);
 
   return {

@@ -25,6 +25,7 @@ export const SOURCE_TYPE = {
   LETGO: "letgo",
   DOLAP: "dolap",
   DONANIMHABER: "donanimhaber",
+  FACEBOOK: "facebook",
   EXTERNAL: "external",
 } as const;
 
