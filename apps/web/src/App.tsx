@@ -268,6 +268,10 @@ function getCatalogSourceFilterKey(listing: CatalogListing): Exclude<CatalogSour
     return "facebook";
   }
 
+  if (sourceNeedle.includes("technopat") || sourceNeedle.includes("techolay") || sourceNeedle.includes("forum")) {
+    return "external";
+  }
+
   return "external";
 }
 

@@ -66,6 +66,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFi
             <option value="dolap">Dolap</option>
             <option value="donanimhaber">Donanım Haber</option>
             <option value="facebook">Facebook</option>
+            <option value="external">Diğer ikinci el mağazalar</option>
             <option value="pecid">GPU Pusula</option>
           </select>
 

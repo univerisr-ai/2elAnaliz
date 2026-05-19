@@ -26,6 +26,7 @@ export const SOURCE_TYPE = {
   DOLAP: "dolap",
   DONANIMHABER: "donanimhaber",
   FACEBOOK: "facebook",
+  FORUM: "forum",
   EXTERNAL: "external",
 } as const;
 

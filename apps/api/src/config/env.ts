@@ -71,7 +71,7 @@ export const ENV = {
   MAX_UPLOAD_IMAGE_MB: parseInt(optionalEnv("MAX_UPLOAD_IMAGE_MB", "8"), 10),
   ALLOWED_INGEST_HOSTS: optionalEnv(
     "ALLOWED_INGEST_HOSTS",
-    "sahibinden.com,shbdn.com,letgo.com,dolap.com,cdn.dolap.com,static.dolap.com,dolapcdn.com,dsmcdn.com,donanimhaber.com,forum.donanimhaber.com,facebook.com,fbcdn.net,fbsbx.com",
+    "sahibinden.com,shbdn.com,letgo.com,dolap.com,cdn.dolap.com,static.dolap.com,dolapcdn.com,dsmcdn.com,donanimhaber.com,forum.donanimhaber.com,facebook.com,fbcdn.net,fbsbx.com,technopat.net,techolay.net",
   ),
 } as const;
 

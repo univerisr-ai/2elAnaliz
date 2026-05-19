@@ -175,6 +175,18 @@ function getPublicSourceLabel(
     return "Facebook";
   }
 
+  if (sourceType === "forum" || /technopat|techolay|forum/i.test(normalizedSource)) {
+    if (/technopat/i.test(normalizedSource)) {
+      return "Technopat";
+    }
+
+    if (/techolay/i.test(normalizedSource)) {
+      return "Techolay";
+    }
+
+    return "Forum";
+  }
+
   if (normalizedSource && normalizedSource.toLowerCase() !== "harici") {
     return scrubPublicText(normalizedSource) || "Harici site";
   }

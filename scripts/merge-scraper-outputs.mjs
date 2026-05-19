@@ -26,6 +26,7 @@ function normalizeUrl(url = '') {
 
 function sourceFromListing(listing) {
   const explicit = String(listing?.sourceType || listing?.source || '').trim().toLowerCase();
+  if (explicit === 'technopat' || explicit === 'techolay') return 'forum';
   if (explicit) return explicit;
 
   const url = String(listing?.url || '').toLowerCase();
@@ -33,6 +34,7 @@ function sourceFromListing(listing) {
   if (url.includes('dolap')) return 'dolap';
   if (url.includes('donanimhaber')) return 'donanimhaber';
   if (url.includes('facebook.com') || url.includes('fb.com')) return 'facebook';
+  if (url.includes('technopat.net') || url.includes('techolay.net')) return 'forum';
   if (url.includes('sahibinden') || url.includes('shbdn.com')) return 'sahibinden';
   return 'external';
 }

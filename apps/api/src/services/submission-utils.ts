@@ -83,6 +83,10 @@ export function detectSourceTypeFromUrl(url: string): SourceType {
     return SOURCE_TYPE.FACEBOOK;
   }
 
+  if (value.includes("technopat.net") || value.includes("techolay.net")) {
+    return SOURCE_TYPE.FORUM;
+  }
+
   if (value.includes("sahibinden") || value.includes("shbdn.com")) {
     return SOURCE_TYPE.SAHIBINDEN;
   }
@@ -104,6 +108,8 @@ export function detectSourceLabel(sourceType: SourceType): string {
       return "Donanim Haber";
     case SOURCE_TYPE.FACEBOOK:
       return "Facebook";
+    case SOURCE_TYPE.FORUM:
+      return "Forum";
     default:
       return "Harici";
   }

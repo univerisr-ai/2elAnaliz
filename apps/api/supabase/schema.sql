@@ -12,7 +12,7 @@ create table if not exists public.listing_submissions (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null references public.profiles(id) on delete cascade,
   submission_type text not null check (submission_type in ('link', 'native')),
-  source_type text not null check (source_type in ('pecid', 'sahibinden', 'letgo', 'external')),
+  source_type text not null check (source_type in ('pecid', 'sahibinden', 'letgo', 'dolap', 'donanimhaber', 'facebook', 'forum', 'external')),
   source_url text,
   status text not null default 'draft',
   title text not null,
@@ -62,7 +62,7 @@ create index if not exists listing_submissions_status_idx
 create table if not exists public.external_link_ingest_jobs (
   id uuid primary key default gen_random_uuid(),
   submission_id uuid not null references public.listing_submissions(id) on delete cascade,
-  source_type text not null check (source_type in ('sahibinden', 'letgo', 'external')),
+  source_type text not null check (source_type in ('sahibinden', 'letgo', 'dolap', 'donanimhaber', 'facebook', 'forum', 'external')),
   source_url text not null,
   status text not null default 'queued' check (status in ('queued', 'processing', 'completed', 'failed', 'blocked')),
   attempt_count integer not null default 0,
@@ -145,7 +145,7 @@ create index if not exists moderation_events_submission_idx
 
 create table if not exists public.published_listings (
   id uuid primary key default gen_random_uuid(),
-  source_type text not null check (source_type in ('pecid', 'sahibinden', 'letgo', 'external')),
+  source_type text not null check (source_type in ('pecid', 'sahibinden', 'letgo', 'dolap', 'donanimhaber', 'facebook', 'forum', 'external')),
   owner_id uuid references public.profiles(id) on delete set null,
   title text not null,
   description text not null,

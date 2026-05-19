@@ -211,7 +211,7 @@ function normalizeLocation(location) {
 
 function normalizeSourceType(value) {
   const normalized = String(value || '').trim().toLowerCase();
-  if (['sahibinden', 'letgo', 'dolap', 'donanimhaber', 'facebook', 'pecid'].includes(normalized)) return normalized;
+  if (['sahibinden', 'letgo', 'dolap', 'donanimhaber', 'facebook', 'forum', 'pecid'].includes(normalized)) return normalized;
   return '';
 }
 
@@ -220,6 +220,15 @@ function detectSource(url, explicitSourceType = '', explicitSource = '') {
   if (sourceType === 'dolap') return { source: 'Dolap', sourceType: 'dolap' };
   if (sourceType === 'donanimhaber') return { source: 'Donanim Haber', sourceType: 'donanimhaber' };
   if (sourceType === 'facebook') return { source: 'Facebook', sourceType: 'facebook' };
+  if (sourceType === 'forum') {
+    const sourceText = String(explicitSource || '').trim();
+    if (/technopat/i.test(sourceText)) return { source: 'Technopat', sourceType: 'forum' };
+    if (/techolay/i.test(sourceText)) return { source: 'Techolay', sourceType: 'forum' };
+    const value = String(url || '').toLowerCase();
+    if (value.includes('technopat.net')) return { source: 'Technopat', sourceType: 'forum' };
+    if (value.includes('techolay.net')) return { source: 'Techolay', sourceType: 'forum' };
+    return { source: 'Forum', sourceType: 'forum' };
+  }
   if (sourceType === 'letgo') return { source: 'Letgo', sourceType: 'letgo' };
   if (sourceType === 'sahibinden') return { source: 'Sahibinden', sourceType: 'sahibinden' };
 
@@ -227,6 +236,8 @@ function detectSource(url, explicitSourceType = '', explicitSource = '') {
   if (/dolap/i.test(sourceText)) return { source: 'Dolap', sourceType: 'dolap' };
   if (/donanim\s*haber/i.test(sourceText)) return { source: 'Donanim Haber', sourceType: 'donanimhaber' };
   if (/facebook/i.test(sourceText)) return { source: 'Facebook', sourceType: 'facebook' };
+  if (/technopat/i.test(sourceText)) return { source: 'Technopat', sourceType: 'forum' };
+  if (/techolay/i.test(sourceText)) return { source: 'Techolay', sourceType: 'forum' };
   if (/letgo/i.test(sourceText)) return { source: 'Letgo', sourceType: 'letgo' };
   if (/sahibinden/i.test(sourceText)) return { source: 'Sahibinden', sourceType: 'sahibinden' };
 
@@ -246,6 +257,14 @@ function detectSource(url, explicitSourceType = '', explicitSource = '') {
 
   if (value.includes('facebook.com') || value.includes('fb.com')) {
     return { source: 'Facebook', sourceType: 'facebook' };
+  }
+
+  if (value.includes('technopat.net')) {
+    return { source: 'Technopat', sourceType: 'forum' };
+  }
+
+  if (value.includes('techolay.net')) {
+    return { source: 'Techolay', sourceType: 'forum' };
   }
 
   if (value.includes('sahibinden') || value.includes('shbdn.com')) {

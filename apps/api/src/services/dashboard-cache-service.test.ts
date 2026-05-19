@@ -62,6 +62,51 @@ async function main(): Promise<void> {
 
   assert.equal(fromFacebook.sourceType, "facebook");
   assert.equal(fromFacebook.source, "Facebook");
+
+  const fromTechnopat = mapRawCatalogListing(
+    {
+      id: "technopat-rtx-4060",
+      title: "RTX 4060 Technopat forum ilani",
+      model: "RTX 4060",
+      price: 15000,
+      url: "https://www.technopat.net/sosyal/konu/satilik-rtx-4060.123456/",
+      source: "Technopat",
+      sourceType: "forum",
+    },
+    4,
+  );
+
+  const fromTecholay = mapRawCatalogListing(
+    {
+      id: "techolay-rx-6700",
+      title: "RX 6700 XT Techolay forum ilani",
+      model: "RX 6700 XT",
+      price: 14000,
+      url: "https://techolay.net/sosyal/konu/satilik-rx-6700-xt.123456/",
+      source: "Techolay",
+      sourceType: "forum",
+    },
+    5,
+  );
+
+  assert.equal(fromTechnopat.sourceType, "forum");
+  assert.equal(fromTechnopat.source, "Technopat");
+  assert.equal(fromTecholay.sourceType, "forum");
+  assert.equal(fromTecholay.source, "Techolay");
+
+  const fromTechnopatUrl = mapRawCatalogListing(
+    {
+      id: "technopat-url-rtx-4070",
+      title: "RTX 4070 Technopat forum ilani",
+      model: "RTX 4070",
+      price: 24000,
+      url: "https://www.technopat.net/sosyal/konu/satilik-rtx-4070.654321/",
+    },
+    6,
+  );
+
+  assert.equal(fromTechnopatUrl.sourceType, "forum");
+  assert.equal(fromTechnopatUrl.source, "Technopat");
 }
 
 main().catch((error: unknown) => {
