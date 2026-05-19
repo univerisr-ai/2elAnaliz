@@ -199,7 +199,7 @@ function normalizeLocation(location: string): string {
     .replace(/\s+/g, " ");
 }
 
-function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap" | "Harici" {
+function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Harici" {
   const value = url?.toLowerCase() ?? "";
 
   if (value.includes("letgo")) {
@@ -208,6 +208,10 @@ function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap"
 
   if (value.includes("dolap")) {
     return "Dolap";
+  }
+
+  if (value.includes("donanimhaber")) {
+    return "Donanim Haber";
   }
 
   if (value.includes("sahibinden") || value.includes("shbdn.com")) {
@@ -225,6 +229,7 @@ function detectSourceType(
 
   if (value.includes("letgo")) return "letgo";
   if (value.includes("dolap")) return "dolap";
+  if (value.includes("donanimhaber") || value.includes("donanim haber")) return "donanimhaber";
   if (value.includes("sahibinden") || value.includes("shbdn.com")) return "sahibinden";
   if (value.includes("pecid") || value.includes("gpu pusula")) return "pecid";
   return "external";

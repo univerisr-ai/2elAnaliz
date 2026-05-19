@@ -75,6 +75,10 @@ export function detectSourceTypeFromUrl(url: string): SourceType {
     return SOURCE_TYPE.DOLAP;
   }
 
+  if (value.includes("donanimhaber")) {
+    return SOURCE_TYPE.DONANIMHABER;
+  }
+
   if (value.includes("sahibinden") || value.includes("shbdn.com")) {
     return SOURCE_TYPE.SAHIBINDEN;
   }
@@ -92,6 +96,8 @@ export function detectSourceLabel(sourceType: SourceType): string {
       return "Letgo";
     case SOURCE_TYPE.DOLAP:
       return "Dolap";
+    case SOURCE_TYPE.DONANIMHABER:
+      return "Donanim Haber";
     default:
       return "Harici";
   }

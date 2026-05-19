@@ -64,6 +64,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFi
             <option value="sahibinden">Sahibinden</option>
             <option value="letgo">Letgo</option>
             <option value="dolap">Dolap</option>
+            <option value="donanimhaber">Donanım Haber</option>
             <option value="pecid">GPU Pusula</option>
           </select>
 

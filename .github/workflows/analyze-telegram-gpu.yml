@@ -39,6 +39,7 @@ jobs:
           DEFAULT_SOURCE_REPOSITORY: ${{ vars.SCRAPER_SOURCE_REPOSITORY }}
           LETGO_SOURCE_REPOSITORY: ${{ vars.LETGO_SOURCE_REPOSITORY }}
           DOLAP_SOURCE_REPOSITORY: ${{ vars.DOLAP_SOURCE_REPOSITORY }}
+          DONANIMHABER_SOURCE_REPOSITORY: ${{ vars.DONANIMHABER_SOURCE_REPOSITORY }}
           DOLAP_MIN_LISTINGS: ${{ vars.DOLAP_MIN_LISTINGS }}
         run: |
           set -euo pipefail
@@ -49,6 +50,7 @@ jobs:
           DEFAULT_REPO="${DEFAULT_SOURCE_REPOSITORY:-univerisr-ai/ahibinden-ekran-karti}"
           LETGO_REPO="${LETGO_SOURCE_REPOSITORY:-univerisr-ai/letgo-ekran-karti}"
           DOLAP_REPO="${DOLAP_SOURCE_REPOSITORY:-univerisr-ai/dolap-ekran-kart-}"
+          DONANIMHABER_REPO="${DONANIMHABER_SOURCE_REPOSITORY:-univerisr-ai/donanimhaber-ekran-karti}"
           DOLAP_MIN_LISTINGS="${DOLAP_MIN_LISTINGS:-50}"
 
           sanitize_repo() {
@@ -142,7 +144,7 @@ jobs:
             DOWNLOADED=$((DOWNLOADED + 1))
           fi
 
-          for SOURCE_REPO in "${DEFAULT_REPO}" "${LETGO_REPO}" "${DOLAP_REPO}"; do
+          for SOURCE_REPO in "${DEFAULT_REPO}" "${LETGO_REPO}" "${DOLAP_REPO}" "${DONANIMHABER_REPO}"; do
             if [ -z "${SOURCE_REPO:-}" ]; then
               continue
             fi

@@ -41,6 +41,13 @@
   --source-chip-text: #00634f;
 }
 
+.catalog-card--source-donanimhaber {
+  --source-accent: #f47a25;
+  --source-border: rgba(244, 122, 37, 0.3);
+  --source-chip-bg: #fff2e8;
+  --source-chip-text: #9a3f0b;
+}
+
 .catalog-card--source-pecid {
   --source-accent: #0033a0;
   --source-border: rgba(0, 51, 160, 0.3);

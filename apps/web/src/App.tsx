@@ -260,6 +260,10 @@ function getCatalogSourceFilterKey(listing: CatalogListing): Exclude<CatalogSour
     return "dolap";
   }
 
+  if (sourceNeedle.includes("donanim haber") || sourceNeedle.includes("donanimhaber")) {
+    return "donanimhaber";
+  }
+
   return "external";
 }
 

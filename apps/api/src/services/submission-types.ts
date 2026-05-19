@@ -24,6 +24,7 @@ export const SOURCE_TYPE = {
   SAHIBINDEN: "sahibinden",
   LETGO: "letgo",
   DOLAP: "dolap",
+  DONANIMHABER: "donanimhaber",
   EXTERNAL: "external",
 } as const;
 

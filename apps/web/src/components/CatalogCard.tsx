@@ -32,7 +32,7 @@ function getBrandClass(brand: string): string {
   }
 }
 
-function getSourceTone(listing: CatalogListing, sourceLabel: string): "sahibinden" | "letgo" | "dolap" | "pecid" | "external" {
+function getSourceTone(listing: CatalogListing, sourceLabel: string): "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "pecid" | "external" {
   if (listing.isInternal) {
     return "pecid";
   }
@@ -48,6 +48,10 @@ function getSourceTone(listing: CatalogListing, sourceLabel: string): "sahibinde
 
   if (sourceNeedle.includes("dolap")) {
     return "dolap";
+  }
+
+  if (sourceNeedle.includes("donanim haber") || sourceNeedle.includes("donanimhaber")) {
+    return "donanimhaber";
   }
 
   return "external";
