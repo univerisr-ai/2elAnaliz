@@ -41,11 +41,11 @@ export function isSuspiciousListingTitle(title) {
   if (!text) return true;
 
   return [
-    /\b(arizali|bozuk|sorunlu|tamir|tamirlik|defolu|calismiyor|broken|repair|artefakt)\b/,
+    /\b(arizali|bozuk|sorunlu|tamir|tamirlik|defolu|calismiyor|broken|repair|artefakt)\b|\bgoruntu\s*yok\b/,
     /\b(yedek parca|parca niyetine|mining rig|sadece takas)\b/,
     /\b(12vhpwr|riser|backplate|braket|kablo|guc kaynagi|power supply|psu|adapter|donusturucu)\b/,
     /\b(?:ekran karti\s*)?kutusu\b|\bbos\s*kutu\b|\bgpu\s*yok\b|\bkart\s*yok\b/,
-    /\bsadece\s+(?:kutu|fan|blok|backplate|sogutucu)\b|\bsu\s*blogu\b|\bwater\s*block\b/,
+    /\bsadece\s+(?:kutu|fan|blok|backplate|sogutucu)\b|\bfan\s*(?:cercevesi|cerceve|seti|lari|lari)\b|\bsu\s*blogu\b|\bwater\s*block\b/,
   ].some((pattern) => pattern.test(text));
 }
 

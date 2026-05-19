@@ -11,6 +11,8 @@ test('flags broken, accessory, box, and trade-only titles as suspicious', () => 
   assert.equal(isSuspiciousListingTitle('RTX 3060 arizali goruntu yok'), true);
   assert.equal(isSuspiciousListingTitle('4060 Ekran Karti Kutusu'), true);
   assert.equal(isSuspiciousListingTitle('RTX4090 icin 16 Pin Guc Kaynagi 12VHPWR kablo'), true);
+  assert.equal(isSuspiciousListingTitle('ASUS dual rx6600 fanlari ve fan cercevesi'), true);
+  assert.equal(isSuspiciousListingTitle('MSI RTX 3080 fan donuyor goruntu yok'), true);
   assert.equal(isSuspiciousListingTitle('GIGABYTE GTX 1060 3GB sadece takas'), true);
   assert.equal(isSuspiciousListingTitle('ASUS TUF RTX 4070 Super garantili temiz'), false);
 });
