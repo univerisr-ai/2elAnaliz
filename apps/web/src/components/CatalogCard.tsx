@@ -32,7 +32,7 @@ function getBrandClass(brand: string): string {
   }
 }
 
-function getSourceTone(listing: CatalogListing, sourceLabel: string): "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "facebook" | "pecid" | "external" {
+function getSourceTone(listing: CatalogListing, sourceLabel: string): "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "pecid" | "external" {
   if (listing.isInternal) {
     return "pecid";
   }
@@ -52,10 +52,6 @@ function getSourceTone(listing: CatalogListing, sourceLabel: string): "sahibinde
 
   if (sourceNeedle.includes("donanim haber") || sourceNeedle.includes("donanimhaber")) {
     return "donanimhaber";
-  }
-
-  if (sourceNeedle.includes("facebook") || sourceNeedle.includes("fb.com")) {
-    return "facebook";
   }
 
   return "external";

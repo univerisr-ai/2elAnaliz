@@ -264,10 +264,6 @@ function getCatalogSourceFilterKey(listing: CatalogListing): Exclude<CatalogSour
     return "donanimhaber";
   }
 
-  if (sourceNeedle.includes("facebook") || sourceNeedle.includes("fb.com")) {
-    return "facebook";
-  }
-
   if (sourceNeedle.includes("technopat") || sourceNeedle.includes("techolay") || sourceNeedle.includes("forum")) {
     return "external";
   }

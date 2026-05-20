@@ -48,13 +48,6 @@
   --source-chip-text: #9a3f0b;
 }
 
-.catalog-card--source-facebook {
-  --source-accent: #1877f2;
-  --source-border: rgba(24, 119, 242, 0.3);
-  --source-chip-bg: #eaf2ff;
-  --source-chip-text: #0d4f9f;
-}
-
 .catalog-card--source-pecid {
   --source-accent: #0033a0;
   --source-border: rgba(0, 51, 160, 0.3);
