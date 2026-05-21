@@ -45,6 +45,8 @@ jobs:
           TECHNOPAT_SOURCE_REPOSITORY: ${{ vars.TECHNOPAT_SOURCE_REPOSITORY }}
           TECHOLAY_SOURCE_REPOSITORY: ${{ vars.TECHOLAY_SOURCE_REPOSITORY }}
           DOLAP_MIN_LISTINGS: ${{ vars.DOLAP_MIN_LISTINGS }}
+          SAHIBINDEN_MIN_LISTINGS: ${{ vars.SAHIBINDEN_MIN_LISTINGS }}
+          SAHIBINDEN_SCRAPER_WORKFLOW: ${{ vars.SAHIBINDEN_SCRAPER_WORKFLOW }}
         run: |
           set -euo pipefail
           rm -rf ./data/inbox ./data/sources
@@ -59,6 +61,9 @@ jobs:
           TECHNOPAT_REPO="${TECHNOPAT_SOURCE_REPOSITORY:-}"
           TECHOLAY_REPO="${TECHOLAY_SOURCE_REPOSITORY:-}"
           DOLAP_MIN_LISTINGS="${DOLAP_MIN_LISTINGS:-50}"
+          SAHIBINDEN_MIN_LISTINGS="${SAHIBINDEN_MIN_LISTINGS:-200}"
+          SAHIBINDEN_SCRAPER_WORKFLOW="${SAHIBINDEN_SCRAPER_WORKFLOW:-sahibinden_bot.yml}"
+          export DOLAP_MIN_LISTINGS SAHIBINDEN_MIN_LISTINGS
 
           sanitize_repo() {
             printf '%s' "$1" | tr '/:' '__'
@@ -85,6 +90,7 @@ jobs:
             local run_id="$2"
             local artifact_name="$3"
             local dir="$4"
+            local min_listings="${5:-1}"
 
             mkdir -p "$dir"
             echo "Dispatch artifact indiriliyor: repo=${repo}, run=${run_id}, artifact=${artifact_name}"
@@ -92,23 +98,60 @@ jobs:
               --repo "${repo}" \
               --name "${artifact_name}" \
               --dir "${dir}"
+
+            local listing_count
+            listing_count="$(count_artifact_listings "${dir}")"
+            if [ "${listing_count}" -lt "${min_listings}" ]; then
+              echo "Dispatch artifact atlandi: repo=${repo}, run=${run_id}, listings=${listing_count}, min=${min_listings}" >&2
+              rm -rf "${dir}"
+              return 1
+            fi
+
             write_metadata "$dir" "$repo" "$run_id" "$artifact_name"
+          }
+
+          count_artifact_listings() {
+            local dir="$1"
+            node -e "const fs=require('fs'); const p='${dir}/output.json'; if(!fs.existsSync(p)){console.log(0); process.exit(0)} const j=JSON.parse(fs.readFileSync(p,'utf8')); console.log(Number(j.totalClean ?? j.runMeta?.listingCount ?? j.allListings?.length ?? 0) || 0)"
+          }
+
+          min_listings_for_repo() {
+            local repo="$1"
+            if [ "${repo}" = "${DEFAULT_REPO}" ]; then
+              echo "${SAHIBINDEN_MIN_LISTINGS}"
+            elif [ "${repo}" = "${DOLAP_REPO}" ]; then
+              echo "${DOLAP_MIN_LISTINGS}"
+            else
+              echo "1"
+            fi
+          }
+
+          workflow_for_repo() {
+            local repo="$1"
+            if [ "${repo}" = "${DEFAULT_REPO}" ]; then
+              echo "${SAHIBINDEN_SCRAPER_WORKFLOW}"
+            else
+              echo ""
+            fi
           }
 
           download_latest_artifact() {
             local repo="$1"
             local dir="$2"
             local min_listings="${3:-1}"
+            local workflow_name="${4:-}"
 
             rm -rf "$dir"
             mkdir -p "$dir"
             echo "${repo} icindeki son basarili scraper artifact'i aranacak."
+            RUN_LIST_ARGS=(run list --repo "${repo}" --status success --limit 50 --json databaseId)
+            if [ -n "${workflow_name}" ]; then
+              RUN_LIST_ARGS+=(--workflow "${workflow_name}")
+              echo "Workflow filtresi: ${workflow_name}"
+            fi
+
             mapfile -t RUN_IDS < <(
-              gh run list \
-                --repo "${repo}" \
-                --status success \
-                --limit 25 \
-                --json databaseId \
+              gh "${RUN_LIST_ARGS[@]}" \
                 --jq '.[].databaseId'
             )
 
@@ -123,7 +166,7 @@ jobs:
                 --name "${artifact_name}" \
                 --dir "${temp_dir}"; then
                 local listing_count
-                listing_count="$(node -e "const fs=require('fs'); const p='${temp_dir}/output.json'; if(!fs.existsSync(p)){console.log(0); process.exit(0)} const j=JSON.parse(fs.readFileSync(p,'utf8')); console.log(Number(j.totalClean ?? j.runMeta?.listingCount ?? j.allListings?.length ?? 0) || 0)")"
+                listing_count="$(count_artifact_listings "${temp_dir}")"
                 if [ "${listing_count}" -lt "${min_listings}" ]; then
                   echo "Artifact atlandi: repo=${repo}, run=${RUN_ID}, listings=${listing_count}, min=${min_listings}" >&2
                   rm -rf "${temp_dir}"
@@ -141,14 +184,20 @@ jobs:
           }
 
           DOWNLOADED=0
+          DISPATCH_SOURCE_ACCEPTED=""
 
           if [ -n "${DISPATCH_RUN_ID:-}" ]; then
             SCRAPER_RUN_ID="${DISPATCH_RUN_ID}"
             ARTIFACT_NAME="${DISPATCH_ARTIFACT_NAME:-scraper-results-${DISPATCH_RUN_ID}}"
             SOURCE_REPO="${DISPATCH_SOURCE_REPOSITORY:-${DEFAULT_REPO}}"
             SOURCE_DIR="./data/sources/dispatch-$(sanitize_repo "${SOURCE_REPO}")"
-            download_specific_artifact "${SOURCE_REPO}" "${SCRAPER_RUN_ID}" "${ARTIFACT_NAME}" "${SOURCE_DIR}"
-            DOWNLOADED=$((DOWNLOADED + 1))
+            MIN_LISTINGS="$(min_listings_for_repo "${SOURCE_REPO}")"
+            if download_specific_artifact "${SOURCE_REPO}" "${SCRAPER_RUN_ID}" "${ARTIFACT_NAME}" "${SOURCE_DIR}" "${MIN_LISTINGS}"; then
+              DOWNLOADED=$((DOWNLOADED + 1))
+              DISPATCH_SOURCE_ACCEPTED="${SOURCE_REPO}"
+            else
+              echo "Uyari: dispatch artifact kalite/minimum ilan esigini gecemedi; latest scraper artifact aranacak." >&2
+            fi
           fi
 
           declare -A SEEN_REPOS=()
@@ -163,18 +212,16 @@ jobs:
             fi
             SEEN_REPOS[$SOURCE_REPO]=1
 
-            if [ -n "${DISPATCH_SOURCE_REPOSITORY:-}" ] && [ "${SOURCE_REPO}" = "${DISPATCH_SOURCE_REPOSITORY}" ]; then
+            if [ -n "${DISPATCH_SOURCE_ACCEPTED:-}" ] && [ "${SOURCE_REPO}" = "${DISPATCH_SOURCE_ACCEPTED}" ]; then
               echo "Dispatch kaynagi zaten indirildi, atlandi: ${SOURCE_REPO}"
               continue
             fi
 
             SOURCE_DIR="./data/sources/$(sanitize_repo "${SOURCE_REPO}")"
-            MIN_LISTINGS=1
-            if [ "${SOURCE_REPO}" = "${DOLAP_REPO}" ]; then
-              MIN_LISTINGS="${DOLAP_MIN_LISTINGS}"
-            fi
+            MIN_LISTINGS="$(min_listings_for_repo "${SOURCE_REPO}")"
+            WORKFLOW_FILTER="$(workflow_for_repo "${SOURCE_REPO}")"
 
-            if download_latest_artifact "${SOURCE_REPO}" "${SOURCE_DIR}" "${MIN_LISTINGS}"; then
+            if download_latest_artifact "${SOURCE_REPO}" "${SOURCE_DIR}" "${MIN_LISTINGS}" "${WORKFLOW_FILTER}"; then
               DOWNLOADED=$((DOWNLOADED + 1))
             else
               echo "Uyari: ${SOURCE_REPO} icin indirilebilir scraper artifact'i bulunamadi." >&2

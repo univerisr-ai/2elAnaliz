@@ -39,6 +39,54 @@ function sourceFromListing(listing) {
   return 'external';
 }
 
+function sourceFromOutput(output, metadata, listings, dir) {
+  const runMeta = output?.runMeta && typeof output.runMeta === 'object' ? output.runMeta : {};
+  const sourceText = [
+    runMeta.source,
+    metadata?.source,
+    metadata?.source_repository,
+    metadata?.sourceRepository,
+    path.basename(dir),
+    listings.find(Boolean)?.sourceType,
+    listings.find(Boolean)?.source,
+    listings.find(Boolean)?.url,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (sourceText.includes('sahibinden') || sourceText.includes('ahibinden') || sourceText.includes('shbdn.com')) {
+    return 'sahibinden';
+  }
+
+  if (sourceText.includes('letgo')) return 'letgo';
+  if (sourceText.includes('dolap')) return 'dolap';
+  if (sourceText.includes('donanimhaber')) return 'donanimhaber';
+  if (sourceText.includes('facebook') || sourceText.includes('fb.com')) return 'facebook';
+  if (sourceText.includes('technopat') || sourceText.includes('techolay') || sourceText.includes('forum')) {
+    return 'forum';
+  }
+
+  return sourceFromListing(listings.find(Boolean) || {});
+}
+
+function toPositiveInt(value, fallback = 0) {
+  const parsed = Number.parseInt(String(value ?? ''), 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function minListingsForSource(sourceType) {
+  if (sourceType === 'sahibinden') {
+    return toPositiveInt(process.env.SAHIBINDEN_MIN_LISTINGS, 200);
+  }
+
+  if (sourceType === 'dolap') {
+    return toPositiveInt(process.env.DOLAP_MIN_LISTINGS, 0);
+  }
+
+  return 0;
+}
+
 function dedupeKey(listing) {
   const source = sourceFromListing(listing);
   const sourceId = String(listing?.sourceListingId || listing?.id || '').trim();
@@ -90,6 +138,24 @@ async function main() {
 
     const metadata = await readJson(path.join(dir, 'metadata.json'), {});
     const listings = pickListings(output);
+    const runMeta = output.runMeta && typeof output.runMeta === 'object' ? output.runMeta : {};
+    const sourceType = sourceFromOutput(output, metadata, listings, dir);
+    const listingCount = Number(runMeta.listingCount ?? output.totalClean ?? listings.length) || 0;
+    const minListings = minListingsForSource(sourceType);
+
+    if (minListings > 0 && listingCount < minListings) {
+      const sourceName = metadata.source_repository || runMeta.source || path.basename(dir);
+      const message = `${sourceName} kaynagi atlandi: ${listingCount} ilan, minimum ${minListings}.`;
+      console.warn(`[merge] ${message}`);
+      pipelineMessages.push({
+        service: '2elAnaliz',
+        status: 'KAYNAK_MINIMUM_ILAN_ESIGI',
+        message,
+        timestamp: new Date().toISOString(),
+      });
+      continue;
+    }
+
     totalRaw += Number(output.totalRaw ?? listings.length) || 0;
 
     for (const listing of listings) {
@@ -99,7 +165,6 @@ async function main() {
       mergedListings.push(listing);
     }
 
-    const runMeta = output.runMeta && typeof output.runMeta === 'object' ? output.runMeta : {};
     sourceMetas.push({
       source: runMeta.source || metadata.source_repository || path.basename(dir),
       sourceRepository: metadata.source_repository || '',
