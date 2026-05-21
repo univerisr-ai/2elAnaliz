@@ -23,7 +23,7 @@ build/
 Thumbs.db
 
 # Data (runtime generated)
-data/
+/data/
 apps/api/src/data/*.json
 apps/api/.cache/
 apps/api/.local-dev/
