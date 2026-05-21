@@ -16,7 +16,7 @@ if (!fs.existsSync(indexPath)) {
 
 const indexHtml = fs.readFileSync(indexPath, "utf8");
 const sitemapXml = fs.existsSync(sitemapPath) ? fs.readFileSync(sitemapPath, "utf8") : "";
-const routes = new Set(["marketplace", "sat", "hakkimizda", "ilan"]);
+const routes = new Set(["marketplace", "sat", "ilan-ekle/link", "ilan-ekle/manuel", "giris", "kayit", "hakkimizda", "ilan"]);
 
 for (const match of sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
   const rawUrl = match[1] ?? "";
@@ -74,11 +74,35 @@ function getRouteMeta(route) {
     };
   }
 
-  if (cleanRoute === "sat") {
+  if (cleanRoute === "sat" || cleanRoute === "ilan-ekle/link") {
     return {
-      title: "Ekran Kartı İlanı Ver ve İncelemeye Gönder | GPU Pusula",
-      description: "Kendi ikinci el ekran kartı ilanını link veya manuel bilgilerle GPU Pusula inceleme kuyruğuna gönder.",
-      canonical: `${SITE_URL}/sat`,
+      title: "İlan Linki Gönder | GPU Pusula",
+      description: "İkinci el ekran kartı ilan linkini GPU Pusula inceleme kuyruğuna gönder ve durumunu hesabından takip et.",
+      canonical: `${SITE_URL}/ilan-ekle/link`,
+    };
+  }
+
+  if (cleanRoute === "ilan-ekle/manuel") {
+    return {
+      title: "Manuel Ekran Kartı İlanı Gönder | GPU Pusula",
+      description: "Ekran kartı ilanını fotoğraf, fiyat ve açıklama bilgileriyle manuel olarak GPU Pusula inceleme kuyruğuna gönder.",
+      canonical: `${SITE_URL}/ilan-ekle/manuel`,
+    };
+  }
+
+  if (cleanRoute === "giris") {
+    return {
+      title: "Giriş Yap | GPU Pusula",
+      description: "GPU Pusula hesabına giriş yap ve gönderdiğin ekran kartı ilanlarını takip et.",
+      canonical: `${SITE_URL}/giris`,
+    };
+  }
+
+  if (cleanRoute === "kayit") {
+    return {
+      title: "Kayıt Ol | GPU Pusula",
+      description: "GPU Pusula hesabı oluştur, ekran kartı ilanı gönder ve yayın sürecini takip et.",
+      canonical: `${SITE_URL}/kayit`,
     };
   }
 

@@ -41,6 +41,9 @@ jobs:
           DOLAP_SOURCE_REPOSITORY: ${{ vars.DOLAP_SOURCE_REPOSITORY }}
           DONANIMHABER_SOURCE_REPOSITORY: ${{ vars.DONANIMHABER_SOURCE_REPOSITORY }}
           FACEBOOK_SOURCE_REPOSITORY: ${{ vars.FACEBOOK_SOURCE_REPOSITORY }}
+          FORUM_SOURCE_REPOSITORY: ${{ vars.FORUM_SOURCE_REPOSITORY }}
+          TECHNOPAT_SOURCE_REPOSITORY: ${{ vars.TECHNOPAT_SOURCE_REPOSITORY }}
+          TECHOLAY_SOURCE_REPOSITORY: ${{ vars.TECHOLAY_SOURCE_REPOSITORY }}
           DOLAP_MIN_LISTINGS: ${{ vars.DOLAP_MIN_LISTINGS }}
         run: |
           set -euo pipefail
@@ -52,7 +55,9 @@ jobs:
           LETGO_REPO="${LETGO_SOURCE_REPOSITORY:-univerisr-ai/letgo-ekran-karti}"
           DOLAP_REPO="${DOLAP_SOURCE_REPOSITORY:-univerisr-ai/dolap-ekran-kart-}"
           DONANIMHABER_REPO="${DONANIMHABER_SOURCE_REPOSITORY:-univerisr-ai/donanimhaber-ekran-karti}"
-          FACEBOOK_REPO="${FACEBOOK_SOURCE_REPOSITORY:-univerisr-ai/facebook-ekran-kart-}"
+          FORUM_REPO="${FORUM_SOURCE_REPOSITORY:-${FACEBOOK_SOURCE_REPOSITORY:-univerisr-ai/facebook-ekran-kart-}}"
+          TECHNOPAT_REPO="${TECHNOPAT_SOURCE_REPOSITORY:-}"
+          TECHOLAY_REPO="${TECHOLAY_SOURCE_REPOSITORY:-}"
           DOLAP_MIN_LISTINGS="${DOLAP_MIN_LISTINGS:-50}"
 
           sanitize_repo() {
@@ -146,10 +151,17 @@ jobs:
             DOWNLOADED=$((DOWNLOADED + 1))
           fi
 
-          for SOURCE_REPO in "${DEFAULT_REPO}" "${LETGO_REPO}" "${DOLAP_REPO}" "${DONANIMHABER_REPO}" "${FACEBOOK_REPO}"; do
+          declare -A SEEN_REPOS=()
+          for SOURCE_REPO in "${DEFAULT_REPO}" "${LETGO_REPO}" "${DOLAP_REPO}" "${DONANIMHABER_REPO}" "${FORUM_REPO}" "${TECHNOPAT_REPO}" "${TECHOLAY_REPO}"; do
             if [ -z "${SOURCE_REPO:-}" ]; then
               continue
             fi
+
+            if [ -n "${SEEN_REPOS[$SOURCE_REPO]:-}" ]; then
+              echo "Kaynak repo zaten denendi, atlandi: ${SOURCE_REPO}"
+              continue
+            fi
+            SEEN_REPOS[$SOURCE_REPO]=1
 
             if [ -n "${DISPATCH_SOURCE_REPOSITORY:-}" ] && [ "${SOURCE_REPO}" = "${DISPATCH_SOURCE_REPOSITORY}" ]; then
               echo "Dispatch kaynagi zaten indirildi, atlandi: ${SOURCE_REPO}"

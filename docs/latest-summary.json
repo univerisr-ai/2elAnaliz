@@ -1,37 +1,486 @@
 {
-  "analysisCompleted": false,
-  "generatedAt": null,
-  "listingCount": 0,
-  "recognizedModelCount": 0,
-  "candidateCount": 0,
-  "topCandidates": [],
+  "analysisCompleted": true,
+  "generatedAt": "2026-05-21T08:10:35.563Z",
+  "listingCount": 4584,
+  "recognizedModelCount": 433,
+  "candidateCount": 301,
+  "topCandidates": [
+    {
+      "title": "ARC A750 8 GB",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-arc-a750-8-gb-1317661039/detay",
+      "modelKey": "ARC A750 8GB",
+      "price": 2250,
+      "fairPrice": 8000,
+      "discountRatio": 0.71875,
+      "confidence": 0.25,
+      "analysisNote": "%71.9 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "GAMEROCK RTX 3080 Açıklamayı oku",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-gamerock-rtx-3080-aciklamayi-oku-1317240742/detay",
+      "modelKey": "RTX 3080",
+      "price": 5900,
+      "fairPrice": 17000,
+      "discountRatio": 0.6529411764705882,
+      "confidence": 0.25,
+      "analysisNote": "%65.3 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "MSI RTX 2060 VENTUS OC 12 GB 192 BIT",
+      "url": "https://www.letgo.com/item/msi-rtx-2060-ventus-oc-12-gb-192-bit-iid-1701152636",
+      "modelKey": "RTX 2060 12GB",
+      "price": 2500,
+      "fairPrice": 7000,
+      "discountRatio": 0.6428571428571429,
+      "confidence": 0.25,
+      "analysisNote": "%64.3 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "ekran kartı bir sene kullanıldı arıza vermişti o yüzden rafa kaldırmıştım.ölü fiyat vermeyin lütfen üstündeki fanlar sadece 4 bini geçer....",
+      "url": "https://dolap.com/urun/lenovo-antrasit-bilgisayar-bilesenleri-az-kullanilmis-revisebook-446072836",
+      "modelKey": "RTX 3080 TI",
+      "price": 7500,
+      "fairPrice": 20750,
+      "discountRatio": 0.6385542168674698,
+      "confidence": 0.25,
+      "analysisNote": "%63.9 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Asus RX 6400 4GB",
+      "url": "https://www.letgo.com/item/asus-rx-6400-4gb-iid-1718988680",
+      "modelKey": "RX 6400 4GB",
+      "price": 3000,
+      "fairPrice": 8000,
+      "discountRatio": 0.625,
+      "confidence": 0.25,
+      "analysisNote": "%62.5 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Msi armor rtx 2070 8 GB görüntü var ama dirver kurulmuyor kot 43 hatası veriyor arzalıdır alan kişi onagöre alsın iade kabül edilmez",
+      "url": "https://dolap.com/urun/amd-bilgisayar-bilesenleri-az-kullanilmis-yasinsatis-458103950",
+      "modelKey": "RTX 2070",
+      "price": 3500,
+      "fairPrice": 8000,
+      "discountRatio": 0.5625,
+      "confidence": 0.25,
+      "analysisNote": "%56.3 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Asus RTX 5090 ROG Astral OC Edition ROG-ASTRAL-RTX5090-O32G-GAMIN",
+      "url": "https://www.letgo.com/item/asus-rtx-5090-rog-astral-oc-edition-rog-astral-rtx5090-o32g-gamin-iid-1728689878",
+      "modelKey": "RTX 5090",
+      "price": 89000,
+      "fairPrice": 170000,
+      "discountRatio": 0.4764705882352941,
+      "confidence": 0.25,
+      "analysisNote": "%47.6 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "RX 6400 4GB ekran kartı",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-rx-6400-4gb-ekran-karti-1317076492/detay",
+      "modelKey": "RX 6400 4GB",
+      "price": 4200,
+      "fairPrice": 8000,
+      "discountRatio": 0.475,
+      "confidence": 0.25,
+      "analysisNote": "%47.5 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "\"\"6750TL\"\" EVGA XC RTX3060TI 8GB GDDR6 256BIT",
+      "url": "https://forum.donanimhaber.com/6750tl-evga-xc-rtx3060ti-8gb-gddr6-256bit--157763445",
+      "modelKey": "RTX 3060 TI",
+      "price": 6750,
+      "fairPrice": 12500,
+      "discountRatio": 0.46,
+      "confidence": 0.25,
+      "analysisNote": "%46.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Axle Rtx 2070 Mobile 8gb 256bit, açıklama okuyunuz",
+      "url": "https://www.letgo.com/item/axle-rtx-2070-mobile-8gb-256bit-aciklama-okuyunuz-iid-1724219484",
+      "modelKey": "RTX 2070 8GB",
+      "price": 5000,
+      "fairPrice": 8750,
+      "discountRatio": 0.42857142857142855,
+      "confidence": 0.25,
+      "analysisNote": "%42.9 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Satılık XFX RX 6800 Speedster Qick 319",
+      "url": "https://forum.donanimhaber.com/satilik-xfx-rx-6800-speedster-qick-319--162541994",
+      "modelKey": "RX 6800",
+      "price": 8000,
+      "fairPrice": 14000,
+      "discountRatio": 0.42857142857142855,
+      "confidence": 0.25,
+      "analysisNote": "%42.9 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Fiyat düştü! SIFIR 68790 TL! Beyaz Asus GeForce RTX 4090 Rog Strix White RTX4090 OC SIFIR",
+      "url": "https://forum.donanimhaber.com/asus-geforce-rtx-4090-rog-strix-white-beyaz-rtx4090-oc-sifir--158666888",
+      "modelKey": "RTX 4090",
+      "price": 68790,
+      "fairPrice": 115000,
+      "discountRatio": 0.4018260869565217,
+      "confidence": 0.25,
+      "analysisNote": "%40.2 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Zotac RTX2060 6GB Twin",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-zotac-rtx2060-6gb-twin-1317408159/detay",
+      "modelKey": "RTX 2060 6GB",
+      "price": 4200,
+      "fairPrice": 6999,
+      "discountRatio": 0.39991427346763825,
+      "confidence": 0.25,
+      "analysisNote": "%40.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Nvidia Quadro RTX 4000 Ekran Kartı",
+      "url": "https://www.letgo.com/item/nvidia-quadro-rtx-4000-ekran-karti-iid-1716377340",
+      "modelKey": "RTX 4000",
+      "price": 16900,
+      "fairPrice": 27500,
+      "discountRatio": 0.38545454545454544,
+      "confidence": 0.25,
+      "analysisNote": "%38.5 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Intel Arc A750 - Garantili - Sorunsuz - 5000TL",
+      "url": "https://forum.donanimhaber.com/intel-arc-a750-garantili-sorunsuz-5000tl--161348551",
+      "modelKey": "ARC A750",
+      "price": 5000,
+      "fairPrice": 8000,
+      "discountRatio": 0.375,
+      "confidence": 0.25,
+      "analysisNote": "%37.5 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "satılık+(takaslık) rx6600 5000TL",
+      "url": "https://forum.donanimhaber.com/satilik-takaslik-rx6600-5000tl--160370761",
+      "modelKey": "RX 6600",
+      "price": 5000,
+      "fairPrice": 7900,
+      "discountRatio": 0.3670886075949367,
+      "confidence": 0.25,
+      "analysisNote": "%36.7 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Rtx 3060 ti",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-rtx-3060-ti-1317266864/detay",
+      "modelKey": "RTX 3060 TI",
+      "price": 8000,
+      "fairPrice": 12500,
+      "discountRatio": 0.36,
+      "confidence": 0.25,
+      "analysisNote": "%36.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "MSI RTX 5050",
+      "url": "https://www.letgo.com/item/msi-rtx-5050-iid-1729159212",
+      "modelKey": "RTX 5050",
+      "price": 8500,
+      "fairPrice": 13000,
+      "discountRatio": 0.34615384615384615,
+      "confidence": 0.25,
+      "analysisNote": "%34.6 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Yepyeni NVIDIA Quadro ekran kartı, yüksek performanslı grafik işlemleri için idealdir. Ürün ambalajındadır ve kullanıma hazırdır. Ürün sı...",
+      "url": "https://dolap.com/urun/msi-beyaz-bilgisayar-bilesenleri-az-kullanilmis-dolap102197490-458545735",
+      "modelKey": "RTX 4000",
+      "price": 18000,
+      "fairPrice": 27500,
+      "discountRatio": 0.34545454545454546,
+      "confidence": 0.25,
+      "analysisNote": "%34.5 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "buz gibi xfx quick 319 16gb rx6800 10 bin tl-->9750tl-->9500tl",
+      "url": "https://forum.donanimhaber.com/buz-gibi-xfx-quick-319-16gb-rx6800-10-bin-tl--158351698",
+      "modelKey": "RX 6800",
+      "price": 9500,
+      "fairPrice": 14000,
+      "discountRatio": 0.32142857142857145,
+      "confidence": 0.25,
+      "analysisNote": "%32.1 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "[SATILIK] Gigabyte RTX 3070Ti 8 GB Ekran Kartı 9.500 TL !!!",
+      "url": "https://forum.donanimhaber.com/satilik-gigabyte-rtx-3070ti-8-gb-ekran-karti-9-500-tl--158962185",
+      "modelKey": "RTX 3070 TI",
+      "price": 9500,
+      "fairPrice": 14000,
+      "discountRatio": 0.32142857142857145,
+      "confidence": 0.25,
+      "analysisNote": "%32.1 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Satılık hp rtx 3050 8 gb ekran kartı:5500 TL",
+      "url": "https://forum.donanimhaber.com/satilik-hp-rtx-3050-8-gb-ekran-karti--162258909",
+      "modelKey": "RTX 3050",
+      "price": 5500,
+      "fairPrice": 8000,
+      "discountRatio": 0.3125,
+      "confidence": 0.25,
+      "analysisNote": "%31.3 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "MSI RTX 2070 SUPER GAMING X TRIO 8GB",
+      "url": "https://forum.donanimhaber.com/msi-rtx-2070-super-gaming-x-trio-8gb--163079061",
+      "modelKey": "RTX 2070 SUPER",
+      "price": 6800,
+      "fairPrice": 9875,
+      "discountRatio": 0.31139240506329113,
+      "confidence": 0.25,
+      "analysisNote": "%31.1 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "RX 6400 4 GB 2000 TL",
+      "url": "https://forum.donanimhaber.com/rx-6400-4-gb-2000-tl--158086105",
+      "modelKey": "RX 6400",
+      "price": 2000,
+      "fairPrice": 2900,
+      "discountRatio": 0.3103448275862069,
+      "confidence": 0.25,
+      "analysisNote": "%31.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Sapphire Pulse rx 5700 gddr6 256 bit 8 GB ekran kartı rtx 3060 veya rx 6600 dan cok daha güçlüdür 256 bit olmasi onu 2k oyunculuk kartı y...",
+      "url": "https://dolap.com/urun/sapp-beyaz-bilgisayar-bilesenleri-yeni-biyolett-442619901",
+      "modelKey": "RTX 3060",
+      "price": 7600,
+      "fairPrice": 11000,
+      "discountRatio": 0.3090909090909091,
+      "confidence": 0.25,
+      "analysisNote": "%30.9 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Rx 6600 DUAL 8GB-2.5YIL GARANTİ-DİJİTAL FATURA 5500 TL",
+      "url": "https://forum.donanimhaber.com/rx-6600-dual-8gb-2-5yil-garanti-dijital-fatura--159240860",
+      "modelKey": "RX 6600",
+      "price": 5500,
+      "fairPrice": 7900,
+      "discountRatio": 0.3037974683544304,
+      "confidence": 0.25,
+      "analysisNote": "%30.4 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Sapphire Radeon RX 9070 XT Pulse 16GB GDDR6 Ekran Kartı",
+      "url": "https://www.letgo.com/item/sapphire-radeon-rx-9070-xt-pulse-16gb-gddr6-ekran-karti-iid-1728349761",
+      "modelKey": "RX 9070 XT 16GB",
+      "price": 22000,
+      "fairPrice": 31500,
+      "discountRatio": 0.30158730158730157,
+      "confidence": 0.25,
+      "analysisNote": "%30.2 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "[ SATILIK ] Sapphire RX 7700 XT Pulse Gaming Amd 12GB GDDR6",
+      "url": "https://forum.donanimhaber.com/satilik-sapphire-rx-7700-xt-pulse-gaming-amd-12gb-gddr6--163462833",
+      "modelKey": "RX 7700 XT",
+      "price": 14000,
+      "fairPrice": 19999,
+      "discountRatio": 0.2999649982499125,
+      "confidence": 0.25,
+      "analysisNote": "%30.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "GALAX GeForce RTX 4070 1-Click OC 2X",
+      "url": "https://forum.donanimhaber.com/galax-geforce-rtx-4070-1-click-oc-2x--162464047",
+      "modelKey": "RTX 4070",
+      "price": 17700,
+      "fairPrice": 24999,
+      "discountRatio": 0.2919716788671547,
+      "confidence": 0.25,
+      "analysisNote": "%29.2 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "MSI RX 6500 XT MECH 2X 4GB OC GDDR6 EKRAN KARTI (TAKASLI)",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-msi-rx-6500-xt-mech-2x-4gb-oc-gddr6-ekran-karti-takasli-1317641644/detay",
+      "modelKey": "RX 6500 XT 4GB",
+      "price": 3500,
+      "fairPrice": 4900,
+      "discountRatio": 0.2857142857142857,
+      "confidence": 0.25,
+      "analysisNote": "%28.6 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "[SATILIK] XFX RX 6800XT Merc 319 Ekran Kartı || 10750 TL",
+      "url": "https://forum.donanimhaber.com/satilik-xfx-rx-6800xt-merc-319-ekran-karti-10750-tl--158803602",
+      "modelKey": "RX 6800 XT",
+      "price": 10750,
+      "fairPrice": 15000,
+      "discountRatio": 0.2833333333333333,
+      "confidence": 0.25,
+      "analysisNote": "%28.3 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Satılık Zotac Rtx 4070 Tİ Trinity Türkiye Garantili 22.000 TL",
+      "url": "https://forum.donanimhaber.com/satilik-zotac-rtx-4070-ti-trinity-turkiye-garantili--160065464",
+      "modelKey": "RTX 4070 TI",
+      "price": 22000,
+      "fairPrice": 30625,
+      "discountRatio": 0.2816326530612245,
+      "confidence": 0.25,
+      "analysisNote": "%28.2 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Gigabyte RTX 3060 Ti Windforce 8Gb Nvidia ...... 9.000 TL",
+      "url": "https://forum.donanimhaber.com/gigabyte-rtx-3060-ti-windforce-8gb-nvidia-11-000-tl--162949081",
+      "modelKey": "RTX 3060 TI",
+      "price": 9000,
+      "fairPrice": 12500,
+      "discountRatio": 0.28,
+      "confidence": 0.25,
+      "analysisNote": "%28.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "arc A380 intel 6gb ekran kartı",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-arc-a380-intel-6gb-ekran-karti-1317355741/detay",
+      "modelKey": "ARC A380 6GB",
+      "price": 3500,
+      "fairPrice": 4850,
+      "discountRatio": 0.27835051546391754,
+      "confidence": 0.25,
+      "analysisNote": "%27.8 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Powercolor Rx 7600 Fighter",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-powercolor-rx-7600-fighter-1317357543/detay",
+      "modelKey": "RX 7600",
+      "price": 8000,
+      "fairPrice": 11000,
+      "discountRatio": 0.2727272727272727,
+      "confidence": 0.25,
+      "analysisNote": "%27.3 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "MSI RTX 5050 8G Shadow 2X OC 8 GB Ekran Kartı Garantili",
+      "url": "https://www.letgo.com/item/msi-rtx-5050-8g-shadow-2x-oc-8-gb-ekran-karti-garantili-iid-1729232658",
+      "modelKey": "RTX 5050 8GB",
+      "price": 10950,
+      "fairPrice": 14999,
+      "discountRatio": 0.26995133008867256,
+      "confidence": 0.25,
+      "analysisNote": "%27.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "MSI RTX 5050 8G Shadow 2X OC 8 GB Ekran Kartı Garantili",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-msi-rtx-5050-8g-shadow-2x-oc-8-gb-ekran-karti-garantili-1317428739/detay",
+      "modelKey": "RTX 5050 8GB",
+      "price": 10950,
+      "fairPrice": 14999,
+      "discountRatio": 0.26995133008867256,
+      "confidence": 0.25,
+      "analysisNote": "%27.0 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Intel Arc A770 Limited Edition 16GB - Kutulu, Faturalı, Eksiksiz",
+      "url": "https://www.letgo.com/item/intel-arc-a770-limited-edition-16gb-kutulu-faturali-eksiksiz-iid-1729049406",
+      "modelKey": "ARC A770 16GB",
+      "price": 11000,
+      "fairPrice": 15000,
+      "discountRatio": 0.26666666666666666,
+      "confidence": 0.25,
+      "analysisNote": "%26.7 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Gainward RTX 3060 TI Ghost 256 Bit GDDR6 8 GB Ekran kartı",
+      "url": "https://www.letgo.com/item/gainward-rtx-3060-ti-ghost-256-bit-gddr6-8-gb-ekran-karti-iid-1727605109",
+      "modelKey": "RTX 3060 TI 8GB",
+      "price": 9000,
+      "fairPrice": 12250,
+      "discountRatio": 0.2653061224489796,
+      "confidence": 0.25,
+      "analysisNote": "%26.5 piyasa avantaji, guven %25"
+    },
+    {
+      "title": "Msı geforce rtx 4060",
+      "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-masaustu-msi-geforce-rtx-4060-1317600393/detay",
+      "modelKey": "RTX 4060",
+      "price": 10000,
+      "fairPrice": 13600,
+      "discountRatio": 0.2647058823529412,
+      "confidence": 0.25,
+      "analysisNote": "%26.5 piyasa avantaji, guven %25"
+    }
+  ],
   "expertSummary": "",
   "pipelineMessages": [
     {
-      "service": "dashboard",
-      "status": "BEKLENIYOR",
-      "message": "Ilk analyzer kosusu bekleniyor.",
-      "timestamp": null
+      "service": "dolap-scraper",
+      "status": "SCRAPE_PARTIAL",
+      "message": "Dolap scraper completed: 113 clean listings from 4940 raw cards.",
+      "timestamp": "2026-05-19T09:50:37.310Z"
+    },
+    {
+      "service": "donanimhaber-scraper",
+      "status": "SCRAPE_COMPLETED",
+      "message": "Donanim Haber scraper completed: 816 clean listings from 10800 raw topics.",
+      "timestamp": "2026-05-20T07:15:09.445Z"
+    },
+    {
+      "service": "forum-gpu-scraper",
+      "status": "SCRAPE_COMPLETED",
+      "message": "Forum scraper completed: 2 clean listings from 429 raw candidates.",
+      "timestamp": "2026-05-20T09:03:21.563Z"
+    },
+    {
+      "service": "letgo-scraper",
+      "status": "SCRAPE_COMPLETED",
+      "message": "Letgo scraper completed: 2873 clean listings from 3859 raw listings.",
+      "timestamp": "2026-05-19T08:03:42.220Z"
+    },
+    {
+      "service": "scraper",
+      "status": "ANALIZ_EDILMEDI",
+      "message": "Scraper ilanlari cekti ve output.json olusturdu.",
+      "timestamp": "2026-05-18T19:25:59.753Z"
+    },
+    {
+      "service": "scraper",
+      "status": "ANALIZ_ICIN_GONDERILDI",
+      "message": "output.json 2elAnaliz servisine repository_dispatch ile gonderildi (artifact: scraper-results-26055361908).",
+      "timestamp": "2026-05-18T19:25:59.754Z"
+    },
+    {
+      "service": "2elAnaliz",
+      "status": "KAYNAKLAR_BIRLESTIRILDI",
+      "message": "5 scraper kaynagi birlestirildi: 5200 tekil ilan.",
+      "timestamp": "2026-05-21T08:08:49.452Z"
+    },
+    {
+      "service": "2elAnaliz",
+      "status": "ANALIZ_EDILDI",
+      "message": "2elAnaliz output.json dosyasini analiz etti (aday sayisi: 301).",
+      "timestamp": "2026-05-21T08:10:35.565Z"
+    },
+    {
+      "service": "2elAnaliz",
+      "status": "WEBSITE_GONDERILDI",
+      "message": "Analiz sonucu sanitize edilerek Vercel dashboard icin latest-summary.json olarak hazirlandi.",
+      "timestamp": "2026-05-21T08:10:35.565Z"
     }
   ],
   "runMeta": {
-    "inputFile": null,
-    "sourceRepository": null,
-    "scraperRunId": null,
-    "scraperRunUrl": null,
-    "scraperArtifactName": null,
-    "scrapeStatus": null,
-    "listingCountFromScraper": 0,
-    "startedAt": null,
-    "finishedAt": null,
-    "pipelineMessage": "",
+    "inputFile": "output.json",
+    "sourceRepository": "",
+    "scraperRunId": "",
+    "scraperRunUrl": "",
+    "scraperArtifactName": "",
+    "scrapeStatus": "SCRAPE_PARTIAL",
+    "listingCountFromScraper": 5200,
+    "startedAt": "2026-05-18T19:25:12.707Z",
+    "finishedAt": "2026-05-21T08:08:49.452Z",
+    "pipelineMessage": "5 scraper kaynagi birlestirildi: 5200 tekil ilan.",
     "isFallback": false,
-    "analyzerRepository": null,
-    "analyzerRunId": null,
-    "analyzerRunUrl": null,
-    "deployedAt": null,
+    "analyzerRepository": "",
+    "analyzerRunId": "",
+    "analyzerRunUrl": "",
+    "deployedAt": "2026-05-21T08:10:35.565Z",
     "deployTarget": "vercel",
-    "deployProjectName": null,
+    "deployProjectName": "",
     "dashboardVersion": "v1"
   }
 }

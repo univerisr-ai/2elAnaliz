@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   ImageOff,
   Link as LinkIcon,
-  Lock,
   LogOut,
   Mail,
   MessageSquareText,
@@ -45,6 +44,7 @@ import "./SubmissionPanel.css";
 
 type SubmitMode = "link" | "manual";
 type AuthIntent = "signin" | "signup";
+type SubmissionView = SubmitMode | AuthIntent;
 type MessageTone = "neutral" | "success" | "error";
 
 interface NativeFormState {
@@ -66,8 +66,11 @@ interface SubmissionPreviewState {
 }
 
 interface SubmissionPanelProps {
+  readonly view?: SubmissionView;
   readonly authIntent?: AuthIntent;
   readonly onBackToCatalog: () => void;
+  readonly onNavigateToSubmitMode?: (mode: SubmitMode) => void;
+  readonly onAuthNavigate?: (intent: AuthIntent) => void;
   readonly onAccountChanged?: () => void;
 }
 
@@ -372,10 +375,16 @@ function SubmissionImagePreview({ preview }: { readonly preview: SubmissionPrevi
   );
 }
 
-export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAccountChanged }: SubmissionPanelProps) {
+export function SubmissionPanel({
+  view = "link",
+  authIntent = "signin",
+  onBackToCatalog,
+  onNavigateToSubmitMode,
+  onAuthNavigate,
+  onAccountChanged,
+}: SubmissionPanelProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [isSessionLoading, setIsSessionLoading] = useState(true);
-  const [submitMode, setSubmitMode] = useState<SubmitMode>("link");
   const [signInEmail, setSignInEmail] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
@@ -397,6 +406,9 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
   const isAuthConfigured = isAuthAvailable();
   const isOAuthConfigured = isSupabaseBrowserConfigured();
   const isGoogleOAuthReady = isOAuthConfigured && isOAuthProviderEnabled("google");
+  const isAuthPage = view === "signin" || view === "signup";
+  const activeAuthIntent: AuthIntent = view === "signup" ? "signup" : view === "signin" ? "signin" : authIntent;
+  const activeSubmitMode: SubmitMode = view === "manual" ? "manual" : "link";
 
   const setStatus = useCallback((nextMessage: string, tone: MessageTone) => {
     setMessage(nextMessage);
@@ -767,16 +779,8 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
         </button>
       </div>
 
-      {!session ? (
-        <section className="submission-panel__auth-callout" aria-label="Oturum gerekli">
-          <span className="submission-panel__icon">
-            <Lock size={18} />
-          </span>
-          <div>
-            <strong>İlan formu oturumdan sonra açılır.</strong>
-            <p>Giriş yaparsan mevcut ilanlarını görürsün; kayıt olursan yeni ilan göndermeye başlayabilirsin.</p>
-          </div>
-        </section>
+      {!session && !isAuthPage ? (
+        <p className="submission-panel__signed-out-note">İlan formu için üst menüden giriş yapabilir veya kayıt olabilirsin.</p>
       ) : null}
 
       {session ? (
@@ -795,15 +799,18 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
             Çıkış yap
           </button>
         </section>
-      ) : (
-        <section className="submission-panel__auth-gateway" aria-label="Giriş ve kayıt">
-          <article className={`submission-panel__auth-panel ${authIntent === "signin" ? "is-recommended" : ""}`}>
+      ) : null}
+
+      {!session && isAuthPage ? (
+        <section className="submission-panel__auth-gateway submission-panel__auth-gateway--single" aria-label="Oturum">
+          {activeAuthIntent === "signin" ? (
+          <article className="submission-panel__auth-panel is-recommended">
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <UserRound size={18} />
               </span>
               <div>
-                <span className="submission-panel__eyebrow">Login</span>
+                <span className="submission-panel__eyebrow">Oturum</span>
                 <h3>Giriş yap</h3>
                 <p>{isSessionLoading ? "Oturum kontrol ediliyor." : "Kayıtlı hesabınla ilanlarını takip et."}</p>
               </div>
@@ -865,20 +872,20 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
               <button type="submit" className="submission-panel__primary-button" disabled={isBusy || !isAuthConfigured}>
                 Giriş yap
               </button>
+
+              <button type="button" className="submission-panel__auth-switch" onClick={() => onAuthNavigate?.("signup")}>
+                Yeni kullanıcı mısın? Hesap oluştur
+              </button>
             </form>
           </article>
-
-          <article
-            className={`submission-panel__auth-panel submission-panel__auth-panel--register ${
-              authIntent === "signup" ? "is-recommended" : ""
-            }`}
-          >
+          ) : (
+          <article className="submission-panel__auth-panel submission-panel__auth-panel--register is-recommended">
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <Plus size={18} />
               </span>
               <div>
-                <span className="submission-panel__eyebrow">Register</span>
+                <span className="submission-panel__eyebrow">Yeni hesap</span>
                 <h3>Kayıt ol</h3>
                 <p>Hesap oluştur, ilan eklemeye başla.</p>
               </div>
@@ -939,10 +946,15 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
               <button type="submit" className="submission-panel__primary-button" disabled={isBusy || !isAuthConfigured}>
                 Hesap aç
               </button>
+
+              <button type="button" className="submission-panel__auth-switch" onClick={() => onAuthNavigate?.("signin")}>
+                Zaten hesabın var mı? Giriş yap
+              </button>
             </form>
           </article>
+          )}
         </section>
-      )}
+      ) : null}
 
       {message ? (
         <div className={`submission-panel__message submission-panel__message--${messageTone}`}>
@@ -951,27 +963,47 @@ export function SubmissionPanel({ authIntent = "signin", onBackToCatalog, onAcco
         </div>
       ) : null}
 
-      {session ? (
+      {session && isAuthPage ? (
+        <section className="submission-panel__choice-panel" aria-label="İlan ekleme seçenekleri">
+          <div>
+            <span className="submission-panel__eyebrow">Hazır</span>
+            <h3>İlan ekleme türünü seç</h3>
+            <p>Linkten hızlı kayıt açabilir veya fotoğraflı manuel ilan gönderebilirsin.</p>
+          </div>
+          <div className="submission-panel__choice-row">
+            <button type="button" className="submission-panel__choice-button" onClick={() => onNavigateToSubmitMode?.("link")}>
+              <LinkIcon size={16} />
+              Link ile ekle
+            </button>
+            <button type="button" className="submission-panel__choice-button" onClick={() => onNavigateToSubmitMode?.("manual")}>
+              <Plus size={16} />
+              Manuel ilan ekle
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      {session && !isAuthPage ? (
         <div className="submission-panel__workspace">
           <div className="submission-panel__form-shell submission-panel__form-shell--full">
             <div className="submission-panel__mode-switch submission-panel__mode-switch--wide" role="tablist" aria-label="İlan modu">
               <button
                 type="button"
-                className={submitMode === "link" ? "is-active" : ""}
-                onClick={() => setSubmitMode("link")}
+                className={activeSubmitMode === "link" ? "is-active" : ""}
+                onClick={() => onNavigateToSubmitMode?.("link")}
               >
                 Link
               </button>
               <button
                 type="button"
-                className={submitMode === "manual" ? "is-active" : ""}
-                onClick={() => setSubmitMode("manual")}
+                className={activeSubmitMode === "manual" ? "is-active" : ""}
+                onClick={() => onNavigateToSubmitMode?.("manual")}
               >
                 Manuel
               </button>
             </div>
 
-          {submitMode === "link" ? (
+          {activeSubmitMode === "link" ? (
             <form className="submission-panel__listing-form" onSubmit={handleLinkSubmit}>
               <label className="submission-panel__wide-field">
                 <span>İlan linki</span>

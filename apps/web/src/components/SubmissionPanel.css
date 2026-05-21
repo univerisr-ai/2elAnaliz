@@ -1,14 +1,15 @@
 .submission-panel {
   display: grid;
   gap: 16px;
+  animation: submission-panel-enter 520ms var(--ease-out) both;
 }
 
 .submission-panel__intro,
 .submission-panel__auth,
-.submission-panel__auth-callout,
 .submission-panel__auth-panel,
 .submission-panel__auth-strip,
 .submission-panel__form-shell,
+.submission-panel__choice-panel,
 .submission-panel__account {
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
@@ -22,6 +23,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 20px;
+  animation: submission-surface-enter 560ms var(--ease-out) 60ms both;
 }
 
 .submission-panel__eyebrow {
@@ -53,6 +55,8 @@
 .submission-panel__back,
 .submission-panel__ghost-button,
 .submission-panel__primary-button {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -74,6 +78,7 @@
 }
 
 .submission-panel__primary-button {
+  isolation: isolate;
   padding: 0 16px;
   border: 1px solid var(--accent-primary);
   background: var(--accent-primary);
@@ -81,11 +86,31 @@
   box-shadow: var(--shadow-card);
 }
 
+.submission-panel__primary-button::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.28) 48%, transparent 64%);
+  pointer-events: none;
+  transform: translateX(-130%);
+  transition: transform 520ms var(--ease-out);
+}
+
 .submission-panel__back:hover,
 .submission-panel__ghost-button:hover,
 .submission-panel__primary-button:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-card);
+}
+
+.submission-panel__primary-button:hover::after {
+  transform: translateX(130%);
+}
+
+.submission-panel__primary-button > svg,
+.submission-panel__primary-button > span {
+  position: relative;
+  z-index: 1;
 }
 
 .submission-panel__primary-button:disabled,
@@ -109,15 +134,25 @@
   min-width: 0;
 }
 
+.submission-panel__auth-gateway--single {
+  grid-template-columns: minmax(0, 560px);
+  justify-content: center;
+}
+
 .submission-panel__workspace {
   display: grid;
 }
 
+.submission-panel__form-shell,
+.submission-panel__account {
+  animation: submission-surface-enter 520ms var(--ease-out) 140ms both;
+}
+
 .submission-panel__auth,
-.submission-panel__auth-callout,
 .submission-panel__auth-panel,
 .submission-panel__auth-strip,
 .submission-panel__form-shell,
+.submission-panel__choice-panel,
 .submission-panel__account {
   padding: 18px;
 }
@@ -134,31 +169,14 @@
   gap: 18px;
   min-width: 0;
   background: rgba(255, 255, 255, 0.94);
+  animation: submission-surface-enter 520ms var(--ease-out) 120ms both;
 }
 
-.submission-panel__auth-callout {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.submission-panel__auth-callout strong {
-  color: var(--text-primary);
-  font-size: 0.96rem;
-}
-
-.submission-panel__auth-callout > div {
-  min-width: 0;
-}
-
-.submission-panel__auth-callout p {
-  margin-top: 6px;
+.submission-panel__signed-out-note {
   color: var(--text-secondary);
   font-size: 0.82rem;
   line-height: 1.5;
-  overflow-wrap: anywhere;
+  animation: submission-soft-enter 420ms var(--ease-out) 120ms both;
 }
 
 .submission-panel__auth-panel.is-recommended {
@@ -176,6 +194,7 @@
   justify-content: space-between;
   gap: 16px;
   background: rgba(255, 255, 255, 0.94);
+  animation: submission-soft-enter 420ms var(--ease-out) 110ms both;
 }
 
 .submission-panel__auth-head {
@@ -247,6 +266,7 @@
   border: 1px solid var(--border-card);
   border-radius: var(--radius-md);
   background: #f4f6ff;
+  animation: submission-soft-enter 420ms var(--ease-out) 120ms both;
 }
 
 .submission-panel__mode-switch--wide {
@@ -261,12 +281,15 @@
   color: var(--text-secondary);
   font-size: 0.72rem;
   font-weight: 800;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .submission-panel__mode-switch button.is-active {
   background: #ffffff;
   color: var(--text-primary);
   box-shadow: inset 0 0 0 1px var(--accent-primary);
+  transform: translateY(-1px);
 }
 
 .submission-panel__oauth-grid {
@@ -345,6 +368,68 @@
   width: 100%;
 }
 
+.submission-panel__auth-switch {
+  justify-self: center;
+  color: var(--accent-primary-strong);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.submission-panel__auth-switch:hover {
+  text-decoration: underline;
+}
+
+.submission-panel__choice-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  animation: submission-surface-enter 520ms var(--ease-out) 120ms both;
+}
+
+.submission-panel__choice-panel h3 {
+  color: var(--text-primary);
+  font-size: 1.08rem;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.submission-panel__choice-panel p {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.submission-panel__choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.submission-panel__choice-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  color: var(--text-primary);
+  font-size: 0.76rem;
+  font-weight: 850;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.submission-panel__choice-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-card);
+}
+
 .submission-panel label {
   display: grid;
   gap: 6px;
@@ -366,7 +451,8 @@
   font-size: 0.84rem;
   letter-spacing: 0;
   text-transform: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .submission-panel input,
@@ -387,6 +473,7 @@
   outline: none;
   border-color: var(--border-strong);
   box-shadow: 0 0 0 3px var(--accent-primary-dim);
+  transform: translateY(-1px);
 }
 
 .submission-panel input:disabled {
@@ -430,6 +517,7 @@
   font-size: 0.8rem;
   font-weight: 700;
   background: rgba(244, 248, 252, 0.98);
+  animation: submission-message-pop 340ms var(--ease-out) both;
 }
 
 .submission-panel__message--success {
@@ -454,6 +542,7 @@
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
   background: #ffffff;
+  animation: submission-preview-in 420ms var(--ease-out) both;
 }
 
 .submission-panel__preview-media,
@@ -702,14 +791,80 @@
   line-height: 1.5;
 }
 
+@keyframes submission-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes submission-surface-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes submission-soft-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes submission-message-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  70% {
+    transform: translateY(-1px) scale(1.005);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes submission-preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 920px) {
   .submission-panel__intro,
   .submission-panel__grid,
-  .submission-panel__auth-gateway {
+  .submission-panel__auth-gateway,
+  .submission-panel__choice-panel {
     grid-template-columns: 1fr;
   }
 
-  .submission-panel__intro {
+  .submission-panel__intro,
+  .submission-panel__choice-panel {
     display: grid;
   }
 
@@ -730,10 +885,10 @@
 
   .submission-panel__intro,
   .submission-panel__auth,
-  .submission-panel__auth-callout,
   .submission-panel__auth-panel,
   .submission-panel__auth-strip,
   .submission-panel__form-shell,
+  .submission-panel__choice-panel,
   .submission-panel__account {
     padding: 14px;
   }

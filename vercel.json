@@ -20,6 +20,26 @@
       "destination": "/index.html"
     },
     {
+      "source": "/ilan-ekle",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ilan-ekle/link",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ilan-ekle/manuel",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/giris",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/kayit",
+      "destination": "/index.html"
+    },
+    {
       "source": "/hakkimizda",
       "destination": "/index.html"
     },

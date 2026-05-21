@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import path from "node:path";
 import { ENV } from "./config/env.js";
 import { listingsRouter } from "./controllers/listings-controller.js";
 import { submissionsRouter } from "./controllers/submissions-controller.js";
@@ -98,6 +99,14 @@ export function createApiApp(): express.Express {
 
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: false, limit: "64kb" }));
+  app.use(
+    "/api/local-submission-images",
+    express.static(path.resolve(process.cwd(), ".local-dev", "submission-images"), {
+      fallthrough: false,
+      immutable: true,
+      maxAge: "7d",
+    }),
+  );
 
   app.get("/api/health", (_req, res) => {
     res.json({

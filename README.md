@@ -91,6 +91,11 @@ Variables:
 - `SCRAPER_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/ahibinden-ekran-karti`)
 - `LETGO_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/letgo-ekran-karti`)
 - `DOLAP_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/dolap-ekran-kart-`)
+- `DONANIMHABER_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/donanimhaber-ekran-karti`)
+- `FORUM_SOURCE_REPOSITORY` (varsayilan eski uyumluluk icin `univerisr-ai/facebook-ekran-kart-`; Technopat/Techolay scraper artifact'i burada toplanabilir)
+- `TECHNOPAT_SOURCE_REPOSITORY` (opsiyonel ayri Technopat scraper repo)
+- `TECHOLAY_SOURCE_REPOSITORY` (opsiyonel ayri Techolay scraper repo)
+- `DOLAP_MIN_LISTINGS` (varsayilan `50`)
 
 ## Vercel koruma notu
 

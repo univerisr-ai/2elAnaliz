@@ -1,7 +1,7 @@
 import { Bell, Search, UserCircle } from "lucide-react";
 import "./Header.css";
 
-type PageView = "home" | "catalog" | "submit" | "admin" | "about";
+type PageView = "home" | "catalog" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
 type AuthIntent = "signin" | "signup";
 
 export interface HeaderNotification {
@@ -33,10 +33,18 @@ interface HeaderProps {
 const NAV_ITEMS: Array<{ key: PageView; label: string; adminOnly?: boolean }> = [
   { key: "home", label: "Ana Sayfa" },
   { key: "catalog", label: "Marketplace" },
-  { key: "submit", label: "Sat" },
+  { key: "submit-link", label: "Sat" },
   { key: "admin", label: "Yönetim", adminOnly: true },
   { key: "about", label: "Hakkımızda" },
 ];
+
+function isNavItemActive(itemKey: PageView, activePage: PageView): boolean {
+  if (itemKey === activePage) {
+    return true;
+  }
+
+  return itemKey === "submit-link" && (activePage === "submit-manual" || activePage === "signin" || activePage === "signup");
+}
 
 export function Header({
   activePage,
@@ -69,7 +77,7 @@ export function Header({
             <button
               key={item.key}
               type="button"
-              className={`header__nav-link header__nav-link--${item.key} ${activePage === item.key ? "is-active" : ""}`}
+              className={`header__nav-link header__nav-link--${item.key} ${isNavItemActive(item.key, activePage) ? "is-active" : ""}`}
               onClick={() => onNavigate(item.key)}
             >
               {item.label}
@@ -144,7 +152,7 @@ export function Header({
           </div>
 
           {isSignedIn ? (
-            <button type="button" className="header__account-chip" aria-label="Hesap" onClick={() => onNavigate("submit")}>
+            <button type="button" className="header__account-chip" aria-label="Hesap" onClick={() => onNavigate("submit-link")}>
               <UserCircle size={18} />
               <span>{accountLabel ?? "Hesabım"}</span>
             </button>

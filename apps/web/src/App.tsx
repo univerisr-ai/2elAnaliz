@@ -68,7 +68,7 @@ import gpuCard3 from "./assets/gpu-card-3.png";
 import "./components/ListingCard.css";
 import "./App.css";
 
-type PageView = "home" | "catalog" | "submit" | "admin" | "about";
+type PageView = "home" | "catalog" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
 type SubmitAuthIntent = "signin" | "signup";
 type CatalogSpotlightFilter = "cheap" | "popular" | "expensive" | "buyable" | null;
 
@@ -87,7 +87,7 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
   sortBy: CATALOG_SORT_OPTIONS.BUYABLE_DESC,
 };
 
-const CATALOG_FETCH_PAGE_SIZE = 1000;
+const CATALOG_FETCH_PAGE_SIZE = 5000;
 const CATALOG_FETCH_CONCURRENCY = 3;
 const CATALOG_PAGE_SIZE = 120;
 const CATALOG_ENTRY_LOADING_MS = 4000;
@@ -517,7 +517,15 @@ function parseAppRoute(): AppRouteState {
     case "/marketplace":
       return { page: "catalog", modelSlug: null, listingId: null };
     case "/sat":
-      return { page: "submit", modelSlug: null, listingId: null };
+    case "/ilan-ekle":
+    case "/ilan-ekle/link":
+      return { page: "submit-link", modelSlug: null, listingId: null };
+    case "/ilan-ekle/manuel":
+      return { page: "submit-manual", modelSlug: null, listingId: null };
+    case "/giris":
+      return { page: "signin", modelSlug: null, listingId: null };
+    case "/kayit":
+      return { page: "signup", modelSlug: null, listingId: null };
     case "/hakkimizda":
       return { page: "about", modelSlug: null, listingId: null };
     case "/yonetim":
@@ -531,8 +539,14 @@ function buildPagePath(page: PageView): string {
   switch (page) {
     case "catalog":
       return "/marketplace";
-    case "submit":
-      return "/sat";
+    case "submit-link":
+      return "/ilan-ekle/link";
+    case "submit-manual":
+      return "/ilan-ekle/manuel";
+    case "signin":
+      return "/giris";
+    case "signup":
+      return "/kayit";
     case "admin":
       return "/yonetim";
     case "about":
@@ -1092,9 +1106,7 @@ export default function App() {
     return { bestDeal };
   }, [featuredListings]);
 
-  const catalogDisplayTotal = isCatalogLoading
-    ? catalogTotal || summary?.listingCount || featuredListings.length
-    : catalogTotal || activeCatalogListings.length;
+  const catalogDisplayTotal = catalogTotal || activeCatalogListings.length || featuredListings.length;
   const isCatalogScreenLoading = isCatalogLoading || isCatalogEntryLoading;
   const recognizedModelCount = summary?.recognizedModelCount ?? 0;
   const candidateCount = summary?.candidateCount ?? 0;
@@ -1168,9 +1180,18 @@ export default function App() {
       title = "İkinci El Ekran Kartı İlanları ve Fiyatları | GPU Pusula";
       description =
         "Güncel ikinci el ekran kartı ilanlarını model, fiyat, konum ve alınabilirlik skoruyla filtrele. RTX, GTX, RX ve Intel Arc GPU seçeneklerini karşılaştır.";
-    } else if (activePage === "submit") {
-      title = "Ekran kartı ilanı gönder | GPU Pusula";
-      description = "Ekran kartı ilanını görselli gönder, analiz ve yayın incelemesini hesabından takip et.";
+    } else if (activePage === "submit-link") {
+      title = "İlan linki gönder | GPU Pusula";
+      description = "Ekran kartı ilan linkini gönder, analiz ve yayın incelemesini hesabından takip et.";
+    } else if (activePage === "submit-manual") {
+      title = "Manuel ekran kartı ilanı gönder | GPU Pusula";
+      description = "Ekran kartı ilanını fotoğraf ve bilgilerle manuel gönder, inceleme durumunu hesabından takip et.";
+    } else if (activePage === "signin") {
+      title = "Giriş yap | GPU Pusula";
+      description = "GPU Pusula hesabına giriş yap ve gönderdiğin ekran kartı ilanlarını takip et.";
+    } else if (activePage === "signup") {
+      title = "Kayıt ol | GPU Pusula";
+      description = "GPU Pusula hesabı oluştur, ekran kartı ilanı gönder ve yayın sürecini takip et.";
     } else if (activePage === "about") {
       title = "GPU Pusula Nedir? İkinci El GPU Rehberi";
       description = "GPU Pusula ikinci el GPU ilanlarını model, fiyat, yorum ve risk sinyalleriyle okunabilir hale getirir.";
@@ -1268,13 +1289,13 @@ export default function App() {
   function handleNotificationSelect() {
     setIsNotificationPanelOpen(false);
     setSubmitAuthIntent("signin");
-    navigateToPage("submit");
+    navigateToPage(accountSession ? "submit-link" : "signin");
   }
 
   function handleAuthNavigate(intent: SubmitAuthIntent) {
     setIsNotificationPanelOpen(false);
     setSubmitAuthIntent(intent);
-    navigateToPage("submit");
+    navigateToPage(intent);
   }
 
   function handleCatalogPageChange(nextPage: number) {
@@ -1310,7 +1331,7 @@ export default function App() {
   function handleRequireCommentAuth() {
     setSelectedListing(null);
     setSubmitAuthIntent("signin");
-    navigateToPage("submit");
+    navigateToPage("signin");
   }
 
   async function handleRemoveListing(listing: CatalogListing) {
@@ -1546,7 +1567,7 @@ export default function App() {
                     Ekran Kartları sayfasına git
                     <ArrowRight size={14} />
                   </button>
-                  <button className="home-hero__secondary" type="button" onClick={() => navigateToPage("submit")}>
+                  <button className="home-hero__secondary" type="button" onClick={() => navigateToPage("submit-link")}>
                     İlan ekle
                     <Plus size={14} />
                   </button>
@@ -1625,7 +1646,7 @@ export default function App() {
                   <strong>Kullanıcı ilan akışı hazır</strong>
                   <p>Link veya manuel görselli ilanlar hesabındaki inceleme listesine düşer.</p>
                 </div>
-                <button type="button" className="home-highlights__link" onClick={() => navigateToPage("submit")}>
+                <button type="button" className="home-highlights__link" onClick={() => navigateToPage("submit-link")}>
                   İlan ekle
                 </button>
               </article>
@@ -1655,7 +1676,7 @@ export default function App() {
                   <strong>{formatCount(visibleCatalogListings.length)}</strong>
                 </article>
               </div>
-              <button type="button" className="catalog-page__submit-button" onClick={() => navigateToPage("submit")}>
+              <button type="button" className="catalog-page__submit-button" onClick={() => navigateToPage("submit-link")}>
                 <Plus size={15} />
                 İlan ekle
               </button>
@@ -1789,7 +1810,7 @@ export default function App() {
                   </div>
                 </section>
 
-                <button type="button" className="catalog-marketplace__submit" onClick={() => navigateToPage("submit")}>
+                <button type="button" className="catalog-marketplace__submit" onClick={() => navigateToPage("submit-link")}>
                   <Plus size={16} />
                   İlan ver
                 </button>
@@ -2004,11 +2025,22 @@ export default function App() {
           </section>
         )}
 
-        {activePage === "submit" && (
+        {["submit-link", "submit-manual", "signin", "signup"].includes(activePage) && (
           <section className="page page--submit container" aria-labelledby="submit-title">
             <SubmissionPanel
+              view={
+                activePage === "submit-manual"
+                  ? "manual"
+                  : activePage === "signin"
+                    ? "signin"
+                    : activePage === "signup"
+                      ? "signup"
+                      : "link"
+              }
               authIntent={submitAuthIntent}
               onBackToCatalog={() => navigateToPage("catalog")}
+              onNavigateToSubmitMode={(mode) => navigateToPage(mode === "manual" ? "submit-manual" : "submit-link")}
+              onAuthNavigate={handleAuthNavigate}
               onAccountChanged={handleAccountChanged}
             />
           </section>
@@ -2019,7 +2051,7 @@ export default function App() {
             <AdminReviewPanel
               token={accountSession?.access_token ?? null}
               isAdmin={isAdminUser}
-              onBackToSubmit={() => navigateToPage("submit")}
+              onBackToSubmit={() => navigateToPage("submit-link")}
               onQueueChanged={handleAccountChanged}
             />
           </section>

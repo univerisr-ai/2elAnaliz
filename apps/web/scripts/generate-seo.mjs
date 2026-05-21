@@ -14,7 +14,11 @@ const siteUrl = rawSiteUrl.replace(/\/+$/g, "") === "https://gpupusula.shop"
 const staticPaths = [
   { pathname: "/", priority: "1.0", changefreq: "hourly" },
   { pathname: "/marketplace", priority: "0.9", changefreq: "hourly" },
-  { pathname: "/sat", priority: "0.6", changefreq: "weekly" },
+  { pathname: "/sat", priority: "0.4", changefreq: "weekly" },
+  { pathname: "/ilan-ekle/link", priority: "0.6", changefreq: "weekly" },
+  { pathname: "/ilan-ekle/manuel", priority: "0.6", changefreq: "weekly" },
+  { pathname: "/giris", priority: "0.5", changefreq: "monthly" },
+  { pathname: "/kayit", priority: "0.5", changefreq: "monthly" },
   { pathname: "/hakkimizda", priority: "0.6", changefreq: "monthly" },
 ];
 const modelSlugs = [
