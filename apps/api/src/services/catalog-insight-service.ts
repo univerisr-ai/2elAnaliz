@@ -40,6 +40,7 @@ export interface CatalogModelSummary {
 }
 
 export type BuyabilityIndex = ReadonlyMap<string, BuyabilityStats>;
+type ModelListing = Pick<CatalogListing, "model" | "title" | "productType">;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -99,6 +100,10 @@ function getVramLabel(text: string): string {
 
 function formatGpuModel(prefix: string, model: string, modifier: string | undefined, vramLabel: string): string {
   return [prefix.toUpperCase(), model, normalizeModelModifier(modifier), vramLabel].filter(Boolean).join(" ");
+}
+
+function isCpuListing(listing: Pick<CatalogListing, "productType">): boolean {
+  return listing.productType === "cpu";
 }
 
 export function getCanonicalGpuModel(listing: Pick<CatalogListing, "model" | "title">): string {
@@ -187,15 +192,79 @@ export function getCanonicalGpuModel(listing: Pick<CatalogListing, "model" | "ti
   return "";
 }
 
-export function getModelLabel(listing: Pick<CatalogListing, "model" | "title">): string {
-  return getCanonicalGpuModel(listing) || cleanListingText(listing.model || listing.title) || "Model belirsiz";
+export function getCanonicalCpuModel(listing: Pick<CatalogListing, "model" | "title">): string {
+  const text = normalizeGpuText(cleanListingText(`${listing.model} ${listing.title}`));
+
+  const ryzenMatch = text.match(/\b(?:AMD\s+)?RYZEN\s*([3579])\s*-?\s*(\d{4,5})(X3D|XT|X|G|GE|F)?\b/i);
+  if (ryzenMatch?.[1] && ryzenMatch[2]) {
+    return ["Ryzen", ryzenMatch[1], `${ryzenMatch[2]}${ryzenMatch[3] ?? ""}`].join(" ");
+  }
+
+  const ryzenShortMatch = text.match(
+    /\b(?:AMD\s+)?R([3579])\s*-?\s*(\d{4,5})(X3D|XT|X|G|GE|F)?\b(?=.*\b(?:AM[45]|ISLEMCI|CPU|PROCESSOR)\b)/i,
+  );
+  if (ryzenShortMatch?.[1] && ryzenShortMatch[2]) {
+    return ["Ryzen", ryzenShortMatch[1], `${ryzenShortMatch[2]}${ryzenShortMatch[3] ?? ""}`].join(" ");
+  }
+
+  const threadripperMatch = text.match(/\b(?:AMD\s+)?(?:RYZEN\s+)?THREADRIPPER\s*(PRO\s*)?(\d{4,5})(WX|X)?\b/i);
+  if (threadripperMatch?.[2]) {
+    return ["Threadripper", threadripperMatch[1] ? "Pro" : "", `${threadripperMatch[2]}${threadripperMatch[3] ?? ""}`]
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  const coreUltraMatch = text.match(/\b(?:INTEL\s+)?CORE\s+ULTRA\s+([3579])\s*-?\s*(\d{3}[A-Z0-9]*)\b/i);
+  if (coreUltraMatch?.[1] && coreUltraMatch[2]) {
+    return `Intel Core Ultra ${coreUltraMatch[1]} ${coreUltraMatch[2]}`;
+  }
+
+  const coreMatch = text.match(/\b(?:INTEL\s+)?(?:CORE\s+)?I([3579])\s*-?\s*(\d{3,5})([A-Z]{0,3})\b/i);
+  if (coreMatch?.[1] && coreMatch[2]) {
+    return `Intel Core i${coreMatch[1]}-${coreMatch[2]}${coreMatch[3] ?? ""}`;
+  }
+
+  const xeonMatch = text.match(/\b(?:INTEL\s+)?XEON\s+([A-Z]?\d{3,5}[A-Z0-9-]*)\b/i);
+  if (xeonMatch?.[1]) {
+    return `Intel Xeon ${xeonMatch[1]}`;
+  }
+
+  const amdSeriesMatch = text.match(/\b(?:AMD\s+)?A(4|6|8|10|12)\s*-?\s*(\d{3,4})([A-Z]{0,2})\b/i);
+  if (amdSeriesMatch?.[1] && amdSeriesMatch[2]) {
+    return `AMD A${amdSeriesMatch[1]}-${amdSeriesMatch[2]}${amdSeriesMatch[3] ?? ""}`;
+  }
+
+  const athlonMatch = text.match(/\b(?:AMD\s+)?ATHLON\s+(?:X4\s+)?(\d{3,5}[A-Z0-9]*)\b/i);
+  if (athlonMatch?.[1]) {
+    return `AMD Athlon ${athlonMatch[1]}`;
+  }
+
+  const pentiumMatch = text.match(/\b(?:INTEL\s+)?PENTIUM\s+([A-Z]?\d{3,5}[A-Z0-9]*)\b/i);
+  if (pentiumMatch?.[1]) {
+    return `Intel Pentium ${pentiumMatch[1]}`;
+  }
+
+  const celeronMatch = text.match(/\b(?:INTEL\s+)?CELERON\s+([A-Z]?\d{3,5}[A-Z0-9]*)\b/i);
+  if (celeronMatch?.[1]) {
+    return `Intel Celeron ${celeronMatch[1]}`;
+  }
+
+  return "";
+}
+
+function getCanonicalModel(listing: ModelListing): string {
+  return isCpuListing(listing) ? getCanonicalCpuModel(listing) : getCanonicalGpuModel(listing);
+}
+
+export function getModelLabel(listing: ModelListing): string {
+  return getCanonicalModel(listing) || cleanListingText(listing.model || listing.title) || "Model belirsiz";
 }
 
 export function getModelKeyFromLabel(label: string): string {
   return `model:${label.toLocaleLowerCase("tr-TR")}`;
 }
 
-export function getModelKey(listing: Pick<CatalogListing, "model" | "title">): string {
+export function getModelKey(listing: ModelListing): string {
   return getModelKeyFromLabel(getModelLabel(listing));
 }
 
@@ -203,10 +272,11 @@ function stripVramLabel(label: string): string {
   return label.replace(/\s+\d+\s*GB\b/gi, "").replace(/\s+/g, " ").trim();
 }
 
-function getReferenceLabels(listing: Pick<DashboardListing, "model" | "title">): string[] {
-  const canonical = getCanonicalGpuModel({
+function getReferenceLabels(listing: Pick<DashboardListing, "model" | "title" | "productType">): string[] {
+  const canonical = getCanonicalModel({
     model: listing.model,
     title: listing.title,
+    productType: listing.productType,
   }) || listing.model || listing.title;
   const base = stripVramLabel(canonical);
   return Array.from(new Set([canonical, base].filter(Boolean)));
@@ -222,11 +292,31 @@ export function slugifyModelLabel(label: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function getModelSlug(listing: Pick<CatalogListing, "model" | "title">): string {
+export function getModelSlug(listing: ModelListing): string {
   return slugifyModelLabel(getModelLabel(listing)) || "model-belirsiz";
 }
 
-export function getModelFamily(listing: Pick<CatalogListing, "model" | "title">): string {
+export function getModelFamily(listing: ModelListing): string {
+  if (isCpuListing(listing)) {
+    const canonicalModel = getCanonicalCpuModel(listing);
+    const text = normalizeGpuText(canonicalModel || `${listing.model} ${listing.title}`);
+    const ryzenMatch = text.match(/\bRYZEN\s+([3579])\b/);
+    const coreUltraMatch = text.match(/\bCORE\s+ULTRA\s+([3579])\b/);
+    const coreMatch = text.match(/\bCORE\s+I([3579])\b/);
+
+    if (ryzenMatch?.[1]) return `Ryzen ${ryzenMatch[1]} Serisi`;
+    if (coreUltraMatch?.[1]) return `Intel Core Ultra ${coreUltraMatch[1]}`;
+    if (coreMatch?.[1]) return `Intel Core i${coreMatch[1]}`;
+    if (text.includes("THREADRIPPER")) return "AMD Threadripper";
+    if (text.includes("XEON")) return "Intel Xeon";
+    if (/\bAMD\s+A(?:4|6|8|10|12)-/.test(text)) return "AMD A Serisi";
+    if (text.includes("ATHLON")) return "AMD Athlon";
+    if (text.includes("PENTIUM")) return "Intel Pentium";
+    if (text.includes("CELERON")) return "Intel Celeron";
+
+    return "Diğer işlemciler";
+  }
+
   const canonicalModel = getCanonicalGpuModel(listing);
   const text = normalizeGpuText(canonicalModel || `${listing.model} ${listing.title}`);
   const rtxMatch = text.match(/\bRTX\s*-?\s*(\d{4})/);
@@ -314,7 +404,11 @@ function getRiskFlags(listing: Pick<CatalogListing, "title" | "model">): string[
   return checks.filter(([pattern]) => pattern.test(text)).map(([, message]) => message);
 }
 
-function getLegacyLowPriorityReason(listing: Pick<CatalogListing, "title" | "model">): string | null {
+function getLegacyLowPriorityReason(listing: ModelListing): string | null {
+  if (isCpuListing(listing)) {
+    return null;
+  }
+
   const text = normalizeGpuText(`${listing.title} ${listing.model}`);
 
   if (/\b(?:ATI\s+)?(?:RADEON\s+)?HD\s*-?\s*\d{4}\b/.test(text) || /\bVOODOO\b/.test(text)) {
@@ -340,7 +434,11 @@ function getLegacyLowPriorityReason(listing: Pick<CatalogListing, "title" | "mod
   return null;
 }
 
-function getAmbiguousModelReason(listing: Pick<CatalogListing, "title" | "model">): string | null {
+function getAmbiguousModelReason(listing: ModelListing): string | null {
+  if (isCpuListing(listing)) {
+    return null;
+  }
+
   if (getCanonicalGpuModel(listing)) {
     return null;
   }
@@ -386,7 +484,24 @@ function isIndexableMarketPrice(listing: CatalogListing): boolean {
   );
 }
 
-export function getModelPriorityScore(listing: Pick<CatalogListing, "title" | "model">): number {
+export function getModelPriorityScore(listing: ModelListing): number {
+  if (isCpuListing(listing)) {
+    const text = normalizeGpuText(`${getCanonicalCpuModel(listing)} ${listing.title} ${listing.model}`);
+
+    if (/\bRYZEN\s+[79]\s+(?:9|8|7)\d{3}/.test(text)) return 44;
+    if (/\bRYZEN\s+5\s+(?:9|8|7)\d{3}/.test(text)) return 40;
+    if (/\bCORE\s+ULTRA\s+[79]\b/.test(text)) return 43;
+    if (/\bCORE\s+I9-\d{5}/.test(text)) return 41;
+    if (/\bCORE\s+I7-\d{5}/.test(text)) return 39;
+    if (/\bCORE\s+I5-\d{5}/.test(text)) return 35;
+    if (/\bTHREADRIPPER\b/.test(text)) return 42;
+    if (/\bRYZEN\s+[3579]\s+5\d{3}/.test(text)) return 28;
+    if (/\bXEON\b/.test(text)) return 18;
+    if (/\b(?:ATHLON|PENTIUM|CELERON|AMD\s+A(?:4|6|8|10|12)-)\b/.test(text)) return 8;
+
+    return 14;
+  }
+
   const text = normalizeGpuText(`${getCanonicalGpuModel(listing)} ${listing.title} ${listing.model}`);
 
   if (/\bRTX\s*-?\s*50\d{2}/.test(text)) return 45;
@@ -406,7 +521,7 @@ export function getModelPriorityScore(listing: Pick<CatalogListing, "title" | "m
 }
 
 export function getCatalogRankingScore(
-  listing: Pick<CatalogListing, "title" | "model">,
+  listing: ModelListing,
   insight: Pick<BuyabilityInsight, "score">,
 ): number {
   return insight.score * 10 + getModelPriorityScore(listing);
@@ -414,7 +529,7 @@ export function getCatalogRankingScore(
 
 export function buildBuyabilityIndex(
   listings: readonly CatalogListing[],
-  referenceListings: readonly Pick<DashboardListing, "model" | "title" | "fairPrice">[] = [],
+  referenceListings: readonly Pick<DashboardListing, "model" | "title" | "fairPrice" | "productType">[] = [],
 ): BuyabilityIndex {
   const grouped = new Map<string, { label: string; prices: number[] }>();
   const references = new Map<string, number[]>();
@@ -686,7 +801,7 @@ export function buildCatalogModelSummaries(
     .sort((a, b) => b.listingCount - a.listingCount || a.label.localeCompare(b.label, "tr"));
 }
 
-export function matchesModelSlug(listing: Pick<CatalogListing, "model" | "title">, slug: string): boolean {
+export function matchesModelSlug(listing: ModelListing, slug: string): boolean {
   const label = getModelLabel(listing);
   return getModelSlug(listing) === slug || slugifyModelLabel(stripVramLabel(label)) === slug;
 }

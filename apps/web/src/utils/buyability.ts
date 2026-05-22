@@ -34,8 +34,8 @@ function stripVramLabel(label: string): string {
   return label.replace(/\s+\d+\s*GB\b/gi, "").replace(/\s+/g, " ").trim();
 }
 
-function getReferenceLabels(listing: Pick<CatalogListing, "model" | "title">): string[] {
-  const canonical = getCanonicalGpuModel(listing) || listing.model || listing.title;
+function getReferenceLabels(listing: Pick<CatalogListing, "model" | "title" | "productType">): string[] {
+  const canonical = getModelCategoryLabel(listing as CatalogListing) || listing.model || listing.title;
   const base = stripVramLabel(canonical);
   return Array.from(new Set([canonical, base].filter(Boolean)));
 }
@@ -64,7 +64,11 @@ function getRiskFlags(listing: Pick<CatalogListing, "title" | "model">): string[
   return checks.filter(([pattern]) => pattern.test(text)).map(([, message]) => message);
 }
 
-function getLegacyLowPriorityReason(listing: Pick<CatalogListing, "title" | "model">): string | null {
+function getLegacyLowPriorityReason(listing: Pick<CatalogListing, "title" | "model" | "productType">): string | null {
+  if (listing.productType === "cpu") {
+    return null;
+  }
+
   const text = normalizeGpuText(`${listing.title} ${listing.model}`);
 
   if (/\b(?:ATI\s+)?(?:RADEON\s+)?HD\s*-?\s*\d{4}\b/.test(text) || /\bVOODOO\b/.test(text)) {
@@ -90,7 +94,11 @@ function getLegacyLowPriorityReason(listing: Pick<CatalogListing, "title" | "mod
   return null;
 }
 
-function getAmbiguousModelReason(listing: Pick<CatalogListing, "title" | "model">): string | null {
+function getAmbiguousModelReason(listing: Pick<CatalogListing, "title" | "model" | "productType">): string | null {
+  if (listing.productType === "cpu") {
+    return null;
+  }
+
   if (getCanonicalGpuModel(listing)) {
     return null;
   }
@@ -136,7 +144,24 @@ function isIndexableMarketPrice(listing: CatalogListing): boolean {
   );
 }
 
-export function getModelPriorityScore(listing: Pick<CatalogListing, "title" | "model">): number {
+export function getModelPriorityScore(listing: Pick<CatalogListing, "title" | "model" | "productType">): number {
+  if (listing.productType === "cpu") {
+    const text = normalizeGpuText(`${getModelCategoryLabel(listing as CatalogListing)} ${listing.title} ${listing.model}`);
+
+    if (/\bRYZEN\s+[79]\s+(?:9|8|7)\d{3}/.test(text)) return 44;
+    if (/\bRYZEN\s+5\s+(?:9|8|7)\d{3}/.test(text)) return 40;
+    if (/\bCORE\s+ULTRA\s+[79]\b/.test(text)) return 43;
+    if (/\bCORE\s+I9-\d{5}/.test(text)) return 41;
+    if (/\bCORE\s+I7-\d{5}/.test(text)) return 39;
+    if (/\bCORE\s+I5-\d{5}/.test(text)) return 35;
+    if (/\bTHREADRIPPER\b/.test(text)) return 42;
+    if (/\bRYZEN\s+[3579]\s+5\d{3}/.test(text)) return 28;
+    if (/\bXEON\b/.test(text)) return 18;
+    if (/\b(?:ATHLON|PENTIUM|CELERON|AMD\s+A(?:4|6|8|10|12)-)\b/.test(text)) return 8;
+
+    return 14;
+  }
+
   const text = normalizeGpuText(`${getCanonicalGpuModel(listing)} ${listing.title} ${listing.model}`);
 
   if (/\bRTX\s*-?\s*50\d{2}/.test(text)) return 45;
@@ -232,7 +257,7 @@ export function getBuyabilityInsight(
   index: BuyabilityIndex = buildBuyabilityIndex(listings),
 ): BuyabilityInsight {
   const modelKey = getModelCategoryKey(listing);
-  const modelName = getCanonicalGpuModel(listing) || listing.model || "Model belirsiz";
+  const modelName = getModelCategoryLabel(listing) || listing.model || "Model belirsiz";
   const stats = index.get(modelKey);
   const prices = stats?.prices ?? [];
   const medianPrice = stats?.medianPrice ?? null;

@@ -9,6 +9,8 @@ export interface CatalogCategoryOption {
   readonly count: number;
 }
 
+type ModelLike = Pick<CatalogListing, "model" | "title"> & Partial<Pick<CatalogListing, "productType">>;
+
 export function getPriceCategoryKey(listing: CatalogListing): string {
   return `price:${listing.segment || "Fiyat belirsiz"}`;
 }
@@ -53,7 +55,11 @@ function formatGpuModel(prefix: string, model: string, modifier: string | undefi
   return [prefix.toUpperCase(), model, normalizeModelModifier(modifier), vramLabel].filter(Boolean).join(" ");
 }
 
-export function getCanonicalGpuModel(listing: Pick<CatalogListing, "model" | "title">): string {
+export function getCanonicalGpuModel(listing: ModelLike): string {
+  if (listing.productType === "cpu") {
+    return "";
+  }
+
   const text = normalizeGpuText(cleanPublicListingText(`${listing.model} ${listing.title}`));
   const vramLabel = getVramLabel(text);
 
@@ -127,9 +133,69 @@ export function getCanonicalGpuModel(listing: Pick<CatalogListing, "model" | "ti
   return "";
 }
 
+export function getCanonicalCpuModel(listing: Pick<CatalogListing, "model" | "title">): string {
+  const text = normalizeGpuText(cleanPublicListingText(`${listing.model} ${listing.title}`));
+
+  const ryzenMatch = text.match(/\b(?:AMD\s+)?RYZEN\s*([3579])\s*-?\s*(\d{4,5})(X3D|XT|X|G|GE|F)?\b/i);
+  if (ryzenMatch?.[1] && ryzenMatch[2]) {
+    return ["Ryzen", ryzenMatch[1], `${ryzenMatch[2]}${ryzenMatch[3] ?? ""}`].join(" ");
+  }
+
+  const ryzenShortMatch = text.match(
+    /\b(?:AMD\s+)?R([3579])\s*-?\s*(\d{4,5})(X3D|XT|X|G|GE|F)?\b(?=.*\b(?:AM[45]|ISLEMCI|CPU|PROCESSOR)\b)/i,
+  );
+  if (ryzenShortMatch?.[1] && ryzenShortMatch[2]) {
+    return ["Ryzen", ryzenShortMatch[1], `${ryzenShortMatch[2]}${ryzenShortMatch[3] ?? ""}`].join(" ");
+  }
+
+  const threadripperMatch = text.match(/\b(?:AMD\s+)?(?:RYZEN\s+)?THREADRIPPER\s*(PRO\s*)?(\d{4,5})(WX|X)?\b/i);
+  if (threadripperMatch?.[2]) {
+    return ["Threadripper", threadripperMatch[1] ? "Pro" : "", `${threadripperMatch[2]}${threadripperMatch[3] ?? ""}`]
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  const coreUltraMatch = text.match(/\b(?:INTEL\s+)?CORE\s+ULTRA\s+([3579])\s*-?\s*(\d{3}[A-Z0-9]*)\b/i);
+  if (coreUltraMatch?.[1] && coreUltraMatch[2]) {
+    return `Intel Core Ultra ${coreUltraMatch[1]} ${coreUltraMatch[2]}`;
+  }
+
+  const coreMatch = text.match(/\b(?:INTEL\s+)?(?:CORE\s+)?I([3579])\s*-?\s*(\d{3,5})([A-Z]{0,3})\b/i);
+  if (coreMatch?.[1] && coreMatch[2]) {
+    return `Intel Core i${coreMatch[1]}-${coreMatch[2]}${coreMatch[3] ?? ""}`;
+  }
+
+  const xeonMatch = text.match(/\b(?:INTEL\s+)?XEON\s+([A-Z]?\d{3,5}[A-Z0-9-]*)\b/i);
+  if (xeonMatch?.[1]) {
+    return `Intel Xeon ${xeonMatch[1]}`;
+  }
+
+  const amdSeriesMatch = text.match(/\b(?:AMD\s+)?A(4|6|8|10|12)\s*-?\s*(\d{3,4})([A-Z]{0,2})\b/i);
+  if (amdSeriesMatch?.[1] && amdSeriesMatch[2]) {
+    return `AMD A${amdSeriesMatch[1]}-${amdSeriesMatch[2]}${amdSeriesMatch[3] ?? ""}`;
+  }
+
+  const athlonMatch = text.match(/\b(?:AMD\s+)?ATHLON\s+(?:X4\s+)?(\d{3,5}[A-Z0-9]*)\b/i);
+  if (athlonMatch?.[1]) {
+    return `AMD Athlon ${athlonMatch[1]}`;
+  }
+
+  const pentiumMatch = text.match(/\b(?:INTEL\s+)?PENTIUM\s+([A-Z]?\d{3,5}[A-Z0-9]*)\b/i);
+  if (pentiumMatch?.[1]) {
+    return `Intel Pentium ${pentiumMatch[1]}`;
+  }
+
+  const celeronMatch = text.match(/\b(?:INTEL\s+)?CELERON\s+([A-Z]?\d{3,5}[A-Z0-9]*)\b/i);
+  if (celeronMatch?.[1]) {
+    return `Intel Celeron ${celeronMatch[1]}`;
+  }
+
+  return "";
+}
+
 export function getModelCategoryLabel(listing: CatalogListing): string {
   if (listing.productType === "cpu") {
-    return cleanPublicListingText(listing.model || listing.title) || "Model belirsiz";
+    return getCanonicalCpuModel(listing) || cleanPublicListingText(listing.model || listing.title) || "Model belirsiz";
   }
 
   return getCanonicalGpuModel(listing) || "Model belirsiz";
@@ -149,13 +215,17 @@ export function slugifyModelLabel(label: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function getModelSlug(listing: Pick<CatalogListing, "model" | "title">): string {
-  return slugifyModelLabel(getCanonicalGpuModel(listing) || listing.model || listing.title) || "model-belirsiz";
+export function getModelSlug(listing: ModelLike): string {
+  const label =
+    listing.productType === "cpu"
+      ? getCanonicalCpuModel(listing) || listing.model || listing.title
+      : getCanonicalGpuModel(listing) || listing.model || listing.title;
+  return slugifyModelLabel(label) || "model-belirsiz";
 }
 
-export function getModelFamily(listing: Pick<CatalogListing, "model" | "title">): string {
-  if ("productType" in listing && listing.productType === "cpu") {
-    const cpuText = normalizeGpuText(`${listing.model} ${listing.title}`);
+export function getModelFamily(listing: ModelLike): string {
+  if (listing.productType === "cpu") {
+    const cpuText = normalizeGpuText(`${getCanonicalCpuModel(listing)} ${listing.model} ${listing.title}`);
     const ryzenMatch = cpuText.match(/\bRYZEN\s+([3579])\b/);
     if (ryzenMatch?.[1]) {
       return `Ryzen ${ryzenMatch[1]} Serisi`;
@@ -173,6 +243,10 @@ export function getModelFamily(listing: Pick<CatalogListing, "model" | "title">)
 
     if (cpuText.includes("THREADRIPPER")) return "AMD Threadripper";
     if (cpuText.includes("XEON")) return "Intel Xeon";
+    if (/\bAMD\s+A(?:4|6|8|10|12)-/.test(cpuText)) return "AMD A Serisi";
+    if (cpuText.includes("ATHLON")) return "AMD Athlon";
+    if (cpuText.includes("PENTIUM")) return "Intel Pentium";
+    if (cpuText.includes("CELERON")) return "Intel Celeron";
     return "Diğer işlemciler";
   }
 

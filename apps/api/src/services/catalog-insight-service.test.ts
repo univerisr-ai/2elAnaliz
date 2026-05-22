@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import {
   buildBuyabilityIndex,
   getBuyabilityInsight,
+  getModelFamily,
+  getModelSlug,
 } from "./catalog-insight-service.js";
 import type { CatalogListing, DashboardListing } from "./dashboard-types.js";
 
@@ -20,6 +22,7 @@ function listing(overrides: Partial<CatalogListing>): CatalogListing {
     listedAtLabel: overrides.listedAtLabel ?? "Bugun",
     source: overrides.source ?? "Sahibinden",
     sourceType: overrides.sourceType ?? "sahibinden",
+    productType: overrides.productType,
     isInternal: overrides.isInternal,
   };
 }
@@ -108,6 +111,41 @@ async function main(): Promise<void> {
   assert.ok(scoreFor(blockOnly, allListings) < 50, "part-only listings should be filtered out");
   assert.ok(scoreFor(legacyRx, allListings) < 50, "legacy RX 500 series should be filtered out");
   assert.ok(scoreFor(legacyHd, allListings) < 50, "Radeon HD listings should be filtered out");
+
+  const amdA8 = listing({
+    id: "cpu-a8",
+    title: "amd a8-7600 işlemci sıfır sıkıntı onboard",
+    model: "amd a8-7600 işlemci sıfır sıkıntı onboard",
+    brand: "AMD",
+    productType: "cpu",
+    price: 850,
+  });
+  const ryzenB550 = listing({
+    id: "cpu-ryzen-b550",
+    title: "AMD Ryzen 5 5600X Altı Çekirdek 3.70 +MSI B550M Pro-VDH AMD B550",
+    model: "Ryzen 5 5600X",
+    brand: "AMD",
+    productType: "cpu",
+    price: 4200,
+  });
+  const ryzenA320 = listing({
+    id: "cpu-ryzen-a320",
+    title: "RYZEN 5 5600X A320 B450 B550 uyumlu işlemci",
+    model: "Ryzen 5 5600X",
+    brand: "AMD",
+    productType: "cpu",
+    price: 4500,
+  });
+  const cpuListings = [amdA8, ryzenB550, ryzenA320];
+  const cpuIndex = buildBuyabilityIndex(cpuListings);
+
+  assert.equal(getBuyabilityInsight(amdA8, cpuListings, cpuIndex).modelName, "AMD A8-7600");
+  assert.equal(getModelSlug(amdA8), "amd-a8-7600");
+  assert.equal(getModelFamily(amdA8), "AMD A Serisi");
+  assert.equal(getBuyabilityInsight(ryzenB550, cpuListings, cpuIndex).modelName, "Ryzen 5 5600X");
+  assert.equal(getModelSlug(ryzenB550), "ryzen-5-5600x");
+  assert.equal(getModelFamily(ryzenB550), "Ryzen 5 Serisi");
+  assert.equal(getBuyabilityInsight(ryzenB550, cpuListings, cpuIndex).comparableCount, 2);
 }
 
 main().catch((error: unknown) => {
