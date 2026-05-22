@@ -16,7 +16,7 @@ if (!fs.existsSync(indexPath)) {
 
 const indexHtml = fs.readFileSync(indexPath, "utf8");
 const sitemapXml = fs.existsSync(sitemapPath) ? fs.readFileSync(sitemapPath, "utf8") : "";
-const routes = new Set(["marketplace", "sat", "ilan-ekle/link", "ilan-ekle/manuel", "giris", "kayit", "hakkimizda", "ilan"]);
+const routes = new Set(["marketplace", "marketplace/cpu", "sat", "ilan-ekle/link", "ilan-ekle/manuel", "giris", "kayit", "hakkimizda", "ilan"]);
 
 for (const match of sitemapXml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
   const rawUrl = match[1] ?? "";
@@ -71,6 +71,16 @@ function getRouteMeta(route) {
       description:
         "Güncel ikinci el ekran kartı ilanlarını model, fiyat, konum ve alınabilirlik skoruyla filtrele. RTX, GTX, RX ve Intel Arc GPU seçeneklerini karşılaştır.",
       canonical: `${SITE_URL}/marketplace`,
+    };
+  }
+
+  if (cleanRoute === "marketplace/cpu") {
+    return {
+      title: "CPU Kataloğu Hazırlanıyor | GPU Pusula",
+      description:
+        "GPU Pusula CPU bölümü hazırlık aşamasındadır. İşlemci ilanları için model eşleştirme, fiyat referansı ve kalite filtresi yayına alınmadan önce hazırlanıyor.",
+      canonical: `${SITE_URL}/marketplace/cpu`,
+      robots: "noindex, nofollow",
     };
   }
 
@@ -151,11 +161,13 @@ function applyRouteMeta(html, route) {
   const title = escapeHtml(meta.title);
   const description = escapeHtml(meta.description);
   const canonical = escapeHtml(meta.canonical);
+  const robots = escapeHtml(meta.robots || "index, follow, max-image-preview:large");
   const jsonLd = buildJsonLd(meta).replace(/</g, "\\u003c");
 
   return html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${title}</title>`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${description}" />`)
+    .replace(/<meta name="robots" content="[^"]*" \/>/, `<meta name="robots" content="${robots}" />`)
     .replace(/<link rel="canonical" href="[^"]*" \/>/, `<link rel="canonical" href="${canonical}" />`)
     .replace(/<meta property="og:title" content="[^"]*" \/>/, `<meta property="og:title" content="${title}" />`)
     .replace(/<meta property="og:description" content="[^"]*" \/>/, `<meta property="og:description" content="${description}" />`)

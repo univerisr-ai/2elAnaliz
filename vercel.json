@@ -16,6 +16,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/marketplace/cpu",
+      "destination": "/index.html"
+    },
+    {
       "source": "/sat",
       "destination": "/index.html"
     },

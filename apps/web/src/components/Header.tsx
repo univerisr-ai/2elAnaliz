@@ -1,7 +1,7 @@
 import { Bell, Search, UserCircle } from "lucide-react";
 import "./Header.css";
 
-type PageView = "home" | "catalog" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
+type PageView = "home" | "catalog" | "cpu" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
 type AuthIntent = "signin" | "signup";
 
 export interface HeaderNotification {
@@ -40,6 +40,10 @@ const NAV_ITEMS: Array<{ key: PageView; label: string; adminOnly?: boolean }> = 
 
 function isNavItemActive(itemKey: PageView, activePage: PageView): boolean {
   if (itemKey === activePage) {
+    return true;
+  }
+
+  if (itemKey === "catalog" && activePage === "cpu") {
     return true;
   }
 

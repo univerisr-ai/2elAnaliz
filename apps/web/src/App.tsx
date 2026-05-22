@@ -68,7 +68,7 @@ import gpuCard3 from "./assets/gpu-card-3.png";
 import "./components/ListingCard.css";
 import "./App.css";
 
-type PageView = "home" | "catalog" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
+type PageView = "home" | "catalog" | "cpu" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
 type SubmitAuthIntent = "signin" | "signup";
 type CatalogSpotlightFilter = "cheap" | "popular" | "expensive" | "buyable" | null;
 
@@ -516,6 +516,10 @@ function parseAppRoute(): AppRouteState {
   switch (path) {
     case "/marketplace":
       return { page: "catalog", modelSlug: null, listingId: null };
+    case "/marketplace/cpu":
+    case "/cpu":
+    case "/islemci":
+      return { page: "cpu", modelSlug: null, listingId: null };
     case "/sat":
     case "/ilan-ekle":
     case "/ilan-ekle/link":
@@ -539,6 +543,8 @@ function buildPagePath(page: PageView): string {
   switch (page) {
     case "catalog":
       return "/marketplace";
+    case "cpu":
+      return "/marketplace/cpu";
     case "submit-link":
       return "/ilan-ekle/link";
     case "submit-manual":
@@ -1180,6 +1186,10 @@ export default function App() {
       title = "İkinci El Ekran Kartı İlanları ve Fiyatları | GPU Pusula";
       description =
         "Güncel ikinci el ekran kartı ilanlarını model, fiyat, konum ve alınabilirlik skoruyla filtrele. RTX, GTX, RX ve Intel Arc GPU seçeneklerini karşılaştır.";
+    } else if (activePage === "cpu") {
+      title = "CPU Kataloğu Hazırlanıyor | GPU Pusula";
+      description =
+        "GPU Pusula CPU bölümü hazırlık aşamasındadır. İşlemci ilanları için model eşleştirme, fiyat referansı ve kalite filtresi yayına alınmadan önce hazırlanıyor.";
     } else if (activePage === "submit-link") {
       title = "İlan linki gönder | GPU Pusula";
       description = "Ekran kartı ilan linkini gönder, analiz ve yayın incelemesini hesabından takip et.";
@@ -1200,7 +1210,7 @@ export default function App() {
     document.title = title;
     setMetaContent("description", description);
     setMetaContent("keywords", DEFAULT_SEO_KEYWORDS);
-    setMetaContent("robots", "index, follow, max-image-preview:large");
+    setMetaContent("robots", activePage === "cpu" ? "noindex, nofollow" : "index, follow, max-image-preview:large");
     setMetaProperty("og:title", title);
     setMetaProperty("og:description", description);
     setMetaProperty("og:url", `${SITE_URL}${canonicalPath}`);
@@ -1661,6 +1671,17 @@ export default function App() {
                 <span className="catalog-page__eyebrow">Ekran Kartları</span>
                 <h2 id="catalog-title">İkinci el ekran kartı ilanları</h2>
                 <p>Güncel GPU kataloğunda model, fiyat, konum ve alınabilirlik skoruna göre arama yap.</p>
+                <div className="marketplace-tabs" aria-label="Marketplace bölümleri">
+                  <button type="button" className="is-active" aria-pressed="true" onClick={() => navigateToPage("catalog")}>
+                    <Package size={15} />
+                    GPU pazarı
+                  </button>
+                  <button type="button" aria-pressed="false" onClick={() => navigateToPage("cpu")}>
+                    <Cpu size={15} />
+                    CPU
+                    <span>Hazırlanıyor</span>
+                  </button>
+                </div>
               </div>
               <div className="catalog-page__status-cards" aria-label="Katalog durumu">
                 <article className="catalog-page__status-card">
@@ -2022,6 +2043,68 @@ export default function App() {
               </section>
             </section>
             )}
+          </section>
+        )}
+
+        {activePage === "cpu" && (
+          <section className="page page--cpu container" aria-labelledby="cpu-title">
+            <section className="cpu-panel">
+              <div className="cpu-panel__intro">
+                <span className="cpu-panel__eyebrow">CPU</span>
+                <h2 id="cpu-title">İşlemci kataloğu hazırlanıyor</h2>
+                <p>
+                  CPU bölümü şimdilik yayına hazır bir ilan kataloğu değildir. Model eşleştirme, fiyat referansı ve
+                  kalite filtresi tamamlandığında burada işlemci ilanları açılacak.
+                </p>
+
+                <div className="marketplace-tabs marketplace-tabs--cpu" aria-label="Marketplace bölümleri">
+                  <button type="button" aria-pressed="false" onClick={() => navigateToPage("catalog")}>
+                    <Package size={15} />
+                    GPU pazarı
+                  </button>
+                  <button type="button" className="is-active" aria-pressed="true" onClick={() => navigateToPage("cpu")}>
+                    <Cpu size={15} />
+                    CPU
+                    <span>Hazırlanıyor</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="cpu-panel__visual" aria-hidden="true">
+                <span className="cpu-panel__socket" />
+                <span className="cpu-panel__die" />
+                <span className="cpu-panel__trace cpu-panel__trace--one" />
+                <span className="cpu-panel__trace cpu-panel__trace--two" />
+                <span className="cpu-panel__trace cpu-panel__trace--three" />
+                <span className="cpu-panel__trace cpu-panel__trace--four" />
+              </div>
+
+              <div className="cpu-panel__status" aria-label="CPU bölüm durumu">
+                <article className="cpu-panel__status-item">
+                  <Database size={18} />
+                  <span>Veri kaynağı</span>
+                  <strong>Hazırlanıyor</strong>
+                  <p>İşlemci ilanları ayrı kaynak ve kategori kurallarıyla toplanacak.</p>
+                </article>
+                <article className="cpu-panel__status-item">
+                  <GaugeCircle size={18} />
+                  <span>Fiyat okuma</span>
+                  <strong>Test edilecek</strong>
+                  <p>Soket, nesil, çekirdek ve tray/kutulu ayrımı netleşmeden yayınlanmayacak.</p>
+                </article>
+                <article className="cpu-panel__status-item cpu-panel__status-item--hold">
+                  <Lock size={18} />
+                  <span>Yayın durumu</span>
+                  <strong>Kapalı</strong>
+                  <p>Hazır olmayan CPU ilanları ana katalog kalitesini etkilemeyecek.</p>
+                </article>
+              </div>
+
+              <div className="cpu-panel__note" role="status">
+                <Cpu size={18} />
+                <span>Bu bölüm şimdilik bilgilendirme ekranıdır; aktif satış akışı GPU kataloğunda devam eder.</span>
+              </div>
+            </section>
           </section>
         )}
 
