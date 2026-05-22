@@ -1,4 +1,5 @@
 export type DashboardBrand = "NVIDIA" | "AMD" | "Intel" | "Bilinmiyor";
+export type ProductType = "gpu" | "cpu";
 
 export interface DashboardPipelineMessage {
   readonly service: string;
@@ -72,6 +73,7 @@ export interface DashboardListing {
   readonly listedAt: string;
   readonly source: "PECID Ilani" | "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Facebook" | "Technopat" | "Techolay" | "Forum" | "Harici";
   readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "facebook" | "forum" | "external";
+  readonly productType?: ProductType;
   readonly isInternal?: boolean;
   readonly imageUrl?: string | null;
 }
@@ -90,6 +92,7 @@ export interface CatalogListing {
   readonly listedAtLabel: string;
   readonly source: "PECID Ilani" | "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Facebook" | "Technopat" | "Techolay" | "Forum" | "Harici";
   readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "facebook" | "forum" | "external";
+  readonly productType?: ProductType;
   readonly isInternal?: boolean;
 }
 

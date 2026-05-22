@@ -22,7 +22,7 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import type { CatalogFilterState, CatalogListing, CatalogSourceFilter, DashboardSummary, GpuListing } from "./types/listing";
+import type { CatalogFilterState, CatalogListing, CatalogSourceFilter, DashboardSummary, GpuListing, ProductType } from "./types/listing";
 import { CATALOG_SORT_OPTIONS } from "./types/listing";
 import { Header, type HeaderNotification } from "./components/Header";
 import { CatalogFilterBar } from "./components/CatalogFilterBar";
@@ -664,6 +664,8 @@ export default function App() {
   const [accountNotifications, setAccountNotifications] = useState<HeaderNotification[]>([]);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const activeCatalogProduct: ProductType = activePage === "cpu" ? "cpu" : "gpu";
+  const isCpuCatalogPage = activeCatalogProduct === "cpu";
 
   const pushRoute = useCallback((route: AppRouteState, path: string) => {
     setActivePage(route.page);
@@ -684,6 +686,11 @@ export default function App() {
   }, [pushRoute]);
 
   const navigateToListing = useCallback((listing: CatalogListing) => {
+    if (listing.productType === "cpu") {
+      setSelectedListing(listing);
+      return;
+    }
+
     pushRoute(
       { page: "catalog", modelSlug: null, listingId: listing.id },
       `/ilan/${encodeURIComponent(listing.id)}`,
@@ -828,7 +835,7 @@ export default function App() {
   }, [accountSession?.access_token]);
 
   useEffect(() => {
-    if (activePage !== "catalog") {
+    if (activePage !== "catalog" && activePage !== "cpu") {
       setIsCatalogEntryLoading(false);
       setIsFilterDrawerOpen(false);
       return;
@@ -864,6 +871,18 @@ export default function App() {
   }, [isFilterDrawerOpen]);
 
   useEffect(() => {
+    setCatalogFilters(DEFAULT_CATALOG_FILTERS);
+    setActivePriceCategory(ALL_CATEGORY_KEY);
+    setSelectedModelCategories([]);
+    setModelCategoryQuery("");
+    setSpotlightFilter(null);
+    setSelectedListing(null);
+    setCatalogListings([]);
+    setCatalogTotal(0);
+    setCatalogError(null);
+  }, [activeCatalogProduct]);
+
+  useEffect(() => {
     let isCancelled = false;
 
     async function loadCatalogData() {
@@ -871,7 +890,7 @@ export default function App() {
         setIsCatalogLoading(true);
         setCatalogError(null);
 
-        const firstPage = await fetchCatalog(DEFAULT_CATALOG_FILTERS, 1, CATALOG_FETCH_PAGE_SIZE);
+        const firstPage = await fetchCatalog(DEFAULT_CATALOG_FILTERS, 1, CATALOG_FETCH_PAGE_SIZE, activeCatalogProduct);
         if (isCancelled) {
           return;
         }
@@ -894,7 +913,7 @@ export default function App() {
           );
 
           const batchResults = await Promise.all(
-            batchPages.map((page) => fetchCatalog(DEFAULT_CATALOG_FILTERS, page, CATALOG_FETCH_PAGE_SIZE)),
+            batchPages.map((page) => fetchCatalog(DEFAULT_CATALOG_FILTERS, page, CATALOG_FETCH_PAGE_SIZE, activeCatalogProduct)),
           );
           if (isCancelled) {
             return;
@@ -935,7 +954,7 @@ export default function App() {
     return () => {
       isCancelled = true;
     };
-  }, []);
+  }, [activeCatalogProduct]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -955,8 +974,12 @@ export default function App() {
     [isAdminUser, removedListingIds],
   );
   const activeCatalogListings = useMemo(
-    () => catalogListings.filter((listing) => !removedListingIdSet.has(listing.id)),
-    [catalogListings, removedListingIdSet],
+    () =>
+      catalogListings.filter((listing) => {
+        const productType = listing.productType === "cpu" ? "cpu" : "gpu";
+        return productType === activeCatalogProduct && !removedListingIdSet.has(listing.id);
+      }),
+    [activeCatalogProduct, catalogListings, removedListingIdSet],
   );
   const latestListingById = useMemo(
     () => new Map(activeCatalogListings.map((listing) => [listing.id, listing])),
@@ -984,8 +1007,8 @@ export default function App() {
   }, [removedListingIdSet, selectedListing]);
 
   const buyabilityIndex = useMemo(
-    () => buildBuyabilityIndex(activeCatalogListings, featuredListings),
-    [activeCatalogListings, featuredListings],
+    () => buildBuyabilityIndex(activeCatalogListings, activeCatalogProduct === "gpu" ? featuredListings : []),
+    [activeCatalogListings, activeCatalogProduct, featuredListings],
   );
 
   const categoryBaseListings = useMemo(
@@ -1112,7 +1135,7 @@ export default function App() {
     return { bestDeal };
   }, [featuredListings]);
 
-  const catalogDisplayTotal = catalogTotal || activeCatalogListings.length || featuredListings.length;
+  const catalogDisplayTotal = catalogTotal || activeCatalogListings.length || (isCpuCatalogPage ? 0 : featuredListings.length);
   const isCatalogScreenLoading = isCatalogLoading || isCatalogEntryLoading;
   const recognizedModelCount = summary?.recognizedModelCount ?? 0;
   const candidateCount = summary?.candidateCount ?? 0;
@@ -1187,9 +1210,9 @@ export default function App() {
       description =
         "Güncel ikinci el ekran kartı ilanlarını model, fiyat, konum ve alınabilirlik skoruyla filtrele. RTX, GTX, RX ve Intel Arc GPU seçeneklerini karşılaştır.";
     } else if (activePage === "cpu") {
-      title = "CPU Kataloğu Hazırlanıyor | GPU Pusula";
+      title = "İkinci El İşlemci İlanları ve CPU Fiyatları | GPU Pusula";
       description =
-        "GPU Pusula CPU bölümü hazırlık aşamasındadır. İşlemci ilanları için model eşleştirme, fiyat referansı ve kalite filtresi yayına alınmadan önce hazırlanıyor.";
+        "Güncel ikinci el işlemci ilanlarını Ryzen, Intel Core ve Xeon modellerine göre fiyat ve alınabilirlik skoru ile filtrele.";
     } else if (activePage === "submit-link") {
       title = "İlan linki gönder | GPU Pusula";
       description = "Ekran kartı ilan linkini gönder, analiz ve yayın incelemesini hesabından takip et.";
@@ -1210,7 +1233,7 @@ export default function App() {
     document.title = title;
     setMetaContent("description", description);
     setMetaContent("keywords", DEFAULT_SEO_KEYWORDS);
-    setMetaContent("robots", activePage === "cpu" ? "noindex, nofollow" : "index, follow, max-image-preview:large");
+    setMetaContent("robots", "index, follow, max-image-preview:large");
     setMetaProperty("og:title", title);
     setMetaProperty("og:description", description);
     setMetaProperty("og:url", `${SITE_URL}${canonicalPath}`);
@@ -1267,7 +1290,7 @@ export default function App() {
       icon: Cpu,
       label: "Model",
       value: recognizedModelCount ? formatCount(recognizedModelCount) : "Bekleniyor",
-      text: "Eşleşen GPU modeli",
+      text: isCpuCatalogPage ? "Eşleşen CPU modeli" : "Eşleşen GPU modeli",
     },
     {
       icon: Tags,
@@ -1288,12 +1311,12 @@ export default function App() {
   function handleHeaderSearchChange(value: string) {
     setCatalogFilters((current) => ({ ...current, search: value }));
     if (value.trim()) {
-      navigateToPage("catalog");
+      navigateToPage(activeCatalogProduct === "cpu" ? "cpu" : "catalog");
     }
   }
 
   function handleHeaderSearchSubmit() {
-    navigateToPage("catalog");
+    navigateToPage(activeCatalogProduct === "cpu" ? "cpu" : "catalog");
   }
 
   function handleNotificationSelect() {
@@ -1494,7 +1517,7 @@ export default function App() {
 
     if (categoryKey === ALL_CATEGORY_KEY) {
       setSelectedModelCategories([]);
-      navigateToPage("catalog");
+      navigateToPage(activeCatalogProduct === "cpu" ? "cpu" : "catalog");
       return;
     }
 
@@ -1504,10 +1527,10 @@ export default function App() {
       current.includes(categoryKey) ? current.filter((key) => key !== categoryKey) : [...current, categoryKey],
     );
 
-    if (!isSelected && category && selectedModelCategories.length === 0) {
+    if (activeCatalogProduct === "gpu" && !isSelected && category && selectedModelCategories.length === 0) {
       navigateToModelSlug(slugifyModelLabel(category.label));
     } else {
-      navigateToPage("catalog");
+      navigateToPage(activeCatalogProduct === "cpu" ? "cpu" : "catalog");
     }
   }
 
@@ -1530,7 +1553,11 @@ export default function App() {
 
     setSelectedModelCategories([popularModel.key]);
     setSpotlightFilter("popular");
-    navigateToModelSlug(slugifyModelLabel(popularModel.label));
+    if (activeCatalogProduct === "gpu") {
+      navigateToModelSlug(slugifyModelLabel(popularModel.label));
+    } else {
+      navigateToPage("cpu");
+    }
   }
 
   return (
@@ -1664,22 +1691,35 @@ export default function App() {
           </section>
         )}
 
-        {activePage === "catalog" && (
-          <section className="page page--catalog" aria-labelledby="catalog-title">
+        {(activePage === "catalog" || activePage === "cpu") && (
+          <section className={`page page--catalog ${isCpuCatalogPage ? "page--cpu-catalog" : ""}`} aria-labelledby="catalog-title">
             <section className="catalog-page__intro container">
               <div>
-                <span className="catalog-page__eyebrow">Ekran Kartları</span>
-                <h2 id="catalog-title">İkinci el ekran kartı ilanları</h2>
-                <p>Güncel GPU kataloğunda model, fiyat, konum ve alınabilirlik skoruna göre arama yap.</p>
+                <span className="catalog-page__eyebrow">{isCpuCatalogPage ? "İşlemciler" : "Ekran Kartları"}</span>
+                <h2 id="catalog-title">{isCpuCatalogPage ? "İkinci el işlemci ilanları" : "İkinci el ekran kartı ilanları"}</h2>
+                <p>
+                  {isCpuCatalogPage
+                    ? "Güncel CPU kataloğunda model, fiyat, konum ve alınabilirlik skoruna göre arama yap."
+                    : "Güncel GPU kataloğunda model, fiyat, konum ve alınabilirlik skoruna göre arama yap."}
+                </p>
                 <div className="marketplace-tabs" aria-label="Marketplace bölümleri">
-                  <button type="button" className="is-active" aria-pressed="true" onClick={() => navigateToPage("catalog")}>
+                  <button
+                    type="button"
+                    className={isCpuCatalogPage ? "" : "is-active"}
+                    aria-pressed={!isCpuCatalogPage}
+                    onClick={() => navigateToPage("catalog")}
+                  >
                     <Package size={15} />
                     GPU pazarı
                   </button>
-                  <button type="button" aria-pressed="false" onClick={() => navigateToPage("cpu")}>
+                  <button
+                    type="button"
+                    className={isCpuCatalogPage ? "is-active" : ""}
+                    aria-pressed={isCpuCatalogPage}
+                    onClick={() => navigateToPage("cpu")}
+                  >
                     <Cpu size={15} />
-                    CPU
-                    <span>Hazırlanıyor</span>
+                    CPU pazarı
                   </button>
                 </div>
               </div>
@@ -1742,7 +1782,12 @@ export default function App() {
                   </button>
                 </div>
 
-                <CatalogFilterBar filters={catalogFilters} onFilterChange={setCatalogFilters} onReset={resetCatalogView} />
+                <CatalogFilterBar
+                  filters={catalogFilters}
+                  onFilterChange={setCatalogFilters}
+                  onReset={resetCatalogView}
+                  productType={activeCatalogProduct}
+                />
 
                 <section className="catalog-categories catalog-categories--stacked" aria-label="Katalog kategorileri">
                   <div className="catalog-categories__group">
@@ -1757,7 +1802,7 @@ export default function App() {
                         type="search"
                         value={modelCategoryQuery}
                         onChange={(event) => setModelCategoryQuery(event.target.value)}
-                        placeholder="Model ara: GTX 960 8 GB"
+                        placeholder={isCpuCatalogPage ? "Model ara: Ryzen 5 5600X" : "Model ara: GTX 960 8 GB"}
                         aria-label="Model kategorilerinde ara"
                       />
                     </label>
@@ -2015,6 +2060,12 @@ export default function App() {
                     getListingAlertTarget={(listing) => watchItemMap.get(listing.id)?.alertPrice ?? null}
                     onToggleFavorite={handleToggleFavorite}
                     onSetPriceAlert={handleSetPriceAlert}
+                    title={isCpuCatalogPage ? "İşlemci ilanları" : "Ekran kartı ilanları"}
+                    description={
+                      isCpuCatalogPage
+                        ? "İlanlar işlemci modeli, fiyat, konum ve kategori bilgisiyle listelenir."
+                        : "İlanlar model, fiyat, konum ve kategori bilgisiyle listelenir."
+                    }
                   />
                 )}
 
@@ -2043,68 +2094,6 @@ export default function App() {
               </section>
             </section>
             )}
-          </section>
-        )}
-
-        {activePage === "cpu" && (
-          <section className="page page--cpu container" aria-labelledby="cpu-title">
-            <section className="cpu-panel">
-              <div className="cpu-panel__intro">
-                <span className="cpu-panel__eyebrow">CPU</span>
-                <h2 id="cpu-title">İşlemci kataloğu hazırlanıyor</h2>
-                <p>
-                  CPU bölümü şimdilik yayına hazır bir ilan kataloğu değildir. Model eşleştirme, fiyat referansı ve
-                  kalite filtresi tamamlandığında burada işlemci ilanları açılacak.
-                </p>
-
-                <div className="marketplace-tabs marketplace-tabs--cpu" aria-label="Marketplace bölümleri">
-                  <button type="button" aria-pressed="false" onClick={() => navigateToPage("catalog")}>
-                    <Package size={15} />
-                    GPU pazarı
-                  </button>
-                  <button type="button" className="is-active" aria-pressed="true" onClick={() => navigateToPage("cpu")}>
-                    <Cpu size={15} />
-                    CPU
-                    <span>Hazırlanıyor</span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="cpu-panel__visual" aria-hidden="true">
-                <span className="cpu-panel__socket" />
-                <span className="cpu-panel__die" />
-                <span className="cpu-panel__trace cpu-panel__trace--one" />
-                <span className="cpu-panel__trace cpu-panel__trace--two" />
-                <span className="cpu-panel__trace cpu-panel__trace--three" />
-                <span className="cpu-panel__trace cpu-panel__trace--four" />
-              </div>
-
-              <div className="cpu-panel__status" aria-label="CPU bölüm durumu">
-                <article className="cpu-panel__status-item">
-                  <Database size={18} />
-                  <span>Veri kaynağı</span>
-                  <strong>Hazırlanıyor</strong>
-                  <p>İşlemci ilanları ayrı kaynak ve kategori kurallarıyla toplanacak.</p>
-                </article>
-                <article className="cpu-panel__status-item">
-                  <GaugeCircle size={18} />
-                  <span>Fiyat okuma</span>
-                  <strong>Test edilecek</strong>
-                  <p>Soket, nesil, çekirdek ve tray/kutulu ayrımı netleşmeden yayınlanmayacak.</p>
-                </article>
-                <article className="cpu-panel__status-item cpu-panel__status-item--hold">
-                  <Lock size={18} />
-                  <span>Yayın durumu</span>
-                  <strong>Kapalı</strong>
-                  <p>Hazır olmayan CPU ilanları ana katalog kalitesini etkilemeyecek.</p>
-                </article>
-              </div>
-
-              <div className="cpu-panel__note" role="status">
-                <Cpu size={18} />
-                <span>Bu bölüm şimdilik bilgilendirme ekranıdır; aktif satış akışı GPU kataloğunda devam eder.</span>
-              </div>
-            </section>
           </section>
         )}
 

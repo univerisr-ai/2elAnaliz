@@ -68,6 +68,7 @@ export function Header({
   onNotificationSelect,
 }: HeaderProps) {
   const notificationCount = notifications.length;
+  const isCpuPage = activePage === "cpu";
 
   return (
     <header className="header" id="site-header">
@@ -103,8 +104,8 @@ export function Header({
               type="search"
               value={searchValue}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder="Ekran kartı ara..."
-              aria-label="Katalogda ekran kartı ara"
+              placeholder={isCpuPage ? "İşlemci ara..." : "Ekran kartı ara..."}
+              aria-label={isCpuPage ? "Katalogda işlemci ara" : "Katalogda ekran kartı ara"}
             />
           </form>
 

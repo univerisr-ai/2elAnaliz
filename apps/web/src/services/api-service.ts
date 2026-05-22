@@ -4,6 +4,7 @@ import type {
   CatalogModelSummary,
   DashboardSummary,
   GpuListing,
+  ProductType,
 } from "../types/listing";
 import type {
   PublishedListingDetail,
@@ -177,9 +178,15 @@ export async function fetchDashboard(): Promise<DashboardData> {
   };
 }
 
-export async function fetchCatalog(filters: CatalogFilterState, page = 1, perPage = 5000): Promise<CatalogData> {
+export async function fetchCatalog(
+  filters: CatalogFilterState,
+  page = 1,
+  perPage = 5000,
+  productType: ProductType = "gpu",
+): Promise<CatalogData> {
   const params = new URLSearchParams();
 
+  params.set("product", productType);
   if (filters.search.trim()) params.set("search", filters.search.trim());
   if (filters.brand !== "all") params.set("brand", filters.brand);
   if (filters.minPrice > 0) params.set("minPrice", String(filters.minPrice));

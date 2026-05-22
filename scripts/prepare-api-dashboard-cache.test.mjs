@@ -11,6 +11,9 @@ try {
   const inputPath = path.join(tempRoot, 'output.json');
   const summaryPath = path.join(tempRoot, 'latest-summary.json');
   const apiDataDir = path.join(tempRoot, 'api-data');
+  const cpuInputPath = path.join(tempRoot, 'cpu-output.json');
+  const cpuSummaryPath = path.join(tempRoot, 'cpu-latest-summary.json');
+  const cpuApiDataDir = path.join(tempRoot, 'cpu-api-data');
 
   await fs.writeFile(
     inputPath,
@@ -73,6 +76,75 @@ try {
   assert.equal(catalog[0].source, 'Technopat');
   assert.equal(catalog[1].sourceType, 'forum');
   assert.equal(catalog[1].source, 'Techolay');
+
+  await fs.writeFile(
+    cpuInputPath,
+    JSON.stringify({
+      productType: 'cpu',
+      productLabel: 'Islemci',
+      sourceCategoryUrl: 'https://www.sahibinden.com/islemci-masaustu',
+      allListings: [
+        {
+          id: 'cpu-good-1',
+          title: 'AMD Ryzen 5 5600X temiz islemci',
+          price: 3150,
+          url: 'https://www.sahibinden.com/ilan/cpu-good-1/detay',
+          source: 'Sahibinden',
+          sourceType: 'sahibinden',
+          imageUrl: 'https://example.com/ryzen-5600x.jpg',
+        },
+        {
+          id: 'cpu-noise-1',
+          title: 'Ryzen 5 3600X bos kutu',
+          price: 300,
+          url: 'https://www.sahibinden.com/ilan/cpu-noise-1/detay',
+          source: 'Sahibinden',
+          sourceType: 'sahibinden',
+        },
+      ],
+      runMeta: {
+        productType: 'cpu',
+        productLabel: 'Islemci',
+      },
+    }),
+    'utf8',
+  );
+
+  await fs.writeFile(
+    cpuSummaryPath,
+    JSON.stringify({
+      analysisCompleted: true,
+      generatedAt: '2026-05-19T01:00:00.000Z',
+      listingCount: 2,
+      recognizedModelCount: 1,
+      candidateCount: 1,
+      topCandidates: [],
+      pipelineMessages: [],
+      runMeta: { productType: 'cpu' },
+    }),
+    'utf8',
+  );
+
+  execFileSync(
+    process.execPath,
+    [
+      path.join(repoRoot, 'scripts/prepare-api-dashboard-cache.mjs'),
+      cpuInputPath,
+      '--summary',
+      cpuSummaryPath,
+      '--api-data-dir',
+      cpuApiDataDir,
+    ],
+    { cwd: repoRoot, stdio: 'pipe' },
+  );
+
+  const cpuCatalog = JSON.parse(await fs.readFile(path.join(cpuApiDataDir, 'catalog-cache.json'), 'utf8'));
+  assert.equal(cpuCatalog.length, 1);
+  assert.equal(cpuCatalog[0].productType, 'cpu');
+  assert.equal(cpuCatalog[0].brand, 'AMD');
+  assert.equal(cpuCatalog[0].model, 'Ryzen 5 5600X');
+  assert.equal(cpuCatalog[0].title, 'AMD Ryzen 5 5600X temiz islemci');
+  assert.ok(!cpuCatalog.some((listing) => String(listing.title).includes('bos kutu')));
 } finally {
   await fs.rm(tempRoot, { recursive: true, force: true });
 }

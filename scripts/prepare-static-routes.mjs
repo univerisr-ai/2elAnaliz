@@ -76,11 +76,10 @@ function getRouteMeta(route) {
 
   if (cleanRoute === "marketplace/cpu") {
     return {
-      title: "CPU Kataloğu Hazırlanıyor | GPU Pusula",
+      title: "İkinci El İşlemci İlanları ve CPU Fiyatları | GPU Pusula",
       description:
-        "GPU Pusula CPU bölümü hazırlık aşamasındadır. İşlemci ilanları için model eşleştirme, fiyat referansı ve kalite filtresi yayına alınmadan önce hazırlanıyor.",
+        "Güncel ikinci el işlemci ilanlarını Ryzen, Intel Core ve Xeon modellerine göre fiyat, konum ve alınabilirlik skoru ile filtrele.",
       canonical: `${SITE_URL}/marketplace/cpu`,
-      robots: "noindex, nofollow",
     };
   }
 

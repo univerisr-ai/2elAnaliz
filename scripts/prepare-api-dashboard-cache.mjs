@@ -136,6 +136,113 @@ function detectBrand(text) {
   return 'Bilinmiyor';
 }
 
+function normalizeProductType(value) {
+  const normalized = String(value ?? '').trim().toLocaleLowerCase('tr-TR');
+  if (!normalized) return '';
+
+  if (/(^|[^a-z])(?:cpu|islemci|işlemci|processor|processors)(?:$|[^a-z])/.test(normalized)) {
+    return 'cpu';
+  }
+
+  if (/(^|[^a-z])(?:gpu|ekran\s*karti|ekran\s*kartı|graphics?\s*card)(?:$|[^a-z])/.test(normalized)) {
+    return 'gpu';
+  }
+
+  return '';
+}
+
+function inferProductTypeFromFields(fields, fallback = 'gpu') {
+  for (const field of fields) {
+    const productType = normalizeProductType(field);
+    if (productType) return productType;
+  }
+
+  return fallback;
+}
+
+function inferRootProductType(root) {
+  return inferProductTypeFromFields(
+    [
+      root?.productType,
+      root?.product_type,
+      root?.product,
+      root?.productLabel,
+      root?.sourceCategoryUrl,
+      root?.categoryUrl,
+      root?.runMeta?.productType,
+      root?.runMeta?.product_type,
+      root?.runMeta?.productLabel,
+      root?.runMeta?.categoryUrl,
+    ],
+    'gpu',
+  );
+}
+
+function inferListingProductType(raw, fallback = 'gpu') {
+  return inferProductTypeFromFields(
+    [
+      raw?.productType,
+      raw?.product_type,
+      raw?.product,
+      raw?.productLabel,
+      raw?.category,
+      raw?.categoryName,
+      raw?.categoryUrl,
+      raw?.sourceCategoryUrl,
+      raw?.url,
+    ],
+    fallback,
+  );
+}
+
+function detectCpuBrand(text) {
+  const upper = normalizeGpuText(text);
+  if (/\b(?:AMD|RYZEN|THREADRIPPER|ATHLON|EPYC)\b/.test(upper)) return 'AMD';
+  if (/\b(?:INTEL|CORE\s+ULTRA|CORE\s+I[3579]|I[3579]\s*-?\s*\d|XEON|PENTIUM|CELERON)\b/.test(upper)) return 'Intel';
+  return 'Bilinmiyor';
+}
+
+function normalizeCpuModel(title) {
+  const upper = normalizeGpuText(title);
+
+  const ryzenMatch = upper.match(/\b(?:AMD\s+)?RYZEN\s*([3579])\s*-?\s*(\d{4,5})(X3D|XT|X|G|GE|F)?\b/);
+  if (ryzenMatch?.[1] && ryzenMatch[2]) {
+    return ['Ryzen', ryzenMatch[1], `${ryzenMatch[2]}${ryzenMatch[3] ?? ''}`].join(' ');
+  }
+
+  const threadripperMatch = upper.match(/\b(?:AMD\s+)?(?:RYZEN\s+)?THREADRIPPER\s*(PRO\s*)?(\d{4,5})(WX|X)?\b/);
+  if (threadripperMatch?.[2]) {
+    return ['Threadripper', threadripperMatch[1] ? 'Pro' : '', `${threadripperMatch[2]}${threadripperMatch[3] ?? ''}`]
+      .filter(Boolean)
+      .join(' ');
+  }
+
+  const coreUltraMatch = upper.match(/\b(?:INTEL\s+)?CORE\s+ULTRA\s+([3579])\s*-?\s*(\d{3}[A-Z0-9]*)\b/);
+  if (coreUltraMatch?.[1] && coreUltraMatch[2]) {
+    return `Intel Core Ultra ${coreUltraMatch[1]} ${coreUltraMatch[2]}`;
+  }
+
+  const coreMatch = upper.match(/\b(?:INTEL\s+)?(?:CORE\s+)?I([3579])\s*-?\s*(\d{3,5})([A-Z]{0,3})\b/);
+  if (coreMatch?.[1] && coreMatch[2]) {
+    return `Intel Core i${coreMatch[1]}-${coreMatch[2]}${coreMatch[3] ?? ''}`;
+  }
+
+  const xeonMatch = upper.match(/\b(?:INTEL\s+)?XEON\s+([A-Z]?\d{3,5}[A-Z0-9-]*)\b/);
+  if (xeonMatch?.[1]) {
+    return `Intel Xeon ${xeonMatch[1]}`;
+  }
+
+  return String(title || '').trim();
+}
+
+function normalizeListingModel(title, productType) {
+  return productType === 'cpu' ? normalizeCpuModel(title) : normalizeModel(title);
+}
+
+function detectListingBrand(text, productType) {
+  return productType === 'cpu' ? detectCpuBrand(text) : detectBrand(text);
+}
+
 function normalizeGpuText(value) {
   return String(value || '')
     .replace(/[_/]+/g, ' ')
@@ -279,6 +386,19 @@ function isCatalogNoiseListing(listing) {
     .toLocaleLowerCase('tr-TR')
     .replace(/\s+/g, ' ');
 
+  if (listing?.productType === 'cpu') {
+    return [
+      /bo[şs]\s*kutu/,
+      /sadece\s+kutu/,
+      /(?:işlemci|islemci|cpu)\s*fan[ıi]/,
+      /\b(?:fan|stok\s*fan|wraith|cooler|so[ğg]utucu|heatsink)\b/,
+      /\b(?:anakart|motherboard|ram|bellek|set|bundle|kombin)\b/,
+      /pin\s*(?:k[ıi]r[ıi]k|e[ğg]ik|yamuk|b[üu]k[üu]k)/,
+      /ar[ıi]zal[ıi]|ariza|tamir|tamirlik|bozuk|hasarl[ıi]|sorunlu|çalışmıyor|calismiyor/,
+      /\b(?:laptop|notebook)\b/,
+    ].some((pattern) => pattern.test(text));
+  }
+
   return [
     /bo[şs]\s*kutu/,
     /gpu\s*holder/,
@@ -319,11 +439,12 @@ function toListingId(modelKey, price, index) {
   return `${safeKey || 'gpu'}-${price || 0}-${index + 1}`;
 }
 
-function mapRawCatalogListing(raw, index) {
+function mapRawCatalogListing(raw, index, fallbackProductType = 'gpu') {
   const title = toStr(firstField(raw, ['baslik', 'title', 'ilan_baslik', 'ad', 'name']), 'Baslik bulunamadi');
   const url = toStr(firstField(raw, ['url', 'link', 'ilan_url', 'href']));
+  const productType = inferListingProductType(raw, fallbackProductType);
   const explicitModel = toStr(firstField(raw, ['modelName', 'model', 'modelKey', 'gpuModel']));
-  const model = normalizeModel(explicitModel || title);
+  const model = normalizeListingModel(explicitModel || title, productType);
   const price = parsePriceTl(firstField(raw, ['fiyat', 'price', 'fiyat_str', 'amount', 'priceTl']));
   const source = detectSource(url, raw?.sourceType, raw?.source);
   const id =
@@ -335,7 +456,7 @@ function mapRawCatalogListing(raw, index) {
     id,
     title,
     model,
-    brand: detectBrand(`${model} ${title}`),
+    brand: detectListingBrand(`${model} ${title}`, productType),
     price,
     priceText: toStr(firstField(raw, ['fiyat_str', 'priceText', 'rawPrice'])) || `${price.toLocaleString('tr-TR')} TL`,
     url: url || '#',
@@ -345,6 +466,7 @@ function mapRawCatalogListing(raw, index) {
     listedAtLabel: toStr(firstField(raw, ['tarih', 'listedAtLabel', 'date']), 'Tarih yok'),
     source: source.source,
     sourceType: source.sourceType,
+    productType,
   };
 }
 
@@ -407,8 +529,9 @@ async function main() {
   }
 
   const rawListings = pickListings(rawInput);
+  const productType = inferRootProductType(rawInput);
   const catalogListings = rawListings
-    .map((listing, index) => mapRawCatalogListing(listing, index))
+    .map((listing, index) => mapRawCatalogListing(listing, index, productType))
     .filter((listing) => listing.title && listing.price > 0 && !isCatalogNoiseListing(listing));
 
   const summaryInput = await readJson(summaryPath, null);

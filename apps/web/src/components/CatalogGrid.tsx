@@ -17,6 +17,8 @@ interface CatalogGridProps {
   readonly getListingAlertTarget: (listing: CatalogListing) => number | null;
   readonly onToggleFavorite: (listing: CatalogListing) => void;
   readonly onSetPriceAlert: (listing: CatalogListing) => void;
+  readonly title?: string;
+  readonly description?: string;
 }
 
 export function CatalogGrid({
@@ -33,6 +35,8 @@ export function CatalogGrid({
   getListingAlertTarget,
   onToggleFavorite,
   onSetPriceAlert,
+  title = "Ekran kartı ilanları",
+  description = "İlanlar model, fiyat, konum ve kategori bilgisiyle listelenir.",
 }: CatalogGridProps) {
   const firstListingNumber = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const lastListingNumber = listings.length === 0 ? 0 : Math.min(total, firstListingNumber + listings.length - 1);
@@ -48,10 +52,8 @@ export function CatalogGrid({
             <span className="listing-grid__eyebrow-line" />
             <span>Sonuçlar</span>
           </div>
-          <h2 className="listing-grid__title">Ekran kartı ilanları</h2>
-          <p className="listing-grid__description">
-            İlanlar model, fiyat, konum ve kategori bilgisiyle listelenir.
-          </p>
+          <h2 className="listing-grid__title">{title}</h2>
+          <p className="listing-grid__description">{description}</p>
         </div>
         <div className="listing-grid__header-side">
           <span className="listing-grid__count">

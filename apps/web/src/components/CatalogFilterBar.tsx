@@ -1,4 +1,4 @@
-import type { CatalogFilterState, CatalogSortOption, CatalogSourceFilter, GpuBrand } from "../types/listing";
+import type { CatalogFilterState, CatalogSortOption, CatalogSourceFilter, GpuBrand, ProductType } from "../types/listing";
 import { CATALOG_SORT_OPTIONS, GPU_BRAND } from "../types/listing";
 import { RotateCcw, Search } from "lucide-react";
 import "./CatalogFilterBar.css";
@@ -7,6 +7,7 @@ interface CatalogFilterBarProps {
   readonly filters: CatalogFilterState;
   readonly onFilterChange: (filters: CatalogFilterState) => void;
   readonly onReset?: () => void;
+  readonly productType?: ProductType;
 }
 
 const DEFAULT_FILTERS: CatalogFilterState = {
@@ -18,7 +19,7 @@ const DEFAULT_FILTERS: CatalogFilterState = {
   sortBy: CATALOG_SORT_OPTIONS.BUYABLE_DESC,
 };
 
-export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFilterBarProps) {
+export function CatalogFilterBar({ filters, onFilterChange, onReset, productType = "gpu" }: CatalogFilterBarProps) {
   function update<K extends keyof CatalogFilterState>(key: K, value: CatalogFilterState[K]) {
     onFilterChange({ ...filters, [key]: value });
   }
@@ -36,7 +37,11 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFi
           <input
             type="text"
             className="catalog-filter__search-input"
-            placeholder="Model veya şehir ara... (ör: RTX 3070, RX 6800, İstanbul)"
+            placeholder={
+              productType === "cpu"
+                ? "Model veya şehir ara... (ör: Ryzen 5 5600X, i5-12400F, İstanbul)"
+                : "Model veya şehir ara... (ör: RTX 3070, RX 6800, İstanbul)"
+            }
             value={filters.search}
             onChange={(event) => update("search", event.target.value)}
           />
@@ -49,7 +54,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset }: CatalogFi
             onChange={(event) => update("brand", event.target.value as GpuBrand | "all")}
           >
             <option value="all">Tüm markalar</option>
-            <option value={GPU_BRAND.NVIDIA}>NVIDIA</option>
+            {productType === "gpu" ? <option value={GPU_BRAND.NVIDIA}>NVIDIA</option> : null}
             <option value={GPU_BRAND.AMD}>AMD</option>
             <option value={GPU_BRAND.INTEL}>Intel</option>
           </select>

@@ -128,6 +128,10 @@ export function getCanonicalGpuModel(listing: Pick<CatalogListing, "model" | "ti
 }
 
 export function getModelCategoryLabel(listing: CatalogListing): string {
+  if (listing.productType === "cpu") {
+    return cleanPublicListingText(listing.model || listing.title) || "Model belirsiz";
+  }
+
   return getCanonicalGpuModel(listing) || "Model belirsiz";
 }
 
@@ -150,6 +154,28 @@ export function getModelSlug(listing: Pick<CatalogListing, "model" | "title">): 
 }
 
 export function getModelFamily(listing: Pick<CatalogListing, "model" | "title">): string {
+  if ("productType" in listing && listing.productType === "cpu") {
+    const cpuText = normalizeGpuText(`${listing.model} ${listing.title}`);
+    const ryzenMatch = cpuText.match(/\bRYZEN\s+([3579])\b/);
+    if (ryzenMatch?.[1]) {
+      return `Ryzen ${ryzenMatch[1]} Serisi`;
+    }
+
+    const coreUltraMatch = cpuText.match(/\bCORE\s+ULTRA\s+([3579])\b/);
+    if (coreUltraMatch?.[1]) {
+      return `Intel Core Ultra ${coreUltraMatch[1]}`;
+    }
+
+    const coreMatch = cpuText.match(/\bCORE\s+I([3579])\b/);
+    if (coreMatch?.[1]) {
+      return `Intel Core i${coreMatch[1]}`;
+    }
+
+    if (cpuText.includes("THREADRIPPER")) return "AMD Threadripper";
+    if (cpuText.includes("XEON")) return "Intel Xeon";
+    return "Diğer işlemciler";
+  }
+
   const canonicalModel = getCanonicalGpuModel(listing);
   const text = normalizeGpuText(canonicalModel || `${listing.model} ${listing.title}`);
   const rtxMatch = text.match(/\bRTX\s*-?\s*(\d{4})/);

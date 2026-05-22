@@ -36,6 +36,8 @@ jobs:
           DISPATCH_RUN_ID: ${{ github.event.client_payload.github_run_id }}
           DISPATCH_SOURCE_REPOSITORY: ${{ github.event.client_payload.source_repository }}
           DISPATCH_ARTIFACT_NAME: ${{ github.event.client_payload.artifact_name }}
+          DISPATCH_PRODUCT_TYPE: ${{ github.event.client_payload.product_type }}
+          DISPATCH_CATEGORY_URL: ${{ github.event.client_payload.category_url }}
           DEFAULT_SOURCE_REPOSITORY: ${{ vars.SCRAPER_SOURCE_REPOSITORY }}
           LETGO_SOURCE_REPOSITORY: ${{ vars.LETGO_SOURCE_REPOSITORY }}
           DOLAP_SOURCE_REPOSITORY: ${{ vars.DOLAP_SOURCE_REPOSITORY }}
@@ -46,7 +48,9 @@ jobs:
           TECHOLAY_SOURCE_REPOSITORY: ${{ vars.TECHOLAY_SOURCE_REPOSITORY }}
           DOLAP_MIN_LISTINGS: ${{ vars.DOLAP_MIN_LISTINGS }}
           SAHIBINDEN_MIN_LISTINGS: ${{ vars.SAHIBINDEN_MIN_LISTINGS }}
+          SAHIBINDEN_CPU_MIN_LISTINGS: ${{ vars.SAHIBINDEN_CPU_MIN_LISTINGS }}
           SAHIBINDEN_SCRAPER_WORKFLOW: ${{ vars.SAHIBINDEN_SCRAPER_WORKFLOW }}
+          SAHIBINDEN_CPU_SCRAPER_WORKFLOW: ${{ vars.SAHIBINDEN_CPU_SCRAPER_WORKFLOW }}
         run: |
           set -euo pipefail
           rm -rf ./data/inbox ./data/sources
@@ -62,8 +66,10 @@ jobs:
           TECHOLAY_REPO="${TECHOLAY_SOURCE_REPOSITORY:-}"
           DOLAP_MIN_LISTINGS="${DOLAP_MIN_LISTINGS:-50}"
           SAHIBINDEN_MIN_LISTINGS="${SAHIBINDEN_MIN_LISTINGS:-200}"
+          SAHIBINDEN_CPU_MIN_LISTINGS="${SAHIBINDEN_CPU_MIN_LISTINGS:-200}"
           SAHIBINDEN_SCRAPER_WORKFLOW="${SAHIBINDEN_SCRAPER_WORKFLOW:-sahibinden_bot.yml}"
-          export DOLAP_MIN_LISTINGS SAHIBINDEN_MIN_LISTINGS
+          SAHIBINDEN_CPU_SCRAPER_WORKFLOW="${SAHIBINDEN_CPU_SCRAPER_WORKFLOW:-sahibinden_cpu.yml}"
+          export DOLAP_MIN_LISTINGS SAHIBINDEN_MIN_LISTINGS SAHIBINDEN_CPU_MIN_LISTINGS
 
           sanitize_repo() {
             printf '%s' "$1" | tr '/:' '__'
@@ -74,13 +80,17 @@ jobs:
             local repo="$2"
             local run_id="$3"
             local artifact_name="$4"
+            local product_type="${5:-gpu}"
+            local category_url="${6:-}"
 
             cat > "${dir}/metadata.json" <<JSON
           {
             "source_repository": "${repo}",
             "scraper_run_id": "${run_id}",
             "scraper_run_url": "https://github.com/${repo}/actions/runs/${run_id}",
-            "artifact_name": "${artifact_name}"
+            "artifact_name": "${artifact_name}",
+            "product_type": "${product_type}",
+            "category_url": "${category_url}"
           }
           JSON
           }
@@ -91,6 +101,8 @@ jobs:
             local artifact_name="$3"
             local dir="$4"
             local min_listings="${5:-1}"
+            local product_type="${6:-gpu}"
+            local category_url="${7:-}"
 
             mkdir -p "$dir"
             echo "Dispatch artifact indiriliyor: repo=${repo}, run=${run_id}, artifact=${artifact_name}"
@@ -107,7 +119,7 @@ jobs:
               return 1
             fi
 
-            write_metadata "$dir" "$repo" "$run_id" "$artifact_name"
+            write_metadata "$dir" "$repo" "$run_id" "$artifact_name" "$product_type" "$category_url"
           }
 
           count_artifact_listings() {
@@ -126,6 +138,17 @@ jobs:
             fi
           }
 
+          min_listings_for_repo_product() {
+            local repo="$1"
+            local product_type="${2:-gpu}"
+            if [ "${repo}" = "${DEFAULT_REPO}" ] && [ "${product_type}" = "cpu" ]; then
+              echo "${SAHIBINDEN_CPU_MIN_LISTINGS}"
+              return
+            fi
+
+            min_listings_for_repo "${repo}"
+          }
+
           workflow_for_repo() {
             local repo="$1"
             if [ "${repo}" = "${DEFAULT_REPO}" ]; then
@@ -140,6 +163,9 @@ jobs:
             local dir="$2"
             local min_listings="${3:-1}"
             local workflow_name="${4:-}"
+            local artifact_prefix="${5:-scraper-results}"
+            local product_type="${6:-gpu}"
+            local category_url="${7:-}"
 
             rm -rf "$dir"
             mkdir -p "$dir"
@@ -156,7 +182,7 @@ jobs:
             )
 
             for RUN_ID in "${RUN_IDS[@]}"; do
-              local artifact_name="scraper-results-${RUN_ID}"
+              local artifact_name="${artifact_prefix}-${RUN_ID}"
               local temp_dir="${dir}.tmp-${RUN_ID}"
               echo "Deneniyor: repo=${repo}, run=${RUN_ID}, artifact=${artifact_name}"
               rm -rf "${temp_dir}"
@@ -174,7 +200,7 @@ jobs:
                 fi
                 rm -rf "${dir}"
                 mv "${temp_dir}" "${dir}"
-                write_metadata "$dir" "$repo" "$RUN_ID" "$artifact_name"
+                write_metadata "$dir" "$repo" "$RUN_ID" "$artifact_name" "$product_type" "$category_url"
                 return 0
               fi
               rm -rf "${temp_dir}"
@@ -185,16 +211,23 @@ jobs:
 
           DOWNLOADED=0
           DISPATCH_SOURCE_ACCEPTED=""
+          DISPATCH_PRODUCT_ACCEPTED=""
 
           if [ -n "${DISPATCH_RUN_ID:-}" ]; then
             SCRAPER_RUN_ID="${DISPATCH_RUN_ID}"
             ARTIFACT_NAME="${DISPATCH_ARTIFACT_NAME:-scraper-results-${DISPATCH_RUN_ID}}"
             SOURCE_REPO="${DISPATCH_SOURCE_REPOSITORY:-${DEFAULT_REPO}}"
-            SOURCE_DIR="./data/sources/dispatch-$(sanitize_repo "${SOURCE_REPO}")"
-            MIN_LISTINGS="$(min_listings_for_repo "${SOURCE_REPO}")"
-            if download_specific_artifact "${SOURCE_REPO}" "${SCRAPER_RUN_ID}" "${ARTIFACT_NAME}" "${SOURCE_DIR}" "${MIN_LISTINGS}"; then
+            SOURCE_PRODUCT_TYPE="${DISPATCH_PRODUCT_TYPE:-}"
+            if [ -z "${SOURCE_PRODUCT_TYPE}" ] && [[ "${ARTIFACT_NAME}" == scraper-results-cpu-* ]]; then
+              SOURCE_PRODUCT_TYPE="cpu"
+            fi
+            SOURCE_PRODUCT_TYPE="${SOURCE_PRODUCT_TYPE:-gpu}"
+            SOURCE_DIR="./data/sources/dispatch-$(sanitize_repo "${SOURCE_REPO}")-${SOURCE_PRODUCT_TYPE}"
+            MIN_LISTINGS="$(min_listings_for_repo_product "${SOURCE_REPO}" "${SOURCE_PRODUCT_TYPE}")"
+            if download_specific_artifact "${SOURCE_REPO}" "${SCRAPER_RUN_ID}" "${ARTIFACT_NAME}" "${SOURCE_DIR}" "${MIN_LISTINGS}" "${SOURCE_PRODUCT_TYPE}" "${DISPATCH_CATEGORY_URL:-}"; then
               DOWNLOADED=$((DOWNLOADED + 1))
               DISPATCH_SOURCE_ACCEPTED="${SOURCE_REPO}"
+              DISPATCH_PRODUCT_ACCEPTED="${SOURCE_PRODUCT_TYPE}"
             else
               echo "Uyari: dispatch artifact kalite/minimum ilan esigini gecemedi; latest scraper artifact aranacak." >&2
             fi
@@ -212,7 +245,7 @@ jobs:
             fi
             SEEN_REPOS[$SOURCE_REPO]=1
 
-            if [ -n "${DISPATCH_SOURCE_ACCEPTED:-}" ] && [ "${SOURCE_REPO}" = "${DISPATCH_SOURCE_ACCEPTED}" ]; then
+            if [ -n "${DISPATCH_SOURCE_ACCEPTED:-}" ] && [ "${SOURCE_REPO}" = "${DISPATCH_SOURCE_ACCEPTED}" ] && [ "${DISPATCH_PRODUCT_ACCEPTED}" != "cpu" ]; then
               echo "Dispatch kaynagi zaten indirildi, atlandi: ${SOURCE_REPO}"
               continue
             fi
@@ -227,6 +260,17 @@ jobs:
               echo "Uyari: ${SOURCE_REPO} icin indirilebilir scraper artifact'i bulunamadi." >&2
             fi
           done
+
+          if [ -n "${DEFAULT_REPO:-}" ]; then
+            CPU_SOURCE_DIR="./data/sources/$(sanitize_repo "${DEFAULT_REPO}")-cpu"
+            if [ "${DISPATCH_SOURCE_ACCEPTED:-}" = "${DEFAULT_REPO}" ] && [ "${DISPATCH_PRODUCT_ACCEPTED:-}" = "cpu" ]; then
+              echo "CPU dispatch kaynagi zaten indirildi, latest CPU atlandi: ${DEFAULT_REPO}"
+            elif download_latest_artifact "${DEFAULT_REPO}" "${CPU_SOURCE_DIR}" "${SAHIBINDEN_CPU_MIN_LISTINGS}" "${SAHIBINDEN_CPU_SCRAPER_WORKFLOW}" "scraper-results-cpu" "cpu" "https://www.sahibinden.com/islemci-masaustu"; then
+              DOWNLOADED=$((DOWNLOADED + 1))
+            else
+              echo "Uyari: ${DEFAULT_REPO} icin indirilebilir CPU scraper artifact'i bulunamadi." >&2
+            fi
+          fi
 
           if [ "${DOWNLOADED}" -eq 0 ]; then
             echo "Hiç scraper artifact'i indirilemedi; bos katalog deploy etmemek icin workflow durduruluyor." >&2

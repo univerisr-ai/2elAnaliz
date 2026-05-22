@@ -107,6 +107,23 @@ async function main(): Promise<void> {
 
   assert.equal(fromTechnopatUrl.sourceType, "forum");
   assert.equal(fromTechnopatUrl.source, "Technopat");
+
+  const fromCpu = mapRawCatalogListing(
+    {
+      id: "cpu-ryzen-7800x3d",
+      title: "AMD Ryzen 7 7800X3D islemci",
+      price: 13000,
+      url: "https://www.sahibinden.com/ilan/cpu-ryzen-7800x3d/detay",
+      productType: "cpu",
+      source: "Sahibinden",
+      sourceType: "sahibinden",
+    },
+    7,
+  );
+
+  assert.equal(fromCpu.productType, "cpu");
+  assert.equal(fromCpu.brand, "AMD");
+  assert.equal(fromCpu.model, "Ryzen 7 7800X3D");
 }
 
 main().catch((error: unknown) => {

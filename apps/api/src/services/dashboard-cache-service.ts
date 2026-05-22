@@ -125,6 +125,101 @@ function detectBrand(text: string): DashboardBrand {
   return "Bilinmiyor";
 }
 
+function normalizeProductType(value: unknown): CatalogListing["productType"] | "" {
+  const normalized = String(value ?? "").trim().toLocaleLowerCase("tr-TR");
+  if (!normalized) {
+    return "";
+  }
+
+  if (/(^|[^a-z])(?:cpu|islemci|işlemci|processor|processors)(?:$|[^a-z])/.test(normalized)) {
+    return "cpu";
+  }
+
+  if (/(^|[^a-z])(?:gpu|ekran\s*karti|ekran\s*kartı|graphics?\s*card)(?:$|[^a-z])/.test(normalized)) {
+    return "gpu";
+  }
+
+  return "";
+}
+
+function inferProductType(listing: RawCatalogListingInput): CatalogListing["productType"] {
+  const fields = [
+    listing.productType,
+    listing.product_type,
+    listing.product,
+    listing.productLabel,
+    listing.category,
+    listing.categoryName,
+    listing.categoryUrl,
+    listing.sourceCategoryUrl,
+    listing.url,
+  ];
+
+  for (const field of fields) {
+    const productType = normalizeProductType(field);
+    if (productType) {
+      return productType;
+    }
+  }
+
+  return "gpu";
+}
+
+function detectCpuBrand(text: string): DashboardBrand {
+  const upper = normalizeGpuText(text);
+
+  if (/\b(?:AMD|RYZEN|THREADRIPPER|ATHLON|EPYC)\b/.test(upper)) {
+    return "AMD";
+  }
+
+  if (/\b(?:INTEL|CORE\s+ULTRA|CORE\s+I[3579]|I[3579]\s*-?\s*\d|XEON|PENTIUM|CELERON)\b/.test(upper)) {
+    return "Intel";
+  }
+
+  return "Bilinmiyor";
+}
+
+function normalizeCpuModel(title: string): string {
+  const upper = normalizeGpuText(title);
+
+  const ryzenMatch = upper.match(/\b(?:AMD\s+)?RYZEN\s*([3579])\s*-?\s*(\d{4,5})(X3D|XT|X|G|GE|F)?\b/);
+  if (ryzenMatch?.[1] && ryzenMatch[2]) {
+    return ["Ryzen", ryzenMatch[1], `${ryzenMatch[2]}${ryzenMatch[3] ?? ""}`].join(" ");
+  }
+
+  const threadripperMatch = upper.match(/\b(?:AMD\s+)?(?:RYZEN\s+)?THREADRIPPER\s*(PRO\s*)?(\d{4,5})(WX|X)?\b/);
+  if (threadripperMatch?.[2]) {
+    return ["Threadripper", threadripperMatch[1] ? "Pro" : "", `${threadripperMatch[2]}${threadripperMatch[3] ?? ""}`]
+      .filter(Boolean)
+      .join(" ");
+  }
+
+  const coreUltraMatch = upper.match(/\b(?:INTEL\s+)?CORE\s+ULTRA\s+([3579])\s*-?\s*(\d{3}[A-Z0-9]*)\b/);
+  if (coreUltraMatch?.[1] && coreUltraMatch[2]) {
+    return `Intel Core Ultra ${coreUltraMatch[1]} ${coreUltraMatch[2]}`;
+  }
+
+  const coreMatch = upper.match(/\b(?:INTEL\s+)?(?:CORE\s+)?I([3579])\s*-?\s*(\d{3,5})([A-Z]{0,3})\b/);
+  if (coreMatch?.[1] && coreMatch[2]) {
+    return `Intel Core i${coreMatch[1]}-${coreMatch[2]}${coreMatch[3] ?? ""}`;
+  }
+
+  const xeonMatch = upper.match(/\b(?:INTEL\s+)?XEON\s+([A-Z]?\d{3,5}[A-Z0-9-]*)\b/);
+  if (xeonMatch?.[1]) {
+    return `Intel Xeon ${xeonMatch[1]}`;
+  }
+
+  return title.trim();
+}
+
+function normalizeListingModel(title: string, productType: CatalogListing["productType"]): string {
+  return productType === "cpu" ? normalizeCpuModel(title) : normalizeModel(title);
+}
+
+function detectListingBrand(text: string, productType: CatalogListing["productType"]): DashboardBrand {
+  return productType === "cpu" ? detectCpuBrand(text) : detectBrand(text);
+}
+
 function normalizeGpuText(value: string): string {
   return value
     .replace(/[_/]+/g, " ")
@@ -249,10 +344,23 @@ function detectSourceType(
   return "external";
 }
 
-export function isCatalogNoiseListing(listing: Pick<CatalogListing, "title" | "model">): boolean {
+export function isCatalogNoiseListing(listing: Pick<CatalogListing, "title" | "model" | "productType">): boolean {
   const text = `${listing.title} ${listing.model}`
     .toLocaleLowerCase("tr-TR")
     .replace(/\s+/g, " ");
+
+  if (listing.productType === "cpu") {
+    return [
+      /bo[şs]\s*kutu/,
+      /sadece\s+kutu/,
+      /(?:işlemci|islemci|cpu)\s*fan[ıi]/,
+      /\b(?:fan|stok\s*fan|wraith|cooler|so[ğg]utucu|heatsink)\b/,
+      /\b(?:anakart|motherboard|ram|bellek|set|bundle|kombin)\b/,
+      /pin\s*(?:k[ıi]r[ıi]k|e[ğg]ik|yamuk|b[üu]k[üu]k)/,
+      /ar[ıi]zal[ıi]|ariza|tamir|tamirlik|bozuk|hasarl[ıi]|sorunlu|çalışmıyor|calismiyor/,
+      /\b(?:laptop|notebook)\b/,
+    ].some((pattern) => pattern.test(text));
+  }
 
   return [
     /bo[şs]\s*kutu/,
@@ -352,6 +460,14 @@ interface RawCatalogListingInput {
   readonly segment?: string;
   readonly source?: string;
   readonly sourceType?: CatalogListing["sourceType"];
+  readonly productType?: CatalogListing["productType"] | string;
+  readonly product_type?: string;
+  readonly product?: string;
+  readonly productLabel?: string;
+  readonly category?: string;
+  readonly categoryName?: string;
+  readonly categoryUrl?: string;
+  readonly sourceCategoryUrl?: string;
 }
 
 export async function getDashboardSnapshot(): Promise<DashboardSnapshot | null> {
@@ -391,6 +507,7 @@ export async function getDashboardListings(): Promise<DashboardListing[]> {
     analysisNote: candidate.analysisNote,
     listedAt: summary.generatedAt ?? new Date().toISOString(),
     source: detectSource(candidate.url),
+    productType: "gpu",
     imageUrl: candidate.imageUrl ?? null,
   }));
 }
@@ -416,13 +533,14 @@ export function mapRawCatalogListing(
   index: number,
 ): CatalogListing {
   const title = listing.baslik?.trim() || listing.title?.trim() || "Baslik bulunamadi";
+  const productType = inferProductType(listing);
   const explicitModel =
     listing.modelName?.trim() ||
     listing.model?.trim() ||
     listing.modelKey?.trim() ||
     listing.gpuModel?.trim() ||
     "";
-  const model = explicitModel ? normalizeModel(explicitModel) : normalizeModel(title);
+  const model = explicitModel ? normalizeListingModel(explicitModel, productType) : normalizeListingModel(title, productType);
   const price = Number.isFinite(listing.fiyat) ? Number(listing.fiyat) : Number.isFinite(listing.price) ? Number(listing.price) : 0;
   const detectedSource = detectSource(listing.url);
   const source =
@@ -440,7 +558,7 @@ export function mapRawCatalogListing(
     id: listing.ilan_id?.trim() || listing.id?.trim() || listing.sourceListingId?.trim() || toListingId(model || title, price, index),
     title,
     model,
-    brand: detectBrand(`${model} ${title}`),
+    brand: detectListingBrand(`${model} ${title}`, productType),
     price,
     priceText: listing.fiyat_str?.trim() || listing.priceText?.trim() || `${price.toLocaleString("tr-TR")} TL`,
     url: listing.url?.trim() || "#",
@@ -450,6 +568,7 @@ export function mapRawCatalogListing(
     listedAtLabel: listing.tarih?.trim() || listing.listedAtLabel?.trim() || listing.listedAt?.trim() || "Tarih yok",
     source: source as CatalogListing["source"],
     sourceType,
+    productType,
   };
 }
 

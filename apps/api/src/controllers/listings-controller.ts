@@ -20,6 +20,7 @@ import type {
   DashboardListing,
   DashboardSummary,
   DashboardTopCandidate,
+  ProductType,
 } from "../services/dashboard-types.js";
 import {
   buildBuyabilityIndex,
@@ -95,6 +96,7 @@ interface PublicWatchlistItem {
 const CATALOG_DEFAULT_PER_PAGE = 120;
 const CATALOG_MAX_PER_PAGE = 20000;
 const CATALOG_PUBLIC_MIN_BUYABILITY_SCORE = 50;
+const DEFAULT_CATALOG_PRODUCT: ProductType = "gpu";
 const MODEL_DEFAULT_PER_PAGE = 1000;
 const MODEL_MAX_PER_PAGE = 1000;
 const PUBLIC_LIST_CACHE_HEADER = "public, max-age=60, s-maxage=300, stale-while-revalidate=1800";
@@ -205,6 +207,21 @@ function parseBoundedPositiveInteger(value: unknown, fallback: number, max: numb
   }
 
   return Math.min(max, parsed);
+}
+
+function normalizeCatalogProduct(value: unknown): ProductType {
+  return String(value ?? "").trim().toLocaleLowerCase("tr-TR") === "cpu" ? "cpu" : DEFAULT_CATALOG_PRODUCT;
+}
+
+function getCatalogListingProductType(listing: Pick<CatalogListing, "productType">): ProductType {
+  return listing.productType === "cpu" ? "cpu" : "gpu";
+}
+
+export function filterCatalogListingsByProduct(
+  listings: readonly CatalogListing[],
+  productType: ProductType,
+): CatalogListing[] {
+  return listings.filter((listing) => getCatalogListingProductType(listing) === productType);
 }
 
 function buildPublicImagePath(listingId: string, imageUrl: string | null | undefined): string | null {
@@ -322,6 +339,7 @@ function sanitizeCatalogListing(listing: CatalogListing, context: PublicCatalogC
     location: scrubPublicText(listing.location),
     segment: scrubPublicText(listing.segment),
     listedAtLabel: scrubPublicText(listing.listedAtLabel),
+    productType: getCatalogListingProductType(listing),
     modelSlug: getModelSlug(listing),
     modelFamily: getModelFamily(listing),
     buyability: getBuyabilityInsight(listing, context.allListings, context.buyabilityIndex),
@@ -1075,10 +1093,14 @@ listingsRouter.post("/catalog/removed/restore", async (req: Request, res: Respon
 listingsRouter.get("/catalog", async (req: Request, res: Response): Promise<void> => {
   try {
     const catalog = await loadCombinedCatalogListings();
-    let listings = catalog.listings;
-    const context = buildCatalogContext(catalog.listings, catalog.referenceListings);
+    const { brand, minPrice, maxPrice, search, sort, page, perPage, product } = req.query;
+    const productType = normalizeCatalogProduct(product);
+    let listings = filterCatalogListingsByProduct(catalog.listings, productType);
+    const context = buildCatalogContext(
+      listings,
+      productType === "gpu" ? catalog.referenceListings : [],
+    );
 
-    const { brand, minPrice, maxPrice, search, sort, page, perPage } = req.query;
 
     if (typeof brand === "string" && brand !== "all") {
       listings = listings.filter((listing) => listing.brand.toLowerCase() === brand.toLowerCase());
@@ -1156,8 +1178,10 @@ listingsRouter.get("/catalog", async (req: Request, res: Response): Promise<void
 listingsRouter.get("/models", async (req: Request, res: Response): Promise<void> => {
   try {
     const catalog = await loadCombinedCatalogListings();
-    const context = buildCatalogContext(catalog.listings, catalog.referenceListings);
-    const publicListings = filterPublicCatalogListings(catalog.listings, context);
+    const productType = normalizeCatalogProduct(req.query.product);
+    const scopedListings = filterCatalogListingsByProduct(catalog.listings, productType);
+    const context = buildCatalogContext(scopedListings, productType === "gpu" ? catalog.referenceListings : []);
+    const publicListings = filterPublicCatalogListings(scopedListings, context);
     let models = buildCatalogModelSummaries(publicListings, context.buyabilityIndex).filter((model) => model.label !== "Model belirsiz");
     const search = typeof req.query.search === "string" ? req.query.search.trim().toLocaleLowerCase("tr-TR") : "";
     const limit = Math.max(1, Math.min(500, parseInt(String(req.query.limit || "500"), 10) || 500));
@@ -1192,9 +1216,11 @@ listingsRouter.get("/models/:slug", async (req: Request, res: Response): Promise
   try {
     const slug = String(req.params.slug ?? "").trim().toLocaleLowerCase("tr-TR");
     const catalog = await loadCombinedCatalogListings();
-    const context = buildCatalogContext(catalog.listings, catalog.referenceListings);
+    const productType = normalizeCatalogProduct(req.query.product);
+    const scopedListings = filterCatalogListingsByProduct(catalog.listings, productType);
+    const context = buildCatalogContext(scopedListings, productType === "gpu" ? catalog.referenceListings : []);
     const modelListings = filterPublicCatalogListings(
-      catalog.listings.filter((listing) => matchesModelSlug(listing, slug)),
+      scopedListings.filter((listing) => matchesModelSlug(listing, slug)),
       context,
     );
 
@@ -1227,8 +1253,8 @@ listingsRouter.get("/models/:slug", async (req: Request, res: Response): Promise
       default:
         sortedListings = sortedListings.sort(
           (a, b) => {
-            const insightA = getBuyabilityInsight(a, catalog.listings, context.buyabilityIndex);
-            const insightB = getBuyabilityInsight(b, catalog.listings, context.buyabilityIndex);
+            const insightA = getBuyabilityInsight(a, scopedListings, context.buyabilityIndex);
+            const insightB = getBuyabilityInsight(b, scopedListings, context.buyabilityIndex);
             return (
               getCatalogRankingScore(b, insightB) - getCatalogRankingScore(a, insightA) ||
               insightB.score - insightA.score ||

@@ -49,6 +49,7 @@ export const CATALOG_SORT_OPTIONS = {
 
 export type CatalogSortOption = typeof CATALOG_SORT_OPTIONS[keyof typeof CATALOG_SORT_OPTIONS];
 export type CatalogSourceFilter = "all" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "pecid" | "external";
+export type ProductType = "gpu" | "cpu";
 
 export interface CatalogFilterState {
   search: string;
@@ -87,6 +88,7 @@ export interface CatalogListing {
   readonly location: string;
   readonly segment: string;
   readonly listedAtLabel: string;
+  readonly productType?: ProductType;
   readonly modelSlug?: string;
   readonly modelFamily?: string;
   readonly buyability?: BuyabilityInsight;
