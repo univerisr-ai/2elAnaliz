@@ -27,6 +27,7 @@ import { CATALOG_SORT_OPTIONS } from "./types/listing";
 import { Header, type HeaderNotification } from "./components/Header";
 import { CatalogFilterBar } from "./components/CatalogFilterBar";
 import { CatalogGrid } from "./components/CatalogGrid";
+import { CpuCircuitBackdrop } from "./components/CpuCircuitBackdrop";
 import { Footer } from "./components/Footer";
 import { GpuBackdrop } from "./components/GpuBackdrop";
 import { ListingDetailPanel } from "./components/ListingDetailPanel";
@@ -1562,7 +1563,7 @@ export default function App() {
 
   return (
     <>
-      {isCpuCatalogPage ? null : <GpuBackdrop />}
+      {isCpuCatalogPage ? <CpuCircuitBackdrop /> : <GpuBackdrop />}
       <Header
         activePage={activePage}
         onNavigate={(page) => {

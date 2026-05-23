@@ -282,6 +282,185 @@ button {
   }
 }
 
+.cpu-circuit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  --cpu-circuit-beat: 1.46s;
+}
+
+.cpu-circuit-backdrop__board {
+  position: absolute;
+  top: clamp(38px, 7vh, 100px);
+  right: clamp(-520px, -22vw, -190px);
+  width: clamp(980px, 118vw, 1560px);
+  max-width: none;
+  opacity: 0.48;
+  filter: drop-shadow(0 28px 70px rgba(15, 23, 42, 0.12));
+}
+
+.cpu-circuit-backdrop__trace,
+.cpu-circuit-backdrop__pulse {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.cpu-circuit-backdrop__trace {
+  stroke: rgba(14, 22, 31, 0.58);
+  stroke-width: 3.4;
+}
+
+.cpu-circuit-backdrop__trace.is-thin {
+  stroke-width: 2.8;
+}
+
+.cpu-circuit-backdrop__pulse {
+  stroke: #00dff0;
+  stroke-width: 6.2;
+  stroke-dasharray: 14 126;
+  stroke-dashoffset: 0;
+  filter: url("#cpuCircuitNeon");
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation:
+    cpu-circuit-pulse-out var(--cpu-circuit-beat) cubic-bezier(0.17, 0.8, 0.28, 1) infinite,
+    cpu-circuit-heartbeat var(--cpu-circuit-beat) ease-in-out infinite;
+  animation-delay: var(--delay), 0ms;
+}
+
+.cpu-circuit-backdrop__pulse.is-warm {
+  stroke: #8dfff5;
+}
+
+.cpu-circuit-backdrop__node {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: rgba(14, 22, 31, 0.72);
+  stroke-width: 3.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cpu-circuit-node-heartbeat var(--cpu-circuit-beat) ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+.cpu-circuit-backdrop__node.is-solid {
+  fill: rgba(14, 22, 31, 0.8);
+}
+
+.cpu-circuit-backdrop__node.is-ring {
+  fill: #f4f6ff;
+  stroke-width: 4.4;
+}
+
+.cpu-circuit-backdrop__halo {
+  fill: url("#cpuCircuitGlow");
+  opacity: 0.24;
+  mix-blend-mode: screen;
+  transform-origin: 512px 512px;
+  animation: cpu-circuit-halo-heartbeat var(--cpu-circuit-beat) ease-in-out infinite;
+}
+
+.cpu-circuit-backdrop__image {
+  filter: drop-shadow(0 22px 28px rgba(15, 23, 42, 0.28));
+  transform-origin: center;
+}
+
+@keyframes cpu-circuit-pulse-out {
+  to {
+    stroke-dashoffset: -140;
+  }
+}
+
+@keyframes cpu-circuit-heartbeat {
+  0%,
+  100% {
+    opacity: 0;
+    stroke-width: 4.8;
+  }
+
+  6% {
+    opacity: 0.18;
+  }
+
+  10% {
+    opacity: 0.98;
+    stroke-width: 8;
+  }
+
+  15% {
+    opacity: 0.18;
+    stroke-width: 5;
+  }
+
+  22% {
+    opacity: 0.9;
+    stroke-width: 7.6;
+  }
+
+  38% {
+    opacity: 0.12;
+    stroke-width: 5;
+  }
+
+  54% {
+    opacity: 0;
+  }
+}
+
+@keyframes cpu-circuit-node-heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+
+  10% {
+    transform: scale(1.16);
+    filter: drop-shadow(0 0 8px rgba(0, 223, 240, 0.72));
+  }
+
+  22% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 7px rgba(0, 223, 240, 0.5));
+  }
+
+  36% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+@keyframes cpu-circuit-halo-heartbeat {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale(0.96);
+  }
+
+  10% {
+    opacity: 0.56;
+    transform: scale(1.08);
+  }
+
+  15% {
+    opacity: 0.18;
+    transform: scale(0.99);
+  }
+
+  22% {
+    opacity: 0.44;
+    transform: scale(1.05);
+  }
+
+  40% {
+    opacity: 0.12;
+    transform: scale(0.96);
+  }
+}
+
 .gpu-tuner {
   position: fixed;
   right: 16px;
@@ -376,6 +555,13 @@ button {
 
   .gpu-backdrop__fans {
     opacity: 0.12;
+  }
+
+  .cpu-circuit-backdrop__board {
+    top: 126px;
+    right: -470px;
+    width: 920px;
+    opacity: 0.28;
   }
 
 }
