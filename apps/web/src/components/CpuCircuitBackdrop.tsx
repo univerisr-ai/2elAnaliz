@@ -1,133 +1,117 @@
 import type { CSSProperties } from "react";
 import cpuReference from "../assets/cpu-real-reference.png";
 
-const BASE_TRACES = [
-  "M218 90 V174 L274 230 V420 H407",
-  "M282 70 V154 L324 196 V421 H407",
-  "M344 42 V136 L370 162 V421 H407",
-  "M406 78 V132 L426 152 V421 H407",
-  "M462 50 V142 H452 V421 H407",
-  "M512 74 V421",
-  "M560 44 V142 H572 V421 H617",
-  "M612 82 V154 L596 170 V421 H617",
-  "M674 64 V158 L628 204 V421 H617",
-  "M736 96 V180 L676 240 V421 H617",
-  "M218 934 V852 L274 796 V604 H407",
-  "M282 954 V870 L324 828 V603 H407",
-  "M344 982 V888 L370 862 V603 H407",
-  "M406 946 V892 L426 872 V603 H407",
-  "M462 974 V882 H452 V603 H407",
-  "M512 950 V603",
-  "M560 980 V882 H572 V603 H617",
-  "M612 942 V870 L596 854 V603 H617",
-  "M674 960 V866 L628 820 V603 H617",
-  "M736 928 V844 L676 784 V603 H617",
-  "M52 418 H126 L168 460 H407",
-  "M98 368 H192 L246 422 H407",
-  "M38 492 H126 L178 440 H407",
-  "M70 544 H160 L202 502 H407",
-  "M112 610 H244 L286 568 H407",
-  "M46 654 H136 L190 600 H407",
-  "M80 708 H190 L252 646 H407",
-  "M122 770 H218 L300 688 V603 H407",
-  "M80 318 H214 L320 424 H407",
-  "M152 280 H244 L346 422 H407",
-  "M972 418 H898 L856 460 H617",
-  "M926 368 H832 L778 422 H617",
-  "M986 492 H898 L846 440 H617",
-  "M954 544 H864 L822 502 H617",
-  "M912 610 H780 L738 568 H617",
-  "M978 654 H888 L834 600 H617",
-  "M944 708 H834 L772 646 H617",
-  "M902 770 H806 L724 688 V603 H617",
-  "M944 318 H810 L704 424 H617",
-  "M872 280 H780 L678 422 H617",
+const CPU_CENTER = { x: 1240, y: 300 } as const;
+
+const CIRCUIT_TRACES = [
+  ["M1186 254 H1114 L1080 220 H1002", 0, "main", true],
+  ["M1186 268 H1078 L1044 302 H956", 70, "main", false],
+  ["M1186 282 H1048 L1014 248 H920", 140, "main", true],
+  ["M1186 296 H1028 L994 330 H904", 210, "main", false],
+  ["M1186 310 H1076 L1040 346 H940", 280, "main", true],
+  ["M1186 324 H1048 L1010 362 H902", 350, "main", false],
+  ["M1186 338 H1110 L1074 376 H980", 420, "main", true],
+  ["M1206 246 V190 L1168 152 V104", 490, "main", false],
+  ["M1222 246 V166 L1262 126 V82", 560, "main", true],
+  ["M1238 246 V190 L1206 158 V116", 630, "main", false],
+  ["M1254 246 V182 L1296 140 V104", 700, "main", true],
+  ["M1270 246 V202 L1308 164 H1374", 770, "main", false],
+  ["M1294 260 H1352 L1388 224 H1432", 840, "main", true],
+  ["M1294 278 H1338 L1376 316 H1436", 910, "main", false],
+  ["M1294 296 H1370 L1412 254 H1438", 980, "main", true],
+  ["M1294 314 H1358 L1396 352 H1436", 1050, "main", false],
+  ["M1294 332 H1338 L1372 366 V430", 1120, "main", true],
+  ["M1206 354 V420 L1170 456 V522", 1190, "main", false],
+  ["M1222 354 V436 L1258 472 V536", 1260, "main", true],
+  ["M1238 354 V444 L1204 478 V548", 1330, "main", false],
+  ["M1254 354 V426 L1290 462 V532", 1400, "main", true],
+  ["M1270 354 V414 L1308 452 H1372", 1470, "main", false],
+  ["M1002 220 V174 H874 L838 138 H716", 110, "branch", false],
+  ["M956 302 H866 L830 266 H722", 250, "branch", true],
+  ["M904 330 V372 H812 L776 408 H674", 390, "branch", false],
+  ["M940 346 H842 L808 382 H702", 530, "branch", true],
+  ["M1170 456 H1088 L1052 420 H940", 670, "branch", false],
+  ["M1258 472 H1168 L1132 508 H1026", 810, "branch", true],
+  ["M1372 366 H1298 V420 H1220", 950, "branch", false],
+  ["M1308 164 H1228 L1192 128 H1086", 1090, "branch", true],
 ] as const;
 
-const PULSE_TRACES = [
-  ["M407 420 H274 V230 L218 174 V90", 0],
-  ["M407 421 H324 V196 L282 154 V70", 42, true],
-  ["M407 421 H370 V162 L344 136 V42", 84],
-  ["M407 421 H426 V152 L406 132 V78", 126],
-  ["M407 421 H452 V142 H462 V50", 168, true],
-  ["M512 421 V74", 210],
-  ["M617 421 H572 V142 H560 V44", 252],
-  ["M617 421 H596 V170 L612 154 V82", 294, true],
-  ["M617 421 H628 V204 L674 158 V64", 336],
-  ["M617 421 H676 V240 L736 180 V96", 378],
-  ["M407 460 H168 L126 418 H52", 24, true],
-  ["M407 422 H246 L192 368 H98", 66],
-  ["M407 440 H178 L126 492 H38", 108],
-  ["M407 502 H202 L160 544 H70", 150, true],
-  ["M407 568 H286 L244 610 H112", 192],
-  ["M407 600 H190 L136 654 H46", 234],
-  ["M407 646 H252 L190 708 H80", 276, true],
-  ["M407 603 H300 V688 L218 770 H122", 318],
-  ["M407 424 H320 L214 318 H80", 360],
-  ["M407 422 H346 L244 280 H152", 402, true],
-  ["M617 460 H856 L898 418 H972", 30],
-  ["M617 422 H778 L832 368 H926", 72, true],
-  ["M617 440 H846 L898 492 H986", 114],
-  ["M617 502 H822 L864 544 H954", 156],
-  ["M617 568 H738 L780 610 H912", 198, true],
-  ["M617 600 H834 L888 654 H978", 240],
-  ["M617 646 H772 L834 708 H944", 282],
-  ["M617 603 H724 V688 L806 770 H902", 324, true],
-  ["M617 424 H704 L810 318 H944", 366],
-  ["M617 422 H678 L780 280 H872", 408, true],
-  ["M407 604 H274 V796 L218 852 V934", 48],
-  ["M407 603 H324 V828 L282 870 V954", 90, true],
-  ["M407 603 H370 V862 L344 888 V982", 132],
-  ["M407 603 H426 V872 L406 892 V946", 174],
-  ["M407 603 H452 V882 H462 V974", 216, true],
-  ["M512 603 V950", 258],
-  ["M617 603 H572 V882 H560 V980", 300],
-  ["M617 603 H596 V854 L612 870 V942", 342, true],
-  ["M617 603 H628 V820 L674 866 V960", 384],
-  ["M617 603 H676 V784 L736 844 V928", 426],
+const LONG_TRACES = [
+  ["M1186 268 H1008 L964 224 H772 L732 184 H540 L496 140 H270 L228 98 H24", 40, "long", true],
+  ["M1186 324 H986 L946 364 H760 L720 404 H536 L498 444 H318 L278 484 H18", 260, "long", false],
+  ["M1206 246 V154 L1166 114 V66 L1128 28 H1010", 480, "long", true],
+  ["M1238 354 V458 L1198 498 V612 L1158 652 V846", 700, "long", false],
+  ["M1294 296 H1378 L1418 256 H1440", 920, "long", true],
+  ["M1254 354 V468 L1292 506 V620 L1334 662 V890", 1140, "long", false],
 ] as const;
 
-const NODES = [
-  [218, 90, 7, "solid", 0],
-  [282, 70, 13, "ring", 80],
-  [344, 42, 10, "", 160],
-  [406, 78, 12, "ring", 240],
-  [462, 50, 8, "", 320],
-  [512, 74, 13, "ring", 400],
-  [560, 44, 10, "", 480],
-  [612, 82, 8, "", 560],
-  [674, 64, 13, "ring", 640],
-  [736, 96, 7, "solid", 720],
-  [52, 418, 13, "ring", 90],
-  [98, 368, 8, "", 170],
-  [38, 492, 13, "ring", 250],
-  [70, 544, 8, "", 330],
-  [112, 610, 7, "solid", 410],
-  [46, 654, 13, "ring", 490],
-  [80, 708, 8, "", 570],
-  [122, 770, 7, "solid", 650],
-  [80, 318, 7, "solid", 730],
-  [152, 280, 8, "", 810],
-  [972, 418, 13, "ring", 130],
-  [926, 368, 8, "", 210],
-  [986, 492, 13, "ring", 290],
-  [954, 544, 8, "", 370],
-  [912, 610, 7, "solid", 450],
-  [978, 654, 13, "ring", 530],
-  [944, 708, 8, "", 610],
-  [902, 770, 7, "solid", 690],
-  [944, 318, 8, "", 770],
-  [872, 280, 7, "solid", 850],
-  [218, 934, 7, "solid", 120],
-  [282, 954, 13, "ring", 200],
-  [344, 982, 10, "", 280],
-  [406, 946, 12, "ring", 360],
-  [462, 974, 8, "", 440],
-  [512, 950, 13, "ring", 520],
-  [560, 980, 10, "", 600],
-  [612, 942, 8, "", 680],
-  [674, 960, 13, "ring", 760],
-  [736, 928, 7, "solid", 840],
+const CONNECTOR_TRACES = [
+  ["M1186 260 H1152 V232 H1118", 20, "pin", false],
+  ["M1186 276 H1138 L1112 302 H1066", 120, "pin", true],
+  ["M1186 292 H1150 V320 H1118", 220, "pin", false],
+  ["M1186 308 H1142 L1112 338 H1068", 320, "pin", true],
+  ["M1294 264 H1324 V236 H1360", 420, "pin", false],
+  ["M1294 284 H1328 L1356 256 H1392", 520, "pin", true],
+  ["M1294 304 H1326 V332 H1364", 620, "pin", false],
+  ["M1294 324 H1330 L1356 350 H1390", 720, "pin", true],
+  ["M1214 246 V214 H1182", 820, "pin", false],
+  ["M1238 246 V208 L1270 176", 920, "pin", true],
+  ["M1262 246 V218 H1300", 1020, "pin", false],
+  ["M1214 354 V386 H1176", 1120, "pin", true],
+  ["M1238 354 V394 L1202 430", 1220, "pin", false],
+  ["M1262 354 V386 H1304", 1320, "pin", true],
+] as const;
+
+const END_NODES = [
+  [24, 48, 7, "ring", 0],
+  [120, 148, 6, "solid", 80],
+  [22, 402, 7, "ring", 160],
+  [44, 480, 6, "solid", 240],
+  [160, 498, 7, "ring", 320],
+  [18, 522, 6, "solid", 400],
+  [280, 530, 7, "ring", 480],
+  [1130, 8, 6, "solid", 560],
+  [1304, 8, 7, "ring", 640],
+  [900, 58, 6, "solid", 720],
+  [1374, 104, 7, "ring", 800],
+  [1432, 224, 6, "solid", 880],
+  [1436, 316, 7, "ring", 960],
+  [1440, 254, 6, "solid", 1040],
+  [1440, 352, 7, "ring", 1120],
+  [1440, 464, 6, "solid", 1200],
+  [842, 694, 7, "ring", 1280],
+  [1340, 820, 6, "solid", 1360],
+  [1128, 890, 7, "ring", 1440],
+  [1402, 640, 6, "solid", 1520],
+  [596, 174, 7, "ring", 1600],
+  [406, 324, 6, "solid", 1680],
+  [338, 346, 7, "ring", 1760],
+  [934, 420, 6, "solid", 1840],
+  [1106, 610, 7, "ring", 1920],
+  [1220, 420, 6, "solid", 2000],
+  [24, 98, 8, "ring", 2080],
+  [18, 484, 7, "ring", 2160],
+  [1010, 28, 7, "solid", 2240],
+  [1158, 846, 8, "ring", 2320],
+  [1440, 256, 6, "solid", 2400],
+  [1334, 890, 7, "ring", 2480],
+] as const;
+
+const CONNECTOR_NODES = [
+  [1118, 232, 4, "connector", 80],
+  [1066, 302, 4, "connector", 180],
+  [1118, 320, 4, "connector", 280],
+  [1068, 338, 4, "connector", 380],
+  [1360, 236, 4, "connector", 480],
+  [1392, 256, 4, "connector", 580],
+  [1364, 332, 4, "connector", 680],
+  [1390, 350, 4, "connector", 780],
+  [1182, 214, 4, "connector", 880],
+  [1270, 176, 4, "connector", 980],
+  [1300, 218, 4, "connector", 1080],
+  [1176, 386, 4, "connector", 1180],
+  [1202, 430, 4, "connector", 1280],
+  [1304, 386, 4, "connector", 1380],
 ] as const;
 
 function delayStyle(delay: number): CSSProperties {
@@ -137,22 +121,22 @@ function delayStyle(delay: number): CSSProperties {
 export function CpuCircuitBackdrop() {
   return (
     <div className="cpu-circuit-backdrop" aria-hidden="true">
-      <svg className="cpu-circuit-backdrop__board" viewBox="0 0 1024 1024" focusable="false">
+      <svg className="cpu-circuit-backdrop__board" viewBox="0 0 1440 900" preserveAspectRatio="none" focusable="false">
         <defs>
           <radialGradient id="cpuCircuitGlow" cx="50%" cy="50%" r="62%">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-            <stop offset="44%" stopColor="#cfffff" stopOpacity="0.58" />
+            <stop offset="45%" stopColor="#cfffff" stopOpacity="0.48" />
             <stop offset="100%" stopColor="#00f0ff" stopOpacity="0" />
           </radialGradient>
           <filter id="cpuCircuitNeon" x="-35%" y="-35%" width="170%" height="170%">
-            <feGaussianBlur stdDeviation="4" result="soft" />
+            <feGaussianBlur stdDeviation="3" result="soft" />
             <feColorMatrix
               in="soft"
               type="matrix"
-              values="0 0 0 0 0 0 0 0 0 0.85 0 0 0 0 1 0 0 0 0.9 0"
+              values="0 0 0 0 0 0 0 0 0 0.85 0 0 0 0 1 0 0 0 0.85 0"
               result="cyan"
             />
-            <feGaussianBlur in="SourceGraphic" stdDeviation="1" result="edge" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.7" result="edge" />
             <feMerge>
               <feMergeNode in="cyan" />
               <feMergeNode in="edge" />
@@ -162,13 +146,13 @@ export function CpuCircuitBackdrop() {
         </defs>
 
         <g className="cpu-circuit-backdrop__traces">
-          {BASE_TRACES.map((path, index) => (
-            <path key={`${path}-${index}`} className={`cpu-circuit-backdrop__trace ${index % 5 === 3 ? "is-thin" : ""}`} d={path} />
+          {[...CIRCUIT_TRACES, ...LONG_TRACES, ...CONNECTOR_TRACES].map(([path, , variant], index) => (
+            <path key={`${path}-${index}`} className={`cpu-circuit-backdrop__trace is-${variant}`} d={path} />
           ))}
         </g>
 
         <g className="cpu-circuit-backdrop__pulses">
-          {PULSE_TRACES.map(([path, delay, isWarm], index) => (
+          {[...CIRCUIT_TRACES, ...LONG_TRACES, ...CONNECTOR_TRACES].map(([path, delay, , isWarm], index) => (
             <path
               key={`${path}-${index}`}
               className={`cpu-circuit-backdrop__pulse ${isWarm ? "is-warm" : ""}`}
@@ -180,10 +164,10 @@ export function CpuCircuitBackdrop() {
         </g>
 
         <g className="cpu-circuit-backdrop__nodes">
-          {NODES.map(([cx, cy, r, variant, delay], index) => (
+          {[...END_NODES, ...CONNECTOR_NODES].map(([cx, cy, r, variant, delay], index) => (
             <circle
               key={`${cx}-${cy}-${index}`}
-              className={`cpu-circuit-backdrop__node ${variant ? `is-${variant}` : ""}`}
+              className={`cpu-circuit-backdrop__node is-${variant}`}
               cx={cx}
               cy={cy}
               r={r}
@@ -193,14 +177,14 @@ export function CpuCircuitBackdrop() {
         </g>
 
         <g className="cpu-circuit-backdrop__cpu">
-          <circle className="cpu-circuit-backdrop__halo" cx="512" cy="512" r="170" />
+          <circle className="cpu-circuit-backdrop__halo" cx={CPU_CENTER.x} cy={CPU_CENTER.y} r="96" />
           <image
             className="cpu-circuit-backdrop__image"
             href={cpuReference}
-            x="334"
-            y="334"
-            width="356"
-            height="356"
+            x={CPU_CENTER.x - 54}
+            y={CPU_CENTER.y - 54}
+            width="108"
+            height="108"
             preserveAspectRatio="xMidYMid meet"
           />
         </g>
