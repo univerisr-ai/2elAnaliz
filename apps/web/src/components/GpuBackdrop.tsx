@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ProductType } from "../types/listing";
 import backdropBody from "../assets/gpu-backdrop-body.png";
 import backdropFan from "../assets/gpu-backdrop-fan.png";
 
@@ -19,6 +20,40 @@ const DEFAULT_FAN_SETTINGS: FanSettings = {
   center: { x: 53.1, y: 49.1, size: 31.4 },
   right: { x: 79.1, y: 57.8, size: 30.4 },
 };
+
+const TRACE_PATHS = [
+  "M180 130 V62 H154 V22",
+  "M158 130 V84 H112 V42",
+  "M202 130 V84 H248 V42",
+  "M226 144 L262 108 V72 H304",
+  "M230 168 H286 V146 H336",
+  "M230 190 H304 V214 H340",
+  "M218 218 L262 262 V306 H310",
+  "M196 230 V282 H222 V338",
+  "M166 230 V286 H138 V338",
+  "M142 218 L100 260 V308 H52",
+  "M130 190 H72 V216 H22",
+  "M130 166 H74 V142 H24",
+  "M142 144 L100 106 V70 H54",
+  "M180 230 V292 H180 V340",
+] as const;
+
+const NODE_POINTS = [
+  [154, 22],
+  [112, 42],
+  [248, 42],
+  [304, 72],
+  [336, 146],
+  [340, 214],
+  [310, 306],
+  [222, 338],
+  [138, 338],
+  [52, 308],
+  [22, 216],
+  [24, 142],
+  [54, 70],
+  [180, 340],
+] as const;
 
 function applyFanSettings(settings: FanSettings) {
   const root = document.documentElement;
@@ -44,7 +79,52 @@ function readStoredFanSettings() {
   }
 }
 
-export function GpuBackdrop() {
+function CpuBackdrop() {
+  return (
+    <div className="cpu-backdrop" aria-hidden="true">
+      <div className="cpu-backdrop__field" />
+      <svg className="cpu-backdrop__chip" viewBox="0 0 360 360" role="img" focusable="false">
+        <defs>
+          <filter id="cpu-neon-glow" x="-35%" y="-35%" width="170%" height="170%">
+            <feGaussianBlur stdDeviation="3.2" result="blur" />
+            <feColorMatrix
+              in="blur"
+              type="matrix"
+              values="0 0 0 0 0.05 0 0 0 0 0.72 0 0 0 0 0.82 0 0 0 0.8 0"
+              result="cyan"
+            />
+            <feMerge>
+              <feMergeNode in="cyan" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <g className="cpu-backdrop__traces" filter="url(#cpu-neon-glow)">
+          {TRACE_PATHS.map((path, index) => (
+            <path key={path} className="cpu-backdrop__trace" d={path} style={{ animationDelay: `${index * 90}ms` }} />
+          ))}
+        </g>
+
+        <g className="cpu-backdrop__nodes">
+          {NODE_POINTS.map(([cx, cy], index) => (
+            <circle key={`${cx}-${cy}`} className="cpu-backdrop__node" cx={cx} cy={cy} r="8" style={{ animationDelay: `${index * 95}ms` }} />
+          ))}
+        </g>
+
+        <rect className="cpu-backdrop__core-glow" x="116" y="116" width="128" height="128" rx="28" />
+        <rect className="cpu-backdrop__core" x="126" y="126" width="108" height="108" rx="22" />
+        <rect className="cpu-backdrop__core-inner" x="150" y="150" width="60" height="60" rx="10" />
+      </svg>
+    </div>
+  );
+}
+
+interface GpuBackdropProps {
+  readonly variant?: ProductType;
+}
+
+export function GpuBackdrop({ variant = "gpu" }: GpuBackdropProps) {
   const isFanTunerEnabled = useMemo(() => {
     if (typeof window === "undefined") {
       return false;
@@ -61,13 +141,13 @@ export function GpuBackdrop() {
   });
 
   useEffect(() => {
-    if (!isFanTunerEnabled) {
+    if (!isFanTunerEnabled || variant !== "gpu") {
       return;
     }
 
     applyFanSettings(fanSettings);
     window.localStorage.setItem(FAN_TUNER_STORAGE_KEY, JSON.stringify(fanSettings));
-  }, [fanSettings, isFanTunerEnabled]);
+  }, [fanSettings, isFanTunerEnabled, variant]);
 
   const updateFanSetting = (position: FanPosition, key: keyof FanSettings[FanPosition], value: string) => {
     setFanSettings((current) => ({
@@ -91,6 +171,10 @@ export function GpuBackdrop() {
 
     await window.navigator.clipboard?.writeText(css);
   };
+
+  if (variant === "cpu") {
+    return <CpuBackdrop />;
+  }
 
   return (
     <>

@@ -1562,7 +1562,7 @@ export default function App() {
 
   return (
     <>
-      <GpuBackdrop />
+      <GpuBackdrop variant={isCpuCatalogPage ? "cpu" : "gpu"} />
       <Header
         activePage={activePage}
         onNavigate={(page) => {
