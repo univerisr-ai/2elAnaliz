@@ -402,17 +402,44 @@ function applySpotlightFilter(
   }
 }
 
-function CatalogLoadingScreen({ listingCount }: { readonly listingCount: number }) {
+function CatalogLoadingScreen({
+  listingCount,
+  productType,
+}: {
+  readonly listingCount: number;
+  readonly productType: ProductType;
+}) {
+  const isCpu = productType === "cpu";
+
   return (
-    <section className="catalog-loader container" aria-live="polite" aria-label="Katalog yükleniyor">
+    <section
+      className={`catalog-loader ${isCpu ? "catalog-loader--cpu" : "catalog-loader--gpu"} container`}
+      aria-live="polite"
+      aria-label="Katalog yükleniyor"
+    >
       <div className="catalog-loader__device" aria-hidden="true">
-        <div className="catalog-loader__gpu">
-          <span className="catalog-loader__io" />
-          <span className="catalog-loader__fan catalog-loader__fan--one" />
-          <span className="catalog-loader__fan catalog-loader__fan--two" />
-          <span className="catalog-loader__edge" />
-          <span className="catalog-loader__scan" />
-        </div>
+        {isCpu ? (
+          <div className="catalog-loader__cpu">
+            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--top" />
+            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--right" />
+            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--bottom" />
+            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--left" />
+            <span className="catalog-loader__cpu-core" />
+            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--one" />
+            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--two" />
+            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--three" />
+            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--four" />
+            <span className="catalog-loader__scan catalog-loader__scan--cpu" />
+          </div>
+        ) : (
+          <div className="catalog-loader__gpu">
+            <span className="catalog-loader__io" />
+            <span className="catalog-loader__fan catalog-loader__fan--one" />
+            <span className="catalog-loader__fan catalog-loader__fan--two" />
+            <span className="catalog-loader__edge" />
+            <span className="catalog-loader__scan" />
+          </div>
+        )}
       </div>
 
       <div className="catalog-loader__copy">
@@ -1757,7 +1784,7 @@ export default function App() {
             )}
 
             {isCatalogScreenLoading ? (
-              <CatalogLoadingScreen listingCount={catalogDisplayTotal} />
+              <CatalogLoadingScreen listingCount={catalogDisplayTotal} productType={activeCatalogProduct} />
             ) : (
             <section className="catalog-marketplace container">
               {isFilterDrawerOpen ? (
