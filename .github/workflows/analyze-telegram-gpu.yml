@@ -272,6 +272,32 @@ jobs:
             fi
           fi
 
+          declare -A SEEN_CPU_REPOS=()
+          for SOURCE_REPO in "${LETGO_REPO}" "${DOLAP_REPO}" "${DONANIMHABER_REPO}" "${FORUM_REPO}" "${TECHNOPAT_REPO}" "${TECHOLAY_REPO}"; do
+            if [ -z "${SOURCE_REPO:-}" ]; then
+              continue
+            fi
+
+            if [ -n "${SEEN_CPU_REPOS[$SOURCE_REPO]:-}" ]; then
+              echo "CPU kaynak repo zaten denendi, atlandi: ${SOURCE_REPO}"
+              continue
+            fi
+            SEEN_CPU_REPOS[$SOURCE_REPO]=1
+
+            if [ "${DISPATCH_SOURCE_ACCEPTED:-}" = "${SOURCE_REPO}" ] && [ "${DISPATCH_PRODUCT_ACCEPTED:-}" = "cpu" ]; then
+              echo "CPU dispatch kaynagi zaten indirildi, latest CPU atlandi: ${SOURCE_REPO}"
+              continue
+            fi
+
+            CPU_SOURCE_DIR="./data/sources/$(sanitize_repo "${SOURCE_REPO}")-cpu"
+            MIN_LISTINGS="$(min_listings_for_repo_product "${SOURCE_REPO}" "cpu")"
+            if download_latest_artifact "${SOURCE_REPO}" "${CPU_SOURCE_DIR}" "${MIN_LISTINGS}" "" "scraper-results-cpu" "cpu"; then
+              DOWNLOADED=$((DOWNLOADED + 1))
+            else
+              echo "Uyari: ${SOURCE_REPO} icin indirilebilir CPU scraper artifact'i bulunamadi." >&2
+            fi
+          done
+
           if [ "${DOWNLOADED}" -eq 0 ]; then
             echo "Hiç scraper artifact'i indirilemedi; bos katalog deploy etmemek icin workflow durduruluyor." >&2
             exit 1
