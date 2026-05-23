@@ -1563,7 +1563,8 @@ export default function App() {
 
   return (
     <>
-      {isCpuCatalogPage ? <CpuCircuitBackdrop /> : <GpuBackdrop />}
+      <GpuBackdrop isActive={!isCpuCatalogPage} />
+      <CpuCircuitBackdrop isActive={isCpuCatalogPage} />
       <Header
         activePage={activePage}
         onNavigate={(page) => {

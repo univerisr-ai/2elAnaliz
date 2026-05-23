@@ -118,10 +118,14 @@ function delayStyle(delay: number): CSSProperties {
   return { "--delay": `${delay}ms` } as CSSProperties;
 }
 
-export function CpuCircuitBackdrop() {
+interface CpuCircuitBackdropProps {
+  readonly isActive?: boolean;
+}
+
+export function CpuCircuitBackdrop({ isActive = true }: CpuCircuitBackdropProps) {
   return (
-    <div className="cpu-circuit-backdrop" aria-hidden="true">
-      <svg className="cpu-circuit-backdrop__board" viewBox="0 0 1440 900" preserveAspectRatio="none" focusable="false">
+    <div className={`cpu-circuit-backdrop ${isActive ? "is-active" : "is-idle"}`} aria-hidden="true">
+      <svg className="cpu-circuit-backdrop__board" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" focusable="false">
         <defs>
           <radialGradient id="cpuCircuitGlow" cx="50%" cy="50%" r="62%">
             <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />

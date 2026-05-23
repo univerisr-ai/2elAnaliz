@@ -44,7 +44,11 @@ function readStoredFanSettings() {
   }
 }
 
-export function GpuBackdrop() {
+interface GpuBackdropProps {
+  readonly isActive?: boolean;
+}
+
+export function GpuBackdrop({ isActive = true }: GpuBackdropProps) {
   const isFanTunerEnabled = useMemo(() => {
     if (typeof window === "undefined") {
       return false;
@@ -94,7 +98,7 @@ export function GpuBackdrop() {
 
   return (
     <>
-      <div className="gpu-backdrop" aria-hidden="true">
+      <div className={`gpu-backdrop ${isActive ? "is-active" : "is-idle"}`} aria-hidden="true">
         <div className="gpu-backdrop__glow" />
         <div className="gpu-backdrop__panel">
           <img src={backdropBody} alt="" className="gpu-backdrop__image" />
@@ -108,7 +112,7 @@ export function GpuBackdrop() {
         </div>
       </div>
 
-      {isFanTunerEnabled ? (
+      {isFanTunerEnabled && isActive ? (
         <section className="gpu-tuner" aria-label="Fan ayar paneli">
           <div className="gpu-tuner__header">
             <strong>Fan Ayari</strong>
