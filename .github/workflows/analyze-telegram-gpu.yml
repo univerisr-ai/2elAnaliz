@@ -170,7 +170,7 @@ jobs:
             rm -rf "$dir"
             mkdir -p "$dir"
             echo "${repo} icindeki son basarili scraper artifact'i aranacak."
-            RUN_LIST_ARGS=(run list --repo "${repo}" --status success --limit 50 --json databaseId)
+            RUN_LIST_ARGS=(run list --repo "${repo}" --status completed --limit 50 --json databaseId)
             if [ -n "${workflow_name}" ]; then
               RUN_LIST_ARGS+=(--workflow "${workflow_name}")
               echo "Workflow filtresi: ${workflow_name}"
