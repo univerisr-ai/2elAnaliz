@@ -293,11 +293,11 @@ button {
 
 .cpu-circuit-backdrop__board {
   position: absolute;
-  top: clamp(38px, 7vh, 100px);
-  right: clamp(-520px, -22vw, -190px);
-  width: clamp(980px, 118vw, 1560px);
+  top: 112px;
+  right: clamp(-22px, 2.4vw, 34px);
+  width: min(46vw, 690px);
   max-width: none;
-  opacity: 0.48;
+  opacity: 0.34;
   filter: drop-shadow(0 28px 70px rgba(15, 23, 42, 0.12));
 }
 
@@ -558,10 +558,10 @@ button {
   }
 
   .cpu-circuit-backdrop__board {
-    top: 126px;
-    right: -470px;
-    width: 920px;
-    opacity: 0.28;
+    top: 146px;
+    right: -34px;
+    width: 300px;
+    opacity: 0.24;
   }
 
 }
