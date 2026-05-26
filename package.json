@@ -6,6 +6,9 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.mjs",
+    "dev": "next dev",
+    "preview": "next dev",
+    "build:next": "next build",
     "build": "npm --prefix apps/api install && npm --prefix apps/api run build && npm --prefix apps/web install && npm --prefix apps/web run build && node -e \"const fs=require('fs'); fs.rmSync('dist',{recursive:true,force:true}); fs.cpSync('apps/web/dist','dist',{recursive:true});\" && node scripts/prepare-static-routes.mjs",
     "analyze:file": "node src/index.mjs --file",
     "dashboard:build": "node src/local-index.mjs ./data/inbox/output.json && node scripts/prepare-api-dashboard-cache.mjs ./data/inbox/output.json",
@@ -21,7 +24,10 @@
     "express": "^5.1.0",
     "form-data": "^4.0.1",
     "helmet": "^8.1.0",
+    "lucide-react": "^1.16.0",
     "multer": "^2.1.1",
-    "node-cron": "^3.0.3"
+    "next": "^16.2.6",
+    "node-cron": "^3.0.3",
+    "react": "^19.2.6"
   }
 }
