@@ -10,9 +10,7 @@
   overflow: hidden;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
-  background: var(--bg-card);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #ffffff;
   box-shadow: var(--shadow-card);
   cursor: pointer;
   content-visibility: auto;
@@ -125,9 +123,9 @@
 }
 
 .catalog-card:hover {
-  transform: translateY(-5px);
-  border-color: var(--border-strong);
-  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-4px);
+  border-color: var(--border-card);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.12);
 }
 
 .catalog-card:hover::before {
@@ -138,7 +136,7 @@
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  background: var(--soft-surface);
+  background: #eef2ff;
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -150,8 +148,8 @@
 }
 
 .catalog-card:hover .catalog-card__image {
-  transform: scale(1.06);
-  filter: saturate(1.06) contrast(1.04) brightness(1.03);
+  transform: scale(1.045);
+  filter: saturate(1.04) contrast(1.02);
 }
 
 .catalog-card__placeholder {

@@ -1,4 +1,4 @@
-import { Bell, Moon, Search, Sun, UserCircle } from "lucide-react";
+import { Bell, Search, UserCircle } from "lucide-react";
 import "./Header.css";
 
 type PageView = "home" | "catalog" | "cpu" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
@@ -28,8 +28,6 @@ interface HeaderProps {
   readonly isNotificationPanelOpen: boolean;
   readonly onToggleNotifications: () => void;
   readonly onNotificationSelect: () => void;
-  readonly isThemePreview: boolean;
-  readonly onToggleThemePreview: () => void;
 }
 
 const NAV_ITEMS: Array<{ key: PageView; label: string; adminOnly?: boolean }> = [
@@ -68,8 +66,6 @@ export function Header({
   isNotificationPanelOpen,
   onToggleNotifications,
   onNotificationSelect,
-  isThemePreview,
-  onToggleThemePreview,
 }: HeaderProps) {
   const notificationCount = notifications.length;
   const isCpuPage = activePage === "cpu";
@@ -112,16 +108,6 @@ export function Header({
               aria-label={isCpuPage ? "Katalogda işlemci ara" : "Katalogda ekran kartı ara"}
             />
           </form>
-
-          <button
-            type="button"
-            className={`header__icon-btn header__icon-btn--theme ${isThemePreview ? "is-active" : ""}`}
-            aria-label={isThemePreview ? "Açık temaya dön" : "Koyu temayı önizle"}
-            title={isThemePreview ? "Açık temaya dön" : "Koyu temayı önizle"}
-            onClick={onToggleThemePreview}
-          >
-            {isThemePreview ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
 
           <div className="header__notifications">
             <button
