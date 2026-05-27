@@ -802,9 +802,12 @@ export function SubmissionPanel({
       ) : null}
 
       {!session && isAuthPage ? (
-        <section className="submission-panel__auth-gateway submission-panel__auth-gateway--single" aria-label="Oturum">
+        <section
+          className={`submission-panel__auth-gateway submission-panel__auth-gateway--single submission-panel__auth-gateway--${activeAuthIntent}`}
+          aria-label="Oturum"
+        >
           {activeAuthIntent === "signin" ? (
-          <article className="submission-panel__auth-panel is-recommended">
+          <article key="signin" className="submission-panel__auth-panel is-recommended">
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <UserRound size={18} />
@@ -879,7 +882,7 @@ export function SubmissionPanel({
             </form>
           </article>
           ) : (
-          <article className="submission-panel__auth-panel submission-panel__auth-panel--register is-recommended">
+          <article key="signup" className="submission-panel__auth-panel submission-panel__auth-panel--register is-recommended">
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <Plus size={18} />
@@ -1032,15 +1035,49 @@ export function SubmissionPanel({
               </label>
 
               <label>
+                <span>Ürün türü</span>
+                <div className="submission-panel__mode-switch" role="tablist" aria-label="Ürün türü">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={nativeForm.category === "gpu"}
+                    className={nativeForm.category === "gpu" ? "is-active" : ""}
+                    onClick={() => setNativeForm((current) => ({ ...current, category: "gpu", brand: "nvidia" }))}
+                  >
+                    Ekran Kartı (GPU)
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={nativeForm.category === "cpu"}
+                    className={nativeForm.category === "cpu" ? "is-active" : ""}
+                    onClick={() => setNativeForm((current) => ({ ...current, category: "cpu", brand: "intel" }))}
+                  >
+                    İşlemci (CPU)
+                  </button>
+                </div>
+              </label>
+
+              <label>
                 <span>Marka</span>
                 <select
                   value={nativeForm.brand}
                   onChange={(event) => setNativeForm((current) => ({ ...current, brand: event.target.value }))}
                 >
-                  <option value={GPU_BRAND.NVIDIA}>NVIDIA</option>
-                  <option value={GPU_BRAND.AMD}>AMD</option>
-                  <option value={GPU_BRAND.INTEL}>Intel</option>
-                  <option value={GPU_BRAND.UNKNOWN}>Bilinmiyor</option>
+                  {nativeForm.category === "gpu" ? (
+                    <>
+                      <option value={GPU_BRAND.NVIDIA}>NVIDIA</option>
+                      <option value={GPU_BRAND.AMD}>AMD</option>
+                      <option value={GPU_BRAND.INTEL}>Intel</option>
+                      <option value={GPU_BRAND.UNKNOWN}>Bilinmiyor</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="intel">Intel</option>
+                      <option value="amd">AMD</option>
+                      <option value="other">Diğer</option>
+                    </>
+                  )}
                 </select>
               </label>
 
@@ -1049,7 +1086,7 @@ export function SubmissionPanel({
                 <input
                   value={nativeForm.model}
                   onChange={(event) => setNativeForm((current) => ({ ...current, model: event.target.value }))}
-                  placeholder="RTX 4070"
+                  placeholder={nativeForm.category === "cpu" ? "Ryzen 5 5600X" : "RTX 4070"}
                 />
               </label>
 

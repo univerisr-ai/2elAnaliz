@@ -445,6 +445,11 @@ function CatalogLoadingScreen({
       <div className="catalog-loader__copy">
         <h3>Katalog hazırlanıyor</h3>
         <p>{listingCount.toLocaleString("tr-TR")} ilan yükleniyor.</p>
+        <div className="loader-dots" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
       </div>
     </section>
   );
@@ -692,6 +697,16 @@ export default function App() {
   const [accountNotifications, setAccountNotifications] = useState<HeaderNotification[]>([]);
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [isThemePreview, setIsThemePreview] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const stored = window.localStorage.getItem("gpupusula.theme");
+    if (stored === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+      return true;
+    }
+    if (stored === "light") return false;
+    return document.documentElement.getAttribute("data-theme") === "dark";
+  });
   const activeCatalogProduct: ProductType = activePage === "cpu" ? "cpu" : "gpu";
   const isCpuCatalogPage = activeCatalogProduct === "cpu";
 
@@ -1374,6 +1389,20 @@ export default function App() {
     }
   }
 
+  function handleToggleThemePreview() {
+    setIsThemePreview((current) => {
+      const next = !current;
+      if (next) {
+        document.documentElement.setAttribute("data-theme", "dark");
+        window.localStorage.setItem("gpupusula.theme", "dark");
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+        window.localStorage.setItem("gpupusula.theme", "light");
+      }
+      return next;
+    });
+  }
+
   function handleAccountChanged() {
     void getCurrentSession()
       .then((session) => {
@@ -1611,6 +1640,8 @@ export default function App() {
         isNotificationPanelOpen={isNotificationPanelOpen}
         onToggleNotifications={handleToggleNotifications}
         onNotificationSelect={handleNotificationSelect}
+        isThemePreview={isThemePreview}
+        onToggleThemePreview={handleToggleThemePreview}
       />
 
       <main className="app-main">

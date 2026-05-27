@@ -181,14 +181,14 @@ export function CpuCircuitBackdrop({ isActive = true }: CpuCircuitBackdropProps)
         </g>
 
         <g className="cpu-circuit-backdrop__cpu">
-          <circle className="cpu-circuit-backdrop__halo" cx={CPU_CENTER.x} cy={CPU_CENTER.y} r="96" />
+          <circle className="cpu-circuit-backdrop__halo" cx={CPU_CENTER.x} cy={CPU_CENTER.y} r="78" />
           <image
             className="cpu-circuit-backdrop__image"
             href={cpuReference}
-            x={CPU_CENTER.x - 54}
-            y={CPU_CENTER.y - 54}
-            width="108"
-            height="108"
+            x={CPU_CENTER.x - 44}
+            y={CPU_CENTER.y - 44}
+            width="88"
+            height="88"
             preserveAspectRatio="xMidYMid meet"
           />
         </g>
