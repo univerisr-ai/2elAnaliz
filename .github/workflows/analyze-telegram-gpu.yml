@@ -51,6 +51,8 @@ jobs:
           SAHIBINDEN_CPU_MIN_LISTINGS: ${{ vars.SAHIBINDEN_CPU_MIN_LISTINGS }}
           SAHIBINDEN_SCRAPER_WORKFLOW: ${{ vars.SAHIBINDEN_SCRAPER_WORKFLOW }}
           SAHIBINDEN_CPU_SCRAPER_WORKFLOW: ${{ vars.SAHIBINDEN_CPU_SCRAPER_WORKFLOW }}
+          LETGO_SCRAPER_WORKFLOW: ${{ vars.LETGO_SCRAPER_WORKFLOW }}
+          LETGO_CPU_SCRAPER_WORKFLOW: ${{ vars.LETGO_CPU_SCRAPER_WORKFLOW }}
         run: |
           set -euo pipefail
           rm -rf ./data/inbox ./data/sources
@@ -69,6 +71,8 @@ jobs:
           SAHIBINDEN_CPU_MIN_LISTINGS="${SAHIBINDEN_CPU_MIN_LISTINGS:-200}"
           SAHIBINDEN_SCRAPER_WORKFLOW="${SAHIBINDEN_SCRAPER_WORKFLOW:-sahibinden_bot.yml}"
           SAHIBINDEN_CPU_SCRAPER_WORKFLOW="${SAHIBINDEN_CPU_SCRAPER_WORKFLOW:-sahibinden_cpu.yml}"
+          LETGO_SCRAPER_WORKFLOW="${LETGO_SCRAPER_WORKFLOW:-letgo_scraper.yml}"
+          LETGO_CPU_SCRAPER_WORKFLOW="${LETGO_CPU_SCRAPER_WORKFLOW:-letgo_cpu_scraper.yml}"
           export DOLAP_MIN_LISTINGS SAHIBINDEN_MIN_LISTINGS SAHIBINDEN_CPU_MIN_LISTINGS
 
           sanitize_repo() {
@@ -153,6 +157,19 @@ jobs:
             local repo="$1"
             if [ "${repo}" = "${DEFAULT_REPO}" ]; then
               echo "${SAHIBINDEN_SCRAPER_WORKFLOW}"
+            elif [ "${repo}" = "${LETGO_REPO}" ]; then
+              echo "${LETGO_SCRAPER_WORKFLOW}"
+            else
+              echo ""
+            fi
+          }
+
+          cpu_workflow_for_repo() {
+            local repo="$1"
+            if [ "${repo}" = "${DEFAULT_REPO}" ]; then
+              echo "${SAHIBINDEN_CPU_SCRAPER_WORKFLOW}"
+            elif [ "${repo}" = "${LETGO_REPO}" ]; then
+              echo "${LETGO_CPU_SCRAPER_WORKFLOW}"
             else
               echo ""
             fi
@@ -170,7 +187,7 @@ jobs:
             rm -rf "$dir"
             mkdir -p "$dir"
             echo "${repo} icindeki son basarili scraper artifact'i aranacak."
-            RUN_LIST_ARGS=(run list --repo "${repo}" --status completed --limit 50 --json databaseId)
+            RUN_LIST_ARGS=(run list --repo "${repo}" --status success --limit 100 --json databaseId)
             if [ -n "${workflow_name}" ]; then
               RUN_LIST_ARGS+=(--workflow "${workflow_name}")
               echo "Workflow filtresi: ${workflow_name}"
@@ -291,7 +308,8 @@ jobs:
 
             CPU_SOURCE_DIR="./data/sources/$(sanitize_repo "${SOURCE_REPO}")-cpu"
             MIN_LISTINGS="$(min_listings_for_repo_product "${SOURCE_REPO}" "cpu")"
-            if download_latest_artifact "${SOURCE_REPO}" "${CPU_SOURCE_DIR}" "${MIN_LISTINGS}" "" "scraper-results-cpu" "cpu"; then
+            CPU_WORKFLOW_FILTER="$(cpu_workflow_for_repo "${SOURCE_REPO}")"
+            if download_latest_artifact "${SOURCE_REPO}" "${CPU_SOURCE_DIR}" "${MIN_LISTINGS}" "${CPU_WORKFLOW_FILTER}" "scraper-results-cpu" "cpu"; then
               DOWNLOADED=$((DOWNLOADED + 1))
             else
               echo "Uyari: ${SOURCE_REPO} icin indirilebilir CPU scraper artifact'i bulunamadi." >&2
