@@ -25,9 +25,24 @@ function normalizeUrl(url = '') {
 }
 
 function sourceFromListing(listing) {
+  const explicitText = [listing?.sourceLabel, listing?.source, listing?.sourceType]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  if (explicitText.includes('sahibinden') || explicitText.includes('ahibinden') || explicitText.includes('shbdn.com')) {
+    return 'sahibinden';
+  }
+
+  if (explicitText.includes('letgo')) return 'letgo';
+  if (explicitText.includes('dolap')) return 'dolap';
+  if (explicitText.includes('donanimhaber')) return 'donanimhaber';
+  if (explicitText.includes('facebook') || explicitText.includes('fb.com')) return 'facebook';
+  if (explicitText.includes('technopat') || explicitText.includes('techolay') || explicitText.includes('forum')) return 'forum';
+
   const explicit = String(listing?.sourceType || listing?.source || '').trim().toLowerCase();
   if (explicit === 'technopat' || explicit === 'techolay') return 'forum';
-  if (explicit) return explicit;
+  if (explicit && explicit !== 'pecid') return explicit;
 
   const url = String(listing?.url || '').toLowerCase();
   if (url.includes('letgo')) return 'letgo';
@@ -135,6 +150,29 @@ function minListingsForSourceProduct(sourceType, productType) {
   return minListingsForSource(sourceType);
 }
 
+function sourceProductKey(productType, sourceType) {
+  return `${String(productType || '').toLowerCase()}:${String(sourceType || '').toLowerCase()}`;
+}
+
+function protectedBaselineKeys() {
+  const configured = String(process.env.PRESERVE_MISSING_SOURCE_PRODUCTS || 'cpu:sahibinden')
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+
+  return new Set(configured);
+}
+
+function baselinePathCandidates() {
+  return [
+    process.env.CATALOG_BASELINE_FILE,
+    './scripts/baselines/catalog-cache.json',
+    './apps/api/src/data/catalog-cache.json',
+  ]
+    .filter(Boolean)
+    .map((candidate) => path.resolve(candidate));
+}
+
 function productTypeFromListing(listing) {
   return normalizeProductType(listing?.productType || listing?.product_type || listing?.sourceCategoryUrl || listing?.url) || 'gpu';
 }
@@ -156,6 +194,19 @@ async function listSourceDirs(sourceRoot) {
   return entries
     .filter((entry) => entry.isDirectory())
     .map((entry) => path.join(sourceRoot, entry.name));
+}
+
+async function readBaselineListings() {
+  for (const baselinePath of baselinePathCandidates()) {
+    const baseline = await readJson(baselinePath, null);
+    const listings = pickListings(baseline);
+    if (listings.length > 0) {
+      console.log(`[merge] baseline catalog loaded: ${baselinePath}, listings=${listings.length}`);
+      return { listings, path: baselinePath };
+    }
+  }
+
+  return { listings: [], path: '' };
 }
 
 function statusRank(status) {
@@ -240,6 +291,57 @@ async function main() {
     if (Array.isArray(messages)) {
       pipelineMessages.push(...messages);
     }
+  }
+
+  const { listings: baselineListings, path: baselinePath } = await readBaselineListings();
+  const currentSourceProducts = new Set(
+    mergedListings.map((listing) => sourceProductKey(productTypeFromListing(listing), sourceFromListing(listing))),
+  );
+  const baselineKeepKeys = protectedBaselineKeys();
+  const restoredCounts = new Map();
+
+  for (const listing of baselineListings) {
+    const productType = productTypeFromListing(listing);
+    const sourceType = sourceFromListing(listing);
+    const key = sourceProductKey(productType, sourceType);
+
+    if (!baselineKeepKeys.has(key) || currentSourceProducts.has(key)) {
+      continue;
+    }
+
+    const enrichedListing = {
+      ...listing,
+      productType,
+    };
+    const dedupe = dedupeKey(enrichedListing);
+    if (!dedupe || seen.has(dedupe)) continue;
+    seen.add(dedupe);
+    mergedListings.push(enrichedListing);
+    restoredCounts.set(key, (restoredCounts.get(key) || 0) + 1);
+  }
+
+  for (const [key, count] of restoredCounts) {
+    const [productType, sourceType] = key.split(':', 2);
+    const message = `${key} kaynagi yeni artifact'te yoktu; son saglikli cache'ten ${count} ilan korundu.`;
+    console.warn(`[merge] ${message}`);
+    sourceMetas.push({
+      source: `${sourceType}-baseline-cache`,
+      productType,
+      sourceRepository: '',
+      scraperRunId: '',
+      scraperRunUrl: '',
+      artifactName: baselinePath,
+      scrapeStatus: 'SCRAPE_FALLBACK_BASELINE',
+      listingCount: count,
+      startedAt: '',
+      finishedAt: '',
+    });
+    pipelineMessages.push({
+      service: '2elAnaliz',
+      status: 'KAYNAK_CACHE_KORUNDU',
+      message,
+      timestamp: new Date().toISOString(),
+    });
   }
 
   if (sourceMetas.length === 0) {
