@@ -155,7 +155,7 @@ function sourceProductKey(productType, sourceType) {
 }
 
 function protectedBaselineKeys() {
-  const configured = String(process.env.PRESERVE_MISSING_SOURCE_PRODUCTS || 'cpu:sahibinden')
+  const configured = String(process.env.PRESERVE_MISSING_SOURCE_PRODUCTS || 'cpu:sahibinden,gpu:sahibinden')
     .split(',')
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean);

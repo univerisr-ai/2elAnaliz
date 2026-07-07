@@ -69,7 +69,7 @@ jobs:
           DOLAP_MIN_LISTINGS="${DOLAP_MIN_LISTINGS:-50}"
           SAHIBINDEN_MIN_LISTINGS="${SAHIBINDEN_MIN_LISTINGS:-200}"
           SAHIBINDEN_CPU_MIN_LISTINGS="${SAHIBINDEN_CPU_MIN_LISTINGS:-200}"
-          SAHIBINDEN_SCRAPER_WORKFLOW="${SAHIBINDEN_SCRAPER_WORKFLOW:-sahibinden_bot.yml}"
+          SAHIBINDEN_SCRAPER_WORKFLOW="${SAHIBINDEN_SCRAPER_WORKFLOW:-scraper.yml}"
           SAHIBINDEN_CPU_SCRAPER_WORKFLOW="${SAHIBINDEN_CPU_SCRAPER_WORKFLOW:-sahibinden_cpu.yml}"
           LETGO_SCRAPER_WORKFLOW="${LETGO_SCRAPER_WORKFLOW:-letgo_scraper.yml}"
           LETGO_CPU_SCRAPER_WORKFLOW="${LETGO_CPU_SCRAPER_WORKFLOW:-letgo_cpu_scraper.yml}"
@@ -400,6 +400,37 @@ jobs:
           path: |
             docs/latest-summary.json
           retention-days: 7
+
+      - name: Yayin oncesi veri kapisi
+        if: success()
+        shell: bash
+        env:
+          DEPLOY_MIN_GPU: ${{ vars.DEPLOY_MIN_GPU }}
+          DEPLOY_MIN_CPU: ${{ vars.DEPLOY_MIN_CPU }}
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+
+          // Bugatti kapisi: katalog anormal kuculduyse yayina cikma — canlidaki saglam veri korunur.
+          const minGpu = Number(process.env.DEPLOY_MIN_GPU || 3000);
+          const minCpu = Number(process.env.DEPLOY_MIN_CPU || 800);
+          const cache = JSON.parse(fs.readFileSync('apps/api/src/data/catalog-cache.json', 'utf8'));
+
+          let gpu = 0;
+          let cpu = 0;
+          for (const listing of cache) {
+            if ((listing.productType || 'gpu') === 'cpu') cpu += 1;
+            else gpu += 1;
+          }
+
+          console.log(`Veri kapisi: GPU=${gpu} (min ${minGpu}) | CPU=${cpu} (min ${minCpu}) | toplam=${cache.length}`);
+
+          if (gpu < minGpu || cpu < minCpu) {
+            console.error(`KRITIK: Katalog beklenenden kucuk (GPU ${gpu}/${minGpu}, CPU ${cpu}/${minCpu}); yayin iptal edildi, canlidaki onceki veri korunuyor.`);
+            process.exit(1);
+          }
+          NODE
 
       - name: Deploy dashboard to Vercel
         if: success()
