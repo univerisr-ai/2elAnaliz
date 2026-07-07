@@ -1,4 +1,4 @@
-import { Bell, Search, UserCircle } from "lucide-react";
+import { Bell, Compass, Search, UserCircle } from "lucide-react";
 import "./Header.css";
 
 type PageView = "home" | "catalog" | "cpu" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
@@ -28,6 +28,8 @@ interface HeaderProps {
   readonly isNotificationPanelOpen: boolean;
   readonly onToggleNotifications: () => void;
   readonly onNotificationSelect: () => void;
+  readonly onOpenPortfolio?: () => void;
+  readonly portfolioCount?: number;
 }
 
 const NAV_ITEMS: Array<{ key: PageView; label: string; adminOnly?: boolean }> = [
@@ -50,6 +52,11 @@ function isNavItemActive(itemKey: PageView, activePage: PageView): boolean {
   return itemKey === "submit-link" && (activePage === "submit-manual" || activePage === "signin" || activePage === "signup");
 }
 
+function formatSyncLabel(lastUpdated: string): string {
+  const timeMatch = lastUpdated.match(/(\d{1,2}[:.]\d{2})(?::\d{2})?\s*$/);
+  return timeMatch ? timeMatch[1].replace(".", ":") : lastUpdated;
+}
+
 export function Header({
   activePage,
   onNavigate,
@@ -66,6 +73,8 @@ export function Header({
   isNotificationPanelOpen,
   onToggleNotifications,
   onNotificationSelect,
+  onOpenPortfolio,
+  portfolioCount = 0,
 }: HeaderProps) {
   const notificationCount = notifications.length;
   const isCpuPage = activePage === "cpu";
@@ -74,7 +83,13 @@ export function Header({
     <header className="header" id="site-header">
       <div className="header__inner">
         <button type="button" className="header__brand" onClick={() => onNavigate("home")}>
-          <h1 className="header__title">GPU Pusula</h1>
+          <span className="header__brand-mark" aria-hidden="true">
+            <Compass size={16} />
+          </span>
+          <span className="header__brand-copy">
+            <h1 className="header__title">GPU Pusula</h1>
+            <small>Açık Seans · Fiyat İstihbaratı</small>
+          </span>
         </button>
 
         <nav className="header__nav" aria-label="Ana gezinme">
@@ -90,6 +105,15 @@ export function Header({
           ))}
         </nav>
 
+        <div className="header__segment" role="group" aria-label="Pazar seçimi">
+          <button type="button" aria-pressed={!isCpuPage} data-active={!isCpuPage} onClick={() => onNavigate("catalog")}>
+            GPU
+          </button>
+          <button type="button" aria-pressed={isCpuPage} data-active={isCpuPage} onClick={() => onNavigate("cpu")}>
+            CPU
+          </button>
+        </div>
+
         <div className="header__tools">
           <form
             className="header__search"
@@ -99,15 +123,21 @@ export function Header({
               onSearchSubmit();
             }}
           >
-            <Search size={18} />
+            <Search size={15} />
             <input
               type="search"
               value={searchValue}
               onChange={(event) => onSearchChange(event.target.value)}
-              placeholder={isCpuPage ? "İşlemci ara..." : "Ekran kartı ara..."}
+              placeholder={isCpuPage ? "Ara: işlemci, şehir…" : "Ara: model, şehir…"}
               aria-label={isCpuPage ? "Katalogda işlemci ara" : "Katalogda ekran kartı ara"}
             />
+            <kbd aria-hidden="true">⌘K</kbd>
           </form>
+
+          <span className="header__sync" title={`Son güncelleme: ${lastUpdated}`}>
+            <span className="header__sync-dot" aria-hidden="true" />
+            Son senkron {formatSyncLabel(lastUpdated)}
+          </span>
 
           <div className="header__notifications">
             <button
@@ -117,7 +147,7 @@ export function Header({
               aria-expanded={isNotificationPanelOpen}
               onClick={onToggleNotifications}
             >
-              <Bell size={20} />
+              <Bell size={16} />
               {notificationCount > 0 ? <span aria-hidden="true" /> : null}
             </button>
 
@@ -156,9 +186,16 @@ export function Header({
             ) : null}
           </div>
 
+          {onOpenPortfolio ? (
+            <button type="button" className="header__portfolio" onClick={onOpenPortfolio}>
+              Portföyüm
+              {portfolioCount > 0 ? <strong>{portfolioCount}</strong> : null}
+            </button>
+          ) : null}
+
           {isSignedIn ? (
             <button type="button" className="header__account-chip" aria-label="Hesap" onClick={() => onNavigate("submit-link")}>
-              <UserCircle size={18} />
+              <UserCircle size={15} />
               <span>{accountLabel ?? "Hesabım"}</span>
             </button>
           ) : (

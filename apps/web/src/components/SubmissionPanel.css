@@ -30,9 +30,10 @@
   display: inline-block;
   margin-bottom: 8px;
   color: var(--accent-primary-strong);
+  font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -81,19 +82,9 @@
   isolation: isolate;
   padding: 0 16px;
   border: 0;
-  background: var(--gradient-button);
+  background: var(--bg-ink);
   color: #fff;
-  box-shadow: var(--shadow-card);
-}
-
-.submission-panel__primary-button::after {
-  position: absolute;
-  inset: 0;
-  content: "";
-  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.12) 48%, transparent 64%);
-  pointer-events: none;
-  transform: translateX(-130%);
-  transition: transform 520ms var(--ease-out);
+  box-shadow: none;
 }
 
 .submission-panel__back:hover,
@@ -105,11 +96,7 @@
 
 .submission-panel__primary-button:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-card-hover), var(--glow-accent);
-}
-
-.submission-panel__primary-button:hover::after {
-  transform: translateX(130%);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .submission-panel__primary-button > svg,
@@ -185,12 +172,12 @@
 }
 
 .submission-panel__auth-panel.is-recommended {
-  border-color: rgba(8, 145, 178, 0.32);
-  box-shadow: var(--shadow-card), var(--glow-accent);
+  border-color: rgba(194, 65, 12, 0.32);
+  box-shadow: none;
 }
 
 .submission-panel__auth-panel--register {
-  background: linear-gradient(180deg, var(--accent-secondary-dim), rgba(124, 58, 237, 0) 55%), var(--bg-card);
+  background: var(--soft-surface);
 }
 
 .submission-panel__auth-strip {
@@ -343,7 +330,7 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   color: var(--accent-primary-strong);
   font-size: 0.68rem;
   font-weight: 900;
@@ -356,9 +343,10 @@
   gap: 8px;
   align-items: center;
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -440,9 +428,10 @@
   display: grid;
   gap: 6px;
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -454,6 +443,7 @@
   border-radius: var(--radius-md);
   background: var(--bg-input);
   color: var(--text-primary);
+  font-family: var(--font-sans);
   font-size: 0.84rem;
   letter-spacing: 0;
   text-transform: none;
@@ -494,6 +484,7 @@
 
 .submission-panel__field-hint {
   color: var(--text-tertiary);
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -527,13 +518,13 @@
 }
 
 .submission-panel__message--success {
-  border-color: rgba(8, 145, 178, 0.22);
+  border-color: rgba(194, 65, 12, 0.22);
   color: var(--accent-primary-strong);
   background: var(--accent-primary-dim);
 }
 
 .submission-panel__message--error {
-  border-color: rgba(220, 38, 38, 0.28);
+  border-color: rgba(200, 30, 60, 0.28);
   color: var(--accent-danger);
   background: var(--accent-danger-dim);
 }
@@ -578,9 +569,10 @@
   align-items: center;
   gap: 6px;
   color: var(--accent-primary-strong);
+  font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -690,9 +682,10 @@
 .submission-panel__submission-title-row span,
 .submission-panel__submission-meta span {
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -757,7 +750,7 @@
 
 .submission-panel__remove-button {
   padding: 0 10px;
-  border: 1px solid rgba(220, 38, 38, 0.3);
+  border: 1px solid rgba(200, 30, 60, 0.3);
   border-radius: var(--radius-md);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);

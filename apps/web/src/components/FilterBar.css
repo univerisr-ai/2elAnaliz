@@ -5,7 +5,7 @@
 .filter-bar__wrapper {
   padding: 14px;
   border: 1px solid var(--border-card);
-  border-radius: 22px;
+  border-radius: var(--radius-xl);
   background: var(--panel-bg);
   box-shadow: var(--shadow-card);
 }
@@ -22,9 +22,10 @@
   display: inline-block;
   margin-bottom: 6px;
   color: var(--accent-primary-strong);
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -40,7 +41,7 @@
   gap: 8px;
   min-height: 32px;
   padding: 0 12px;
-  border: 1px solid rgba(8, 145, 178, 0.2);
+  border: 1px solid rgba(194, 65, 12, 0.2);
   border-radius: var(--radius-full);
   background: var(--accent-primary-dim);
   color: var(--text-accent);
@@ -68,7 +69,7 @@
   min-height: 46px;
   padding: 0 16px 0 46px;
   border: 1px solid var(--border-input);
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   background: var(--bg-input);
   color: var(--text-primary);
   font: inherit;
@@ -97,7 +98,7 @@
   gap: 10px;
   padding: 12px;
   border: 1px solid var(--border-subtle);
-  border-radius: 18px;
+  border-radius: var(--radius-xl);
   background: var(--soft-surface);
 }
 
@@ -108,9 +109,10 @@
 
 .filter-bar__segment-kicker {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.58rem;
   font-weight: 800;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -135,17 +137,18 @@
 
 .filter-bar__label {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.6rem;
   font-weight: 750;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
 }
 
 .filter-bar__select,
 .filter-bar__range-input {
   min-height: 40px;
   border: 1px solid var(--border-input);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   background-color: var(--bg-input);
   color: var(--text-primary);
   font: inherit;
@@ -159,7 +162,7 @@
   padding: 0 34px 0 12px;
   appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235A6472' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
@@ -199,7 +202,7 @@
   min-height: 40px;
   padding: 0 12px;
   border: 1px solid var(--border-card);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   background: var(--bg-card);
   color: var(--text-primary);
   font: inherit;

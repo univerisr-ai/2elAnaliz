@@ -23,9 +23,10 @@
   gap: 6px;
   margin-bottom: 8px;
   color: var(--accent-primary-strong);
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 850;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -75,7 +76,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border: 1px solid rgba(220, 38, 38, 0.24);
+  border: 1px solid rgba(200, 30, 60, 0.24);
   border-radius: var(--radius-md);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);
@@ -147,13 +148,13 @@
 }
 
 .admin-review__message--success {
-  border-color: rgba(8, 145, 178, 0.22);
+  border-color: rgba(194, 65, 12, 0.22);
   background: var(--accent-primary-dim);
   color: var(--accent-primary-strong);
 }
 
 .admin-review__message--error {
-  border-color: rgba(220, 38, 38, 0.28);
+  border-color: rgba(200, 30, 60, 0.28);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);
 }
@@ -205,6 +206,7 @@
 
 .admin-review__title-row span {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 850;
   letter-spacing: 0.08em;
@@ -252,7 +254,7 @@
   display: grid;
   gap: 8px;
   padding: 12px;
-  border: 1px solid rgba(8, 145, 178, 0.16);
+  border: 1px solid rgba(194, 65, 12, 0.16);
   border-radius: var(--radius-md);
   background: var(--soft-surface);
 }
@@ -265,9 +267,10 @@
 
 .admin-review__analysis span {
   color: var(--accent-primary-strong);
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 850;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -294,9 +297,10 @@
 
 .admin-review__note span {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.64rem;
   font-weight: 850;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -342,11 +346,11 @@
 .admin-review__actions .admin-review__approve:hover:not(:disabled) {
   border-color: var(--accent-success);
   background: var(--accent-success);
-  box-shadow: 0 0 24px rgba(5, 150, 105, 0.18);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .admin-review__actions .admin-review__danger {
-  border-color: rgba(220, 38, 38, 0.26);
+  border-color: rgba(200, 30, 60, 0.26);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);
 }

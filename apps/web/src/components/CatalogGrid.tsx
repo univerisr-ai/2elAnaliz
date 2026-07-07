@@ -19,7 +19,21 @@ interface CatalogGridProps {
   readonly onSetPriceAlert: (listing: CatalogListing) => void;
   readonly title?: string;
   readonly description?: string;
+  readonly getListingInsight?: (listing: CatalogListing) => { score: number; deltaPercent: number | null } | null;
 }
+
+const LEDGER_COLUMNS = [
+  { key: "no", label: "NO." },
+  { key: "photo", label: "GÖRSEL" },
+  { key: "source", label: "KAYNAK" },
+  { key: "main", label: "İLAN" },
+  { key: "where", label: "KONUM" },
+  { key: "range", label: "ARALIK" },
+  { key: "price", label: "FİYAT" },
+  { key: "delta", label: "REF FARK" },
+  { key: "score", label: "SKOR" },
+  { key: "actions", label: "İŞLEM" },
+] as const;
 
 export function CatalogGrid({
   listings,
@@ -37,49 +51,47 @@ export function CatalogGrid({
   onSetPriceAlert,
   title = "Ekran kartı ilanları",
   description = "İlanlar model, fiyat, konum ve kategori bilgisiyle listelenir.",
+  getListingInsight,
 }: CatalogGridProps) {
-  const firstListingNumber = total === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const lastListingNumber = listings.length === 0 ? 0 : Math.min(total, firstListingNumber + listings.length - 1);
   const visiblePages = Array.from(
     new Set([1, currentPage - 1, currentPage, currentPage + 1, totalPages].filter((page) => page >= 1 && page <= totalPages)),
   ).sort((pageA, pageB) => pageA - pageB);
 
   return (
-    <section className="listing-grid" id="listing-feed" aria-label="Ürün kataloğu">
-      <div className="listing-grid__header">
-        <div>
-          <div className="listing-grid__eyebrow">
-            <span className="listing-grid__eyebrow-line" />
-            <span>Sonuçlar</span>
-          </div>
-          <h2 className="listing-grid__title">{title}</h2>
-          <p className="listing-grid__description">{description}</p>
-        </div>
-        <div className="listing-grid__header-side">
-          <span className="listing-grid__count">
-            {firstListingNumber.toLocaleString("tr-TR")}-{lastListingNumber.toLocaleString("tr-TR")} /{" "}
-            {total.toLocaleString("tr-TR")} ilan
-          </span>
-          <span className="listing-grid__link-hint">
-            Sayfa {currentPage.toLocaleString("tr-TR")} / {totalPages.toLocaleString("tr-TR")}
-          </span>
-        </div>
-      </div>
+    <section className={`ledger ${canRemoveListing ? "ledger--can-remove" : ""}`} id="listing-feed" aria-label={title}>
+      <p className="ledger__sr-only">{description}</p>
 
-      <div className="listing-grid__grid">
+      <header className="ledger__topline">
+        <span className="ledger__topline-label">
+          DEFTER — {total.toLocaleString("tr-TR")} KAYIT
+        </span>
+        <span className="ledger__topline-page">
+          SAYFA {currentPage.toLocaleString("tr-TR")} / {Math.max(totalPages, 1).toLocaleString("tr-TR")}
+        </span>
+      </header>
+
+      <div className="ledger__table">
+        <div className="ledger__head" aria-hidden="true">
+          {LEDGER_COLUMNS.map((column) => (
+            <span key={column.key} className={`ledger__hcell ledger__hcell--${column.key}`}>
+              {column.label}
+            </span>
+          ))}
+        </div>
+
         {listings.length === 0 ? (
-          <div className="listing-grid__empty">
-            <div className="listing-grid__empty-icon">
-              <SearchX size={28} />
-            </div>
-            <h3 className="listing-grid__empty-title">Bu filtrelerle ilan bulunamadı</h3>
-            <p className="listing-grid__empty-text">Aramayı sadeleştir veya fiyat aralığını genişlet.</p>
+          <div className="ledger__empty">
+            <SearchX size={22} aria-hidden="true" />
+            <h3 className="ledger__empty-title">Bu filtrelerle kayıt bulunamadı</h3>
+            <p className="ledger__empty-text">Aramayı sadeleştir veya fiyat aralığını genişlet.</p>
           </div>
         ) : (
-          listings.map((listing) => (
+          listings.map((listing, index) => (
             <CatalogCard
               key={listing.id}
               listing={listing}
+              folio={(currentPage - 1) * pageSize + index + 1}
+              insight={getListingInsight ? getListingInsight(listing) : null}
               onOpenDetails={onOpenListing}
               onRemoveListing={onRemoveListing}
               canRemoveListing={canRemoveListing}
@@ -100,8 +112,8 @@ export function CatalogGrid({
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage <= 1}
           >
-            <ChevronLeft size={15} />
-            Önceki
+            <ChevronLeft size={13} />
+            ÖNCEKİ
           </button>
 
           <div className="catalog-pagination__pages">
@@ -111,7 +123,7 @@ export function CatalogGrid({
 
               return (
                 <span className="catalog-pagination__page-wrap" key={page}>
-                  {hasGap ? <span className="catalog-pagination__ellipsis">...</span> : null}
+                  {hasGap ? <span className="catalog-pagination__ellipsis">…</span> : null}
                   <button
                     type="button"
                     className={`catalog-pagination__page ${page === currentPage ? "is-active" : ""}`}
@@ -131,8 +143,8 @@ export function CatalogGrid({
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= totalPages}
           >
-            Sonraki
-            <ChevronRight size={15} />
+            SONRAKİ
+            <ChevronRight size={13} />
           </button>
         </nav>
       ) : null}

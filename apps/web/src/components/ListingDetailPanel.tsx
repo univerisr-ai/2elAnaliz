@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from "react";
 import type { BuyabilityInsight, CatalogListing } from "../types/listing";
 import type { ListingComment } from "../services/api-service";
 import { createListingComment, fetchListingComments } from "../services/api-service";
@@ -7,7 +7,7 @@ import { buildImageCandidateUrls } from "../utils/media";
 import { cleanPublicListingText } from "../utils/display";
 import { getCanonicalGpuModel, getModelFamily } from "../utils/catalog-taxonomy";
 import { getExternalListingUrl, getSourceLabel } from "../utils/source";
-import { BellRing, ExternalLink, ImageOff, MapPin, MessageCircle, Send, Star, Store, Trash2, X } from "lucide-react";
+import { Star, Trash2, X } from "lucide-react";
 import "./ListingDetailPanel.css";
 
 interface ListingDetailPanelProps {
@@ -25,6 +25,41 @@ interface ListingDetailPanelProps {
   readonly onSetPriceAlert: (listing: CatalogListing) => void;
 }
 
+type ScoreTier = "high" | "mid" | "low";
+
+function getScoreTier(score: number): ScoreTier {
+  if (score >= 75) {
+    return "high";
+  }
+  return score >= 45 ? "mid" : "low";
+}
+
+function formatDeltaPercent(delta: number): string {
+  return delta > 0 ? `%+${delta}` : `%${delta}`;
+}
+
+interface SegmentRange {
+  readonly min: number;
+  readonly max: number;
+}
+
+/** "8.500-9.000 TL" gibi segment metninden min–max aralığını çıkarır. */
+function parseSegmentRange(segment: string): SegmentRange | null {
+  const match = segment.match(/(\d{1,3}(?:\.\d{3})*|\d+)\s*[-–]\s*(\d{1,3}(?:\.\d{3})*|\d+)/);
+  if (!match) {
+    return null;
+  }
+
+  const min = Number(match[1].replace(/\./g, ""));
+  const max = Number(match[2].replace(/\./g, ""));
+
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min) {
+    return null;
+  }
+
+  return { min, max };
+}
+
 function formatCommentDate(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -38,6 +73,13 @@ function formatCommentDate(value: string): string {
     minute: "2-digit",
   });
 }
+
+const DEFAULT_CHECK_ITEMS: readonly string[] = [
+  "Başlıkta bariz parça/arızalı ürün sinyali bulunmadı.",
+  "Fiyat, aynı model veya sıfır referansına göre karşılaştırıldı.",
+];
+
+const SCORE_SEGMENT_COUNT = 10;
 
 export function ListingDetailPanel({
   listing,
@@ -63,14 +105,41 @@ export function ListingDetailPanel({
   const [commentMessage, setCommentMessage] = useState("");
   const [isCommentsLoading, setIsCommentsLoading] = useState(false);
   const [isCommentSubmitting, setIsCommentSubmitting] = useState(false);
+  const [checkedItems, setCheckedItems] = useState<ReadonlySet<number>>(new Set());
+  const [alarmValue, setAlarmValue] = useState(alertTargetPrice ? String(alertTargetPrice) : "");
+
   const imageUrl = imageCandidates[imageIndex] ?? null;
   const publicTitle = cleanPublicListingText(listing.title);
   const publicModel = getCanonicalGpuModel(listing) || cleanPublicListingText(listing.model);
+  const plateName = (publicModel || listing.brand).toUpperCase();
   const comparisonLabel = insight.isReferenceBased ? "Sıfır referans" : "Model medyanı";
   const comparisonPrice = insight.referencePrice ?? insight.medianPrice;
-  const deltaLabel = insight.isReferenceBased ? "Sıfır farkı" : "Medyan farkı";
+  const deltaLabel = insight.isReferenceBased ? "Referans farkı" : "Medyan farkı";
+  const deltaBaseLabel = insight.isReferenceBased ? "Sıfır referansına göre fark" : "Model medyanına göre fark";
   const sourceLabel = getSourceLabel(listing);
   const externalListingUrl = getExternalListingUrl(listing);
+
+  const tier = getScoreTier(insight.score);
+  const filledSegments = Math.max(0, Math.min(SCORE_SEGMENT_COUNT, Math.round(insight.score / 10)));
+
+  const delta = insight.priceDeltaPercent == null ? null : -insight.priceDeltaPercent;
+  const deltaSide = delta == null ? null : delta > 0 ? "up" : "down";
+  const deltaBarWidth = delta == null ? 0 : Math.min(Math.abs(delta), 40) / 40 * 50;
+
+  const segmentRange = useMemo(() => parseSegmentRange(listing.segment), [listing.segment]);
+  const rangePercent = segmentRange
+    ? Math.min(98, Math.max(2, ((listing.price - segmentRange.min) / (segmentRange.max - segmentRange.min)) * 100))
+    : null;
+
+  const checkItems = insight.riskFlags && insight.riskFlags.length > 0 ? insight.riskFlags : DEFAULT_CHECK_ITEMS;
+
+  useEffect(() => {
+    setImageIndex(0);
+    setCheckedItems(new Set());
+    setAlarmValue(alertTargetPrice ? String(alertTargetPrice) : "");
+    // Alarm girdisi yalnızca görsel bir varsayılandır; ilan değişince tazelenir.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listing.id]);
 
   useEffect(() => {
     let isMounted = true;
@@ -107,6 +176,18 @@ export function ListingDetailPanel({
     }
   }
 
+  function toggleCheckItem(index: number) {
+    setCheckedItems((current) => {
+      const next = new Set(current);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }
+
   async function handleCommentSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const body = commentBody.trim();
@@ -135,155 +216,186 @@ export function ListingDetailPanel({
     }
   }
 
+  function sectionStyle(order: number): CSSProperties {
+    return { "--stagger": order } as CSSProperties;
+  }
+
   return (
     <div className="listing-detail" role="dialog" aria-modal="true" aria-label="İlan detay ve alınabilirlik">
       <button type="button" className="listing-detail__backdrop" onClick={onClose} aria-label="Detayı kapat" />
 
-      <article className="listing-detail__panel">
-        <button type="button" className="listing-detail__close" onClick={onClose} aria-label="Detayı kapat">
-          <X size={18} />
-        </button>
+      <aside className="listing-detail__panel">
+        <header className="listing-detail__topbar">
+          <span className="listing-detail__topbar-title">EMİR FİŞİ</span>
+          <button type="button" className="listing-detail__close" onClick={onClose} aria-label="Detayı kapat">
+            <X size={15} />
+          </button>
+        </header>
 
-        <div className="listing-detail__media">
-          {imageUrl ? (
-            <img src={imageUrl} alt={publicTitle} onError={handleImageError} />
-          ) : (
-            <div className="listing-detail__placeholder">
-              <ImageOff size={28} />
-              <span>Görsel yok</span>
+        <div className="listing-detail__scroll">
+          <div className="listing-detail__media listing-detail__section" style={sectionStyle(0)}>
+            {imageUrl ? (
+              <img src={imageUrl} alt={publicTitle} onError={handleImageError} />
+            ) : (
+              <div className="listing-detail__plate" aria-label="Görsel yok">
+                <span className="listing-detail__plate-name">{plateName}</span>
+                <span className="listing-detail__plate-note">GÖRSEL YOK — KAYNAKTA GÖRÜNTÜLE</span>
+              </div>
+            )}
+          </div>
+
+          <div className="listing-detail__head listing-detail__section" style={sectionStyle(1)}>
+            <span className="listing-detail__eyebrow">
+              {getModelFamily(listing)} · {publicModel}
+            </span>
+            <h3 className="listing-detail__title">{publicTitle}</h3>
+            <div className="listing-detail__meta">
+              <span className="listing-detail__source-pill">{sourceLabel}</span>
+              <span>{listing.brand}</span>
+              <span>{listing.location || "Konum belirtilmemiş"}</span>
+              {listing.listedAtLabel ? <span>{listing.listedAtLabel}</span> : null}
             </div>
-          )}
-        </div>
+          </div>
 
-        <div className="listing-detail__content">
-          <div>
-            <span className="listing-detail__eyebrow">{getModelFamily(listing)} · {publicModel}</span>
-            <h3>{publicTitle}</h3>
-            <p className="listing-detail__location">
-              <MapPin size={14} />
-              {listing.location || "Konum belirtilmemiş"}
+          <section
+            className={`listing-detail__card listing-detail__score listing-detail__score--${tier} listing-detail__section`}
+            style={sectionStyle(2)}
+            aria-label="Alınabilirlik derecesi"
+          >
+            <div className="listing-detail__score-row">
+              <span className="listing-detail__score-value">
+                <strong>{insight.score}</strong>
+                <span>/100</span>
+              </span>
+              <span className="listing-detail__score-pill">{insight.label}</span>
+            </div>
+            <div className="listing-detail__score-track" role="img" aria-label={`Skor ${insight.score}/100`}>
+              {Array.from({ length: SCORE_SEGMENT_COUNT }, (_, index) => (
+                <span
+                  key={index}
+                  className={`listing-detail__seg ${index < filledSegments ? "is-filled" : ""}`}
+                  style={{ "--seg": index } as CSSProperties}
+                />
+              ))}
+            </div>
+            <div className="listing-detail__micro">ALINABİLİRLİK SKORU</div>
+            <p className="listing-detail__score-reason">{insight.reason}</p>
+          </section>
+
+          <section className="listing-detail__card listing-detail__ledger listing-detail__section" style={sectionStyle(3)} aria-label="Fiyat metrikleri">
+            <div className="listing-detail__ledger-row">
+              <span className="listing-detail__ledger-label">İLAN FİYATI</span>
+              <span className="listing-detail__ledger-value listing-detail__ledger-value--strong">
+                {listing.priceText || formatPrice(listing.price)}
+              </span>
+            </div>
+            <div className="listing-detail__ledger-row">
+              <span className="listing-detail__ledger-label">{comparisonLabel.toUpperCase()}</span>
+              <span className="listing-detail__ledger-value">{comparisonPrice ? formatPrice(comparisonPrice) : "Yok"}</span>
+            </div>
+            <div className="listing-detail__ledger-row">
+              <span className="listing-detail__ledger-label">{deltaLabel.toUpperCase()}</span>
+              <span
+                className={`listing-detail__ledger-value listing-detail__ledger-value--strong ${
+                  deltaSide ? `listing-detail__ledger-value--${deltaSide}` : ""
+                }`}
+              >
+                {delta == null ? "Yok" : formatDeltaPercent(delta)}
+              </span>
+            </div>
+            <div className="listing-detail__ledger-row">
+              <span className="listing-detail__ledger-label">EN DÜŞÜK</span>
+              <span className="listing-detail__ledger-value">{insight.minPrice ? formatPrice(insight.minPrice) : "Yok"}</span>
+            </div>
+            <div className="listing-detail__ledger-row">
+              <span className="listing-detail__ledger-label">KARŞILAŞTIRMA SETİ</span>
+              <span className="listing-detail__ledger-value">{insight.comparableCount} ilan</span>
+            </div>
+            {!segmentRange ? <p className="listing-detail__ledger-note">{insight.rankText}</p> : null}
+          </section>
+
+          {segmentRange ? (
+            <section
+              className={`listing-detail__card listing-detail__range listing-detail__range--${tier} listing-detail__section`}
+              style={sectionStyle(4)}
+              aria-label="Fiyatın aralıktaki yeri"
+            >
+              <div className="listing-detail__micro listing-detail__micro--head">ARALIKTAKİ YERİ</div>
+              <div className="listing-detail__range-track">
+                <span className="listing-detail__range-dot" style={{ left: `${rangePercent}%` }} />
+              </div>
+              <div className="listing-detail__range-scale">
+                <span>{formatPrice(segmentRange.min)}</span>
+                <span>{formatPrice(segmentRange.max)}</span>
+              </div>
+              <p className="listing-detail__range-caption">{insight.rankText}</p>
+              {delta != null ? (
+                <>
+                  <div className="listing-detail__diff">
+                    <span className="listing-detail__diff-axis">
+                      <span
+                        className={`listing-detail__diff-bar listing-detail__diff-bar--${deltaSide}`}
+                        style={{ width: `${deltaBarWidth}%` }}
+                      />
+                    </span>
+                    <span className={`listing-detail__diff-value listing-detail__diff-value--${deltaSide}`}>
+                      {formatDeltaPercent(delta)}
+                    </span>
+                  </div>
+                  <div className="listing-detail__micro">{deltaBaseLabel.toUpperCase()}</div>
+                </>
+              ) : (
+                <p className="listing-detail__range-caption">Fiyat dağılımı sınırlı</p>
+              )}
+            </section>
+          ) : null}
+
+          <section className="listing-detail__card listing-detail__checks listing-detail__section" style={sectionStyle(5)} aria-label="Karar notları">
+            <div className="listing-detail__micro listing-detail__micro--head">KONTROL ET — ALMADAN ÖNCE</div>
+            <p className="listing-detail__checks-intro">
+              Skor bilgilendirme amaçlıdır; satın almadan önce seri, test görüntüsü, fatura ve sıcaklık değerlerini ayrıca doğrula.
             </p>
-          </div>
-
-          <section className="listing-detail__source" aria-label="İlan kaynağı">
-            <div>
-              <span>
-                <Store size={14} />
-                Kaynak
-              </span>
-              <strong>{sourceLabel}</strong>
-            </div>
-            {externalListingUrl ? (
-              <a className="listing-detail__open" href={externalListingUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink size={16} />
-                İlanı aç
-              </a>
-            ) : (
-              <span className="listing-detail__source-note">Site içi kayıt</span>
-            )}
-          </section>
-
-          <section className={`listing-detail__score listing-detail__score--${insight.tone}`} aria-label="Alınabilirlik derecesi">
-            <div>
-              <span>Alınabilirlik</span>
-              <strong>{insight.label}</strong>
-              <p>{insight.reason}</p>
-            </div>
-            <div className="listing-detail__score-ring">
-              <strong>{insight.score}</strong>
-              <span>/100</span>
+            <div className="listing-detail__check-list">
+              {checkItems.map((item, index) => {
+                const isChecked = checkedItems.has(index);
+                return (
+                  <button
+                    type="button"
+                    key={item}
+                    className={`listing-detail__check ${isChecked ? "is-checked" : ""}`}
+                    onClick={() => toggleCheckItem(index)}
+                    aria-pressed={isChecked}
+                  >
+                    <span className="listing-detail__check-box" aria-hidden="true">
+                      {isChecked ? (
+                        <svg width="10" height="9" viewBox="0 0 10 9">
+                          <path d="M1 4.5 L3.8 7.2 L9 1.5" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />
+                        </svg>
+                      ) : null}
+                    </span>
+                    <span className="listing-detail__check-label">{item}</span>
+                    {isChecked ? <span className="listing-detail__check-stamp">KONTROL EDİLDİ</span> : null}
+                  </button>
+                );
+              })}
             </div>
           </section>
 
-          <dl className="listing-detail__metrics">
-            <div>
-              <dt>İlan fiyatı</dt>
-              <dd>{listing.priceText || formatPrice(listing.price)}</dd>
-            </div>
-            <div>
-              <dt>{comparisonLabel}</dt>
-              <dd>{comparisonPrice ? formatPrice(comparisonPrice) : "Yok"}</dd>
-            </div>
-            <div>
-              <dt>En düşük</dt>
-              <dd>{insight.minPrice ? formatPrice(insight.minPrice) : "Yok"}</dd>
-            </div>
-            <div>
-              <dt>Karşılaştırma</dt>
-              <dd>{insight.comparableCount} ilan</dd>
-            </div>
-          </dl>
-
-          <div className="listing-detail__rank">
-            <span>{insight.rankText}</span>
-            <span>{insight.priceDeltaPercent == null ? "Fiyat dağılımı sınırlı" : `${deltaLabel}: %${insight.priceDeltaPercent}`}</span>
-          </div>
-
-          <section className="listing-detail__decision-notes" aria-label="Karar notları">
-            <div>
-              <strong>Kontrol et</strong>
-              <p>Skor bilgilendirme amaçlıdır; satın almadan önce seri, test görüntüsü, fatura ve sıcaklık değerlerini ayrıca doğrula.</p>
-            </div>
-            {insight.riskFlags && insight.riskFlags.length > 0 ? (
-              <ul>
-                {insight.riskFlags.map((flag) => (
-                  <li key={flag}>{flag}</li>
-                ))}
-              </ul>
-            ) : (
-              <ul>
-                <li>Başlıkta bariz parça/arızalı ürün sinyali bulunmadı.</li>
-                <li>Fiyat, aynı model veya sıfır referansına göre karşılaştırıldı.</li>
-              </ul>
-            )}
-          </section>
-
-          <div className="listing-detail__actions">
-            <button type="button" className="listing-detail__secondary" onClick={onClose}>
-              Kapat
-            </button>
-            <button
-              type="button"
-              className={`listing-detail__secondary ${isFavorite ? "is-active" : ""}`}
-              onClick={() => onToggleFavorite(listing)}
-            >
-              <Star size={14} />
-              {isFavorite ? "Takipte" : "Takibe al"}
-            </button>
-            <button
-              type="button"
-              className={`listing-detail__secondary ${alertTargetPrice ? "is-active" : ""}`}
-              onClick={() => onSetPriceAlert(listing)}
-            >
-              <BellRing size={14} />
-              {alertTargetPrice ? `Alarm ${formatPrice(alertTargetPrice)}` : "Fiyat alarmı"}
-            </button>
-            {canRemoveListing ? (
-              <button type="button" className="listing-detail__danger" onClick={() => onRemove(listing)}>
-                <Trash2 size={14} />
-                İlanı kaldır
-              </button>
-            ) : null}
-          </div>
-
-          <section className="listing-detail__comments" aria-label="İlan yorumları">
-            <div className="listing-detail__comments-head">
-              <span>
-                <MessageCircle size={14} />
-                Yorumlar
-              </span>
-              <strong>{comments.length ? `${comments.length} yorum` : "İlk yorum"}</strong>
+          <section className="listing-detail__card listing-detail__notes listing-detail__section" style={sectionStyle(6)} aria-label="İlan yorumları">
+            <div className="listing-detail__notes-head">
+              <span className="listing-detail__micro listing-detail__micro--head">SEANS NOTLARI</span>
+              <span className="listing-detail__notes-count">{comments.length ? `${comments.length} NOT` : "İLK NOT"}</span>
             </div>
 
-            <div className="listing-detail__comment-list">
+            <div className="listing-detail__note-list">
               {isCommentsLoading ? (
-                <div className="listing-detail__comment-empty">Yorumlar yükleniyor.</div>
+                <div className="listing-detail__note-empty">Yorumlar yükleniyor.</div>
               ) : comments.length === 0 ? (
-                <div className="listing-detail__comment-empty">Bu ilan için ilk yorumu sen yaz.</div>
+                <div className="listing-detail__note-empty">Bu ilan için ilk notu sen yaz.</div>
               ) : (
                 comments.map((comment) => (
-                  <article className="listing-detail__comment" key={comment.id}>
-                    <div>
+                  <article className="listing-detail__note" key={comment.id}>
+                    <div className="listing-detail__note-byline">
                       <strong>{comment.authorName}</strong>
                       <time dateTime={comment.createdAt}>{formatCommentDate(comment.createdAt)}</time>
                     </div>
@@ -294,36 +406,89 @@ export function ListingDetailPanel({
             </div>
 
             {commentToken ? (
-              <form className="listing-detail__comment-form" onSubmit={handleCommentSubmit}>
-                <div className="listing-detail__comment-author">
-                  <span>Yazan</span>
-                  <strong>{commentAuthorName || "Hesabın"}</strong>
+              <form className="listing-detail__note-form" onSubmit={handleCommentSubmit}>
+                <div className="listing-detail__note-author">
+                  NOT SAHİBİ · <strong>{commentAuthorName || "Hesabın"}</strong>
                 </div>
-                <textarea
-                  value={commentBody}
-                  onChange={(event) => setCommentBody(event.target.value)}
-                  placeholder="Bu ilan hakkında yorum yaz"
-                  rows={3}
-                  maxLength={600}
-                />
-                <button type="submit" disabled={isCommentSubmitting}>
-                  <Send size={14} />
-                  Gönder
-                </button>
+                <div className="listing-detail__note-input-row">
+                  <input
+                    type="text"
+                    value={commentBody}
+                    onChange={(event) => setCommentBody(event.target.value)}
+                    placeholder="Not ekle…"
+                    maxLength={600}
+                    aria-label="Bu ilan hakkında not yaz"
+                  />
+                  <button type="submit" disabled={isCommentSubmitting}>
+                    EKLE
+                  </button>
+                </div>
               </form>
             ) : (
-              <div className="listing-detail__comment-auth">
-                <span>Yorum yazmak için giriş veya kayıt gerekiyor.</span>
+              <div className="listing-detail__note-auth">
+                <span>Not yazmak için giriş veya kayıt gerekiyor.</span>
                 <button type="button" onClick={onRequireAuth}>
                   Giriş yap
                 </button>
               </div>
             )}
 
-            {commentMessage ? <p className="listing-detail__comment-message">{commentMessage}</p> : null}
+            {commentMessage ? <p className="listing-detail__note-message">{commentMessage}</p> : null}
+          </section>
+
+          <section className="listing-detail__card listing-detail__alarm listing-detail__section" style={sectionStyle(7)} aria-label="Fiyat alarmı">
+            <div className="listing-detail__micro listing-detail__micro--head">FİYAT ALARMI — LİMİT EMİR</div>
+            <div className="listing-detail__alarm-row">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={alarmValue}
+                onChange={(event) => setAlarmValue(event.target.value)}
+                placeholder="0"
+                aria-label="Alarm fiyatı"
+              />
+              <span className="listing-detail__alarm-hint">TL ALTINA DÜŞERSE HABER VER</span>
+              <button type="button" className="listing-detail__alarm-set" onClick={() => onSetPriceAlert(listing)}>
+                ALARM KUR
+              </button>
+            </div>
+            {alertTargetPrice ? (
+              <div className="listing-detail__micro listing-detail__alarm-current">
+                KURULU ALARM: {formatPrice(alertTargetPrice)}
+              </div>
+            ) : null}
           </section>
         </div>
-      </article>
+
+        <footer className="listing-detail__footer">
+          <button
+            type="button"
+            className={`listing-detail__favorite ${isFavorite ? "is-active" : ""}`}
+            onClick={() => onToggleFavorite(listing)}
+          >
+            <Star size={14} />
+            {isFavorite ? "TAKİPTE" : "FAVORİ"}
+          </button>
+          {canRemoveListing ? (
+            <button
+              type="button"
+              className="listing-detail__remove"
+              onClick={() => onRemove(listing)}
+              title="İlanı kaldır"
+              aria-label="İlanı kaldır"
+            >
+              <Trash2 size={14} />
+            </button>
+          ) : null}
+          {externalListingUrl ? (
+            <a className="listing-detail__open" href={externalListingUrl} target="_blank" rel="noopener noreferrer">
+              İlanı kaynağında aç ↗
+            </a>
+          ) : (
+            <span className="listing-detail__internal-note">SİTE İÇİ KAYIT</span>
+          )}
+        </footer>
+      </aside>
     </div>
   );
 }

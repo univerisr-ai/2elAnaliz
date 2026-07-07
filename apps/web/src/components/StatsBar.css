@@ -49,7 +49,7 @@
 }
 
 .stats-bar__icon--orange {
-  color: #b45309;
+  color: var(--accent-warning);
   background: var(--accent-warning-dim);
 }
 
@@ -67,7 +67,8 @@
   grid-area: value;
   min-width: 0;
   color: var(--text-primary);
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 1.22rem;
   font-weight: 850;
   line-height: 1;
@@ -77,9 +78,10 @@
   grid-area: label;
   min-width: 0;
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 

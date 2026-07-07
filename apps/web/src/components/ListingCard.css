@@ -13,7 +13,7 @@
 .listing-card:hover {
   transform: translateY(-2px);
   border-color: var(--border-strong);
-  box-shadow: var(--shadow-card-hover), var(--glow-accent);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .listing-card__image-wrapper {
@@ -44,6 +44,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 12px;
+  background: repeating-linear-gradient(180deg, #ffffff 0 9px, #f3f1ea 9px 10px);
 }
 
 .listing-card__placeholder-topline {
@@ -54,16 +55,18 @@
 
 .listing-card__placeholder-brand {
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-size: 0.54rem;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .listing-card__placeholder-source {
   padding: 4px 7px;
   border: 1px solid var(--border-card);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.52rem;
 }
 
@@ -79,16 +82,18 @@
 }
 
 .listing-card__placeholder-empty strong {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 0.98rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--text-primary);
 }
 
 .listing-card__image-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(2, 6, 16, 0), rgba(2, 6, 16, 0.36));
+  background: none;
   pointer-events: none;
 }
 
@@ -114,15 +119,15 @@
   border-radius: var(--radius-full);
   background: var(--bg-glass);
   color: var(--text-secondary);
+  font-family: var(--font-mono);
   font-size: 0.52rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  backdrop-filter: blur(8px);
 }
 
 .listing-card__deal-badge {
-  border-color: rgba(5, 150, 105, 0.3);
+  border-color: rgba(14, 124, 74, 0.3);
   background: var(--accent-success-dim);
   color: var(--accent-success);
 }
@@ -142,9 +147,10 @@
 
 .listing-card__kicker {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.54rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -174,7 +180,8 @@
 }
 
 .listing-card__price {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 1.2rem;
   line-height: 0.96;
   font-weight: 850;
@@ -183,21 +190,26 @@
 
 .listing-card__original-price {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 0.6rem;
   letter-spacing: 0.01em;
 }
 
 .listing-card__confidence-label {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.5rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: right;
 }
 
 .listing-card__confidence {
   color: var(--accent-primary-strong);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 0.92rem;
   line-height: 1;
   text-align: right;
@@ -249,6 +261,7 @@
   align-items: center;
   gap: 5px;
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.61rem;
 }
 
@@ -295,9 +308,10 @@
   gap: 8px;
   margin-bottom: 5px;
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.56rem;
   font-weight: 800;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -336,8 +350,9 @@
 .listing-grid__count,
 .listing-grid__link-hint {
   color: var(--text-tertiary);
+  font-family: var(--font-mono);
   font-size: 0.56rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 

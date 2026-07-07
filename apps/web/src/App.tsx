@@ -4,20 +4,15 @@ import {
   ArrowRight,
   BadgeDollarSign,
   BellRing,
-  Cpu,
   Database,
   Flame,
-  GaugeCircle,
   Gem,
   Info,
-  Layers3,
   Lock,
   Menu,
-  Package,
   Plus,
   Search,
   Star,
-  Tags,
   TrendingDown,
   Trash2,
   X,
@@ -27,10 +22,9 @@ import { CATALOG_SORT_OPTIONS } from "./types/listing";
 import { Header, type HeaderNotification } from "./components/Header";
 import { CatalogFilterBar } from "./components/CatalogFilterBar";
 import { CatalogGrid } from "./components/CatalogGrid";
-import { CpuCircuitBackdrop } from "./components/CpuCircuitBackdrop";
 import { Footer } from "./components/Footer";
-import { GpuBackdrop } from "./components/GpuBackdrop";
 import { ListingDetailPanel } from "./components/ListingDetailPanel";
+import { Ticker } from "./components/Ticker";
 import { SubmissionPanel } from "./components/SubmissionPanel";
 import { AdminReviewPanel } from "./components/AdminReviewPanel";
 import {
@@ -63,9 +57,6 @@ import {
   type BuyabilityIndex,
 } from "./utils/buyability";
 import { getSourceLabel } from "./utils/source";
-import gpuCard1 from "./assets/gpu-card-1.png";
-import gpuCard2 from "./assets/gpu-card-2.png";
-import gpuCard3 from "./assets/gpu-card-3.png";
 import "./components/ListingCard.css";
 import "./App.css";
 
@@ -96,7 +87,15 @@ const SITE_URL_RAW = (import.meta.env.VITE_SITE_URL?.trim() || "https://www.gpup
 const SITE_URL = SITE_URL_RAW === "https://gpupusula.shop" ? "https://www.gpupusula.shop" : SITE_URL_RAW;
 const DEFAULT_SEO_KEYWORDS =
   "ikinci el ekran kartı, 2 el ekran kartı, ikinci el GPU, ekran kartı fiyatları, RTX ikinci el, GTX ikinci el, RX ikinci el, GPU Pusula";
-const SHOWCASE_IMAGES = [gpuCard1, gpuCard2, gpuCard3];
+const SOURCE_CHIP_LABELS: Record<Exclude<CatalogSourceFilter, "all">, string> = {
+  pecid: "GPU Pusula",
+  sahibinden: "Sahibinden",
+  letgo: "Letgo",
+  dolap: "Dolap",
+  donanimhaber: "Donanım Haber",
+  external: "Harici",
+};
+
 const REMOVED_CATALOG_IDS_STORAGE_KEY = "gpupusula.removedCatalogListingIds";
 const CATALOG_WATCHLIST_STORAGE_KEY = "gpupusula.catalogWatchlist";
 
@@ -679,12 +678,11 @@ export default function App() {
   const [removedListingIds, setRemovedListingIds] = useState<string[]>(readRemovedCatalogIds);
   const [watchItems, setWatchItems] = useState<CatalogWatchItem[]>(readCatalogWatchItems);
   const [catalogNotice, setCatalogNotice] = useState("");
-  const [isDashboardLoading, setIsDashboardLoading] = useState(true);
   const [isCatalogLoading, setIsCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string>("Bilinmiyor");
-  const [showcaseIndex, setShowcaseIndex] = useState(0);
   const [catalogPage, setCatalogPage] = useState(1);
+  const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
   const [isCatalogEntryLoading, setIsCatalogEntryLoading] = useState(false);
   const [accountSession, setAccountSession] = useState<Session | null>(null);
   const [accountProfile, setAccountProfile] = useState<SubmissionProfile | null>(null);
@@ -765,7 +763,6 @@ export default function App() {
   useEffect(() => {
     async function loadDashboardData() {
       try {
-        setIsDashboardLoading(true);
         const dashboard = await fetchDashboard();
         setSummary(dashboard.summary);
         setFeaturedListings(dashboard.featuredListings);
@@ -773,7 +770,6 @@ export default function App() {
       } catch (loadError) {
         console.error("Dashboard metrikleri yüklenemedi:", loadError);
       } finally {
-        setIsDashboardLoading(false);
       }
     }
 
@@ -985,16 +981,23 @@ export default function App() {
   }, [activeCatalogProduct]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setShowcaseIndex((current) => (current + 1) % SHOWCASE_IMAGES.length);
-    }, 4200);
-
-    return () => window.clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
     setCatalogPage(1);
   }, [catalogFilters, activePriceCategory, selectedModelCategories, spotlightFilter]);
+
+  useEffect(() => {
+    if (!isPortfolioOpen) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsPortfolioOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isPortfolioOpen]);
 
   const isAdminUser = accountProfile?.role === "admin";
   const removedListingIdSet = useMemo(
@@ -1151,27 +1154,11 @@ export default function App() {
     }
   }, [catalogPage, catalogTotalPages]);
 
-  const marketPulse = useMemo(() => {
-    const bestDeal = featuredListings.reduce<GpuListing | null>((best, listing) => {
-      if (!best || listing.discountPercent > best.discountPercent) {
-        return listing;
-      }
-
-      return best;
-    }, null);
-
-    return { bestDeal };
-  }, [featuredListings]);
 
   const catalogDisplayTotal = catalogTotal || activeCatalogListings.length || (isCpuCatalogPage ? 0 : featuredListings.length);
   const isCatalogScreenLoading = isCatalogLoading || isCatalogEntryLoading;
   const recognizedModelCount = summary?.recognizedModelCount ?? 0;
   const candidateCount = summary?.candidateCount ?? 0;
-  const bestDealLabel = marketPulse.bestDeal
-    ? `${marketPulse.bestDeal.model} · %${marketPulse.bestDeal.discountPercent}`
-    : isDashboardLoading
-      ? "Yükleniyor"
-      : "Veri bekleniyor";
   const selectedModelCategoryOptions = modelCategories.filter((category) => selectedModelCategories.includes(category.key));
   const activeFilterCount = useMemo(() => {
     return [
@@ -1186,6 +1173,70 @@ export default function App() {
       ...selectedModelCategories,
     ].filter(Boolean).length;
   }, [activePriceCategory, catalogFilters, selectedModelCategories, spotlightFilter]);
+  const activeFilterChips: Array<{ key: string; label: string; onRemove: () => void }> = [];
+  if (catalogFilters.search.trim()) {
+    activeFilterChips.push({
+      key: "search",
+      label: `Ara: ${catalogFilters.search.trim()}`,
+      onRemove: () => setCatalogFilters((current) => ({ ...current, search: "" })),
+    });
+  }
+  if (catalogFilters.brand !== "all") {
+    activeFilterChips.push({
+      key: "brand",
+      label: catalogFilters.brand,
+      onRemove: () => setCatalogFilters((current) => ({ ...current, brand: "all" })),
+    });
+  }
+  if (catalogFilters.source !== "all") {
+    activeFilterChips.push({
+      key: "source",
+      label: SOURCE_CHIP_LABELS[catalogFilters.source],
+      onRemove: () => setCatalogFilters((current) => ({ ...current, source: "all" })),
+    });
+  }
+  if (catalogFilters.minPrice > 0) {
+    activeFilterChips.push({
+      key: "min",
+      label: `Min ${formatCurrency(catalogFilters.minPrice)}`,
+      onRemove: () => setCatalogFilters((current) => ({ ...current, minPrice: 0 })),
+    });
+  }
+  if (catalogFilters.maxPrice > 0 && catalogFilters.maxPrice < DEFAULT_CATALOG_FILTERS.maxPrice) {
+    activeFilterChips.push({
+      key: "max",
+      label: `Maks ${formatCurrency(catalogFilters.maxPrice)}`,
+      onRemove: () => setCatalogFilters((current) => ({ ...current, maxPrice: DEFAULT_CATALOG_FILTERS.maxPrice })),
+    });
+  }
+  if (activePriceCategory !== ALL_CATEGORY_KEY) {
+    activeFilterChips.push({
+      key: "price-category",
+      label: priceCategories.find((category) => category.key === activePriceCategory)?.label ?? "Fiyat aralığı",
+      onRemove: () => setActivePriceCategory(ALL_CATEGORY_KEY),
+    });
+  }
+  for (const category of selectedModelCategoryOptions) {
+    activeFilterChips.push({
+      key: `model-${category.key}`,
+      label: category.label,
+      onRemove: () => toggleModelCategory(category.key),
+    });
+  }
+  if (spotlightFilter) {
+    const spotlightLabels: Record<Exclude<CatalogSpotlightFilter, null>, string> = {
+      cheap: "En ucuz",
+      popular: "Popüler model",
+      expensive: "Pahalı",
+      buyable: "Alınabilir",
+    };
+    activeFilterChips.push({
+      key: "spotlight",
+      label: spotlightLabels[spotlightFilter],
+      onRemove: () => setSpotlightFilter(null),
+    });
+  }
+
   const selectedListingInsight = selectedListing
     ? getCatalogListingInsight(selectedListing, activeCatalogListings, buyabilityIndex)
     : null;
@@ -1307,25 +1358,63 @@ export default function App() {
 
     return { cheapest, expensive, buyable, buyableCount: buyableListings.length, popularModel };
   }, [activeCatalogListings, baseFilteredCatalogListings, buyabilityIndex, categoryBaseListings]);
-  const heroMetrics = [
+  const modelIndexRows = useMemo(() => {
+    return modelCategories
+      .filter((category) => category.key !== ALL_CATEGORY_KEY && category.label !== "Model belirsiz")
+      .slice(0, 9)
+      .map((category) => {
+        const prices = activeCatalogListings
+          .filter((listing) => getModelCategoryKey(listing) === category.key && listing.price > 0)
+          .map((listing) => listing.price)
+          .sort((a, b) => a - b);
+        const middle = Math.floor(prices.length / 2);
+        const median =
+          prices.length === 0
+            ? null
+            : prices.length % 2 === 0
+              ? Math.round((prices[middle - 1] + prices[middle]) / 2)
+              : prices[middle];
+
+        return {
+          key: category.key,
+          label: category.label,
+          count: category.count,
+          median,
+          min: prices[0] ?? null,
+          max: prices[prices.length - 1] ?? null,
+        };
+      });
+  }, [activeCatalogListings, modelCategories]);
+
+  const topDeals = useMemo(
+    () => [...featuredListings].sort((a, b) => b.discountPercent - a.discountPercent).slice(0, 5),
+    [featuredListings],
+  );
+
+  const topBuyables = useMemo(() => {
+    return activeCatalogListings
+      .filter((listing) => listing.price > 0)
+      .map((listing) => ({ listing, insight: getCatalogListingInsight(listing, activeCatalogListings, buyabilityIndex) }))
+      .filter((entry) => entry.insight.isReferenceBased)
+      .sort((a, b) => b.insight.score - a.insight.score || a.listing.price - b.listing.price)
+      .slice(0, 5);
+  }, [activeCatalogListings, buyabilityIndex]);
+
+  const sessionDateLabel = new Date().toLocaleDateString("tr-TR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    weekday: "long",
+  });
+
+  const indexBlocks = [
+    { label: "İlan", value: formatCount(catalogDisplayTotal), foot: "6 saatte bir yenilenir" },
     {
-      icon: Package,
-      label: "Katalog",
-      value: formatCount(catalogDisplayTotal),
-      text: "Tam ilan havuzu",
-    },
-    {
-      icon: Cpu,
       label: "Model",
-      value: recognizedModelCount ? formatCount(recognizedModelCount) : "Bekleniyor",
-      text: isCpuCatalogPage ? "Eşleşen CPU modeli" : "Eşleşen GPU modeli",
+      value: recognizedModelCount ? formatCount(recognizedModelCount) : "—",
+      foot: "4 kaynaktan eşlendi",
     },
-    {
-      icon: Tags,
-      label: "Aday",
-      value: candidateCount ? formatCount(candidateCount) : "Bekleniyor",
-      text: "Öne çıkan seçenek",
-    },
+    { label: "Alınabilir aday", value: candidateCount ? formatCount(candidateCount) : "—", foot: "Skor ≥ 75" },
   ];
 
   function resetCatalogView() {
@@ -1590,8 +1679,7 @@ export default function App() {
 
   return (
     <>
-      <GpuBackdrop isActive={!isCpuCatalogPage} />
-      <CpuCircuitBackdrop isActive={isCpuCatalogPage} />
+      <Ticker items={featuredListings} onSelect={(item) => navigateToModelSlug(slugifyModelLabel(item.model))} />
       <Header
         activePage={activePage}
         onNavigate={(page) => {
@@ -1611,129 +1699,147 @@ export default function App() {
         isNotificationPanelOpen={isNotificationPanelOpen}
         onToggleNotifications={handleToggleNotifications}
         onNotificationSelect={handleNotificationSelect}
+        onOpenPortfolio={() => setIsPortfolioOpen(true)}
+        portfolioCount={activeWatchItems.length}
       />
 
       <main className="app-main">
         {activePage === "home" && (
           <section className="page page--home" aria-labelledby="home-title">
-            <section className="home-hero container">
-              <div className="home-hero__copy">
-                <span className="home-hero__eyebrow">GPU PUSULA</span>
-                <h2 id="home-title">
-                  İkinci el ekran kartı fiyatlarını tara,
-                  <span>doğru GPU ilanına yaklaş.</span>
-                </h2>
-                <p>
-                  RTX, GTX, RX ve Intel Arc ilanlarını model, fiyat ve alınabilirlik skoruyla tek yerde karşılaştır.
-                  <span>Kataloğa girince güncel ikinci el GPU havuzunu görürsün.</span>
-                </p>
-
-                <div className="home-hero__actions">
-                  <button className="home-hero__primary" type="button" onClick={() => navigateToPage("catalog")}>
-                    Ekran Kartları sayfasına git
-                    <ArrowRight size={14} />
-                  </button>
-                  <button className="home-hero__secondary" type="button" onClick={() => navigateToPage("submit-link")}>
-                    İlan ekle
-                    <Plus size={14} />
-                  </button>
+            <section className="desk container">
+              <header className="desk__head">
+                <div>
+                  <span className="micro-label desk__eyebrow">Piyasa Özeti</span>
+                  <h2 id="home-title">Açık seans — {sessionDateLabel}</h2>
                 </div>
+                <span className="desk__meta mono">Son senkron {lastUpdated} · Kaynak 4 aktif</span>
+              </header>
 
-                <div className="home-hero__signals" aria-label="Ana metrikler">
-                  {heroMetrics.map(({ icon: Icon, label, value, text }) => (
-                    <article className="home-hero__signal-card" key={label}>
-                      <span className="home-hero__signal-topline">
-                        <Icon size={14} />
-                        {label}
-                      </span>
-                      <strong>{value}</strong>
-                      <p>{text}</p>
-                    </article>
-                  ))}
+              <div className="desk__index" aria-label="Piyasa endeksleri">
+                {indexBlocks.map((block) => (
+                  <article className="desk__index-block" key={block.label}>
+                    <span className="micro-label">{block.label}</span>
+                    <strong className="mono">{block.value}</strong>
+                    <small className="micro-label">{block.foot}</small>
+                  </article>
+                ))}
+              </div>
+
+              <div className="desk__columns">
+                <section className="desk__panel desk__panel--index" aria-label="Model endeksi">
+                  <header className="desk__panel-head">
+                    <span className="micro-label">Model Endeksi</span>
+                    <button type="button" className="desk__panel-link" onClick={() => navigateToPage("catalog")}>
+                      Marketplace →
+                    </button>
+                  </header>
+                  <div className="desk__table-head micro-label" aria-hidden="true">
+                    <span>Model</span>
+                    <span>Medyan</span>
+                    <span>İlan</span>
+                    <span>Aralık</span>
+                  </div>
+                  {modelIndexRows.length === 0 ? (
+                    <p className="desk__empty">Katalog yükleniyor…</p>
+                  ) : (
+                    modelIndexRows.map((row) => (
+                      <button
+                        type="button"
+                        className="desk__table-row"
+                        key={row.key}
+                        onClick={() => navigateToModelSlug(slugifyModelLabel(row.label))}
+                      >
+                        <strong>{row.label}</strong>
+                        <span className="mono">{row.median ? formatCurrency(row.median) : "—"}</span>
+                        <span className="mono">{formatCount(row.count)}</span>
+                        <span className="mono desk__range">
+                          {row.min && row.max ? `${formatCount(row.min)} – ${formatCount(row.max)} TL` : "—"}
+                        </span>
+                      </button>
+                    ))
+                  )}
+                </section>
+
+                <div className="desk__side">
+                  <section className="desk__panel" aria-label="En iyi fırsatlar">
+                    <header className="desk__panel-head">
+                      <span className="micro-label">Referans Altı · En İyi Fırsatlar</span>
+                    </header>
+                    {topDeals.length === 0 ? (
+                      <p className="desk__empty">Veri bekleniyor.</p>
+                    ) : (
+                      topDeals.map((deal, index) => (
+                        <button
+                          type="button"
+                          className="desk__mover"
+                          key={deal.id}
+                          onClick={() => navigateToModelSlug(slugifyModelLabel(deal.model))}
+                        >
+                          <span className="mono desk__mover-no">{String(index + 1).padStart(2, "0")}</span>
+                          <strong>{deal.model}</strong>
+                          <span className="mono desk__mover-delta">%-{deal.discountPercent}</span>
+                        </button>
+                      ))
+                    )}
+                  </section>
+
+                  <section className="desk__panel" aria-label="En alınabilirler">
+                    <header className="desk__panel-head">
+                      <span className="micro-label">En Alınabilirler</span>
+                    </header>
+                    {topBuyables.length === 0 ? (
+                      <p className="desk__empty">Veri bekleniyor.</p>
+                    ) : (
+                      topBuyables.map((entry) => (
+                        <button
+                          type="button"
+                          className="desk__mover desk__mover--buyable"
+                          key={entry.listing.id}
+                          onClick={() => navigateToListing(entry.listing)}
+                        >
+                          <strong>{entry.listing.model || entry.listing.title}</strong>
+                          <span className="mono">{formatCurrency(entry.listing.price)}</span>
+                          <span
+                            className="desk__score mono"
+                            data-tier={entry.insight.score >= 75 ? "high" : entry.insight.score >= 45 ? "mid" : "low"}
+                          >
+                            {entry.insight.score}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </section>
                 </div>
               </div>
 
-              <div className="home-hero__showcase" aria-label="GPU ürün vitrini">
-                <div className="home-hero__showcase-frame">
-                  {SHOWCASE_IMAGES.map((image, index) => (
-                    <img
-                      key={image}
-                      src={image}
-                      alt="Stüdyo çekiminde ekran kartı ürün fotoğrafı"
-                      className={`home-hero__showcase-image ${index === showcaseIndex ? "is-active" : ""}`}
-                    />
-                  ))}
-                  <div className="home-hero__showcase-chip">
-                    <div>
-                      <span>Ürün vitrini</span>
-                      <strong>Gerçek GPU görselleri</strong>
-                    </div>
-                    <small>Katalog odaklı hızlı tarama</small>
-                  </div>
-                </div>
-                <div className="home-hero__meta-grid">
-                  <div>
-                    <span>Aktif ilan</span>
-                    <strong>{formatCount(catalogDisplayTotal)}</strong>
-                  </div>
-                  <div>
-                    <span>Son güncelleme</span>
-                    <strong>{lastUpdated}</strong>
-                  </div>
-                  <div>
-                    <span>Öne çıkan fırsat</span>
-                    <strong>{bestDealLabel}</strong>
-                  </div>
-                </div>
+              <div className="desk__protocol" aria-label="Nasıl çalışır">
+                <article>
+                  <span className="mono desk__protocol-no">01</span>
+                  <strong>Tara</strong>
+                  <p>Sahibinden, Letgo, Dolap ve DonanımHaber 6 saatte bir taranır; yeni ilanlar deftere işlenir.</p>
+                </article>
+                <article>
+                  <span className="mono desk__protocol-no">02</span>
+                  <strong>Eşle</strong>
+                  <p>Her ilan; modelinin sıfır referansı, segment aralığı ve emsal ilanlarla eşlenir.</p>
+                </article>
+                <article>
+                  <span className="mono desk__protocol-no">03</span>
+                  <strong>Skorla</strong>
+                  <p>0–100 alınabilirlik skoru kesilir; eşiği geçenler Fırsat Bandı'na düşer.</p>
+                </article>
               </div>
-            </section>
 
-            <section className="home-highlights container" aria-label="Ana yönlendirme panelleri">
-              <article className="home-highlights__card home-highlights__card--primary">
-                <div className="home-highlights__icon">
-                  <GaugeCircle size={18} />
-                </div>
+              <div className="desk__cta">
                 <div>
-                  <span>Tam katalog</span>
-                  <strong>İkinci el ekran kartı ilanları tek ekranda</strong>
-                  <p>Arama, model kategorisi, fiyat sıralaması ve alınabilirlik skoru aynı akışta çalışır.</p>
+                  <span className="micro-label desk__cta-label">Defter Açık</span>
+                  <strong>{formatCount(catalogDisplayTotal)} ilan defterde — seans sürüyor.</strong>
                 </div>
-                <button type="button" className="home-highlights__link" onClick={() => navigateToPage("catalog")}>
-                  Kataloğa git
+                <button type="button" onClick={() => navigateToPage("catalog")}>
+                  Marketplace'i aç
+                  <ArrowRight size={14} />
                 </button>
-              </article>
-
-              <article className="home-highlights__card">
-                <div className="home-highlights__icon">
-                  <Layers3 size={18} />
-                </div>
-                <div>
-                  <span>İlan ekleme</span>
-                  <strong>Kullanıcı ilan akışı hazır</strong>
-                  <p>Link veya manuel görselli ilanlar hesabındaki inceleme listesine düşer.</p>
-                </div>
-                <button type="button" className="home-highlights__link" onClick={() => navigateToPage("submit-link")}>
-                  İlan ekle
-                </button>
-              </article>
-            </section>
-
-            <section className="home-steps container" aria-label="Nasıl çalışır">
-              <article className="home-steps__card">
-                <span className="home-steps__badge">01</span>
-                <strong>Tara</strong>
-                <p>Sahibinden, Letgo, Dolap ve forumlardan toplanan güncel ikinci el GPU ilanları tek katalogda birleşir.</p>
-              </article>
-              <article className="home-steps__card">
-                <span className="home-steps__badge">02</span>
-                <strong>Karşılaştır</strong>
-                <p>Model, fiyat aralığı ve konum filtreleriyle ilanları daralt; piyasa referansına göre konumunu gör.</p>
-              </article>
-              <article className="home-steps__card">
-                <span className="home-steps__badge">03</span>
-                <strong>Karar ver</strong>
-                <p>Alınabilirlik skoru, fiyat alarmı ve takip listesiyle doğru zamanda doğru ilana yaklaş.</p>
-              </article>
+              </div>
             </section>
           </section>
         )}
@@ -1742,52 +1848,20 @@ export default function App() {
           <section className={`page page--catalog ${isCpuCatalogPage ? "page--cpu-catalog" : ""}`} aria-labelledby="catalog-title">
             <section className="catalog-page__intro container">
               <div>
-                <span className="catalog-page__eyebrow">{isCpuCatalogPage ? "İşlemciler" : "Ekran Kartları"}</span>
+                <span className="micro-label catalog-page__eyebrow">
+                  {isCpuCatalogPage ? "İşlemci Defteri" : "Ekran Kartı Defteri"}
+                </span>
                 <h2 id="catalog-title">{isCpuCatalogPage ? "İkinci el işlemci ilanları" : "İkinci el ekran kartı ilanları"}</h2>
-                <p>
-                  {isCpuCatalogPage
-                    ? "Güncel CPU kataloğunda model, fiyat, konum ve alınabilirlik skoruna göre arama yap."
-                    : "Güncel GPU kataloğunda model, fiyat, konum ve alınabilirlik skoruna göre arama yap."}
-                </p>
-                <div className="marketplace-tabs" aria-label="Marketplace bölümleri">
-                  <button
-                    type="button"
-                    className={isCpuCatalogPage ? "" : "is-active"}
-                    aria-pressed={!isCpuCatalogPage}
-                    onClick={() => navigateToPage("catalog")}
-                  >
-                    <Package size={15} />
-                    GPU pazarı
-                  </button>
-                  <button
-                    type="button"
-                    className={isCpuCatalogPage ? "is-active" : ""}
-                    aria-pressed={isCpuCatalogPage}
-                    onClick={() => navigateToPage("cpu")}
-                  >
-                    <Cpu size={15} />
-                    CPU pazarı
-                  </button>
-                </div>
               </div>
-              <div className="catalog-page__status-cards" aria-label="Katalog durumu">
-                <article className="catalog-page__status-card">
-                  <span>Toplam katalog</span>
-                  <strong>{formatCount(catalogDisplayTotal)}</strong>
-                </article>
-                <article className="catalog-page__status-card">
-                  <span>Bu filtre</span>
-                  <strong>{formatCount(filteredCatalogListings.length)}</strong>
-                </article>
-                <article className="catalog-page__status-card">
-                  <span>Gösterilen</span>
-                  <strong>{formatCount(visibleCatalogListings.length)}</strong>
-                </article>
+              <div className="catalog-page__intro-meta">
+                <span className="mono">
+                  {formatCount(filteredCatalogListings.length)} / {formatCount(catalogDisplayTotal)} ilan
+                </span>
+                <button type="button" className="catalog-page__submit-button" onClick={() => navigateToPage("submit-link")}>
+                  <Plus size={14} />
+                  İlan ekle
+                </button>
               </div>
-              <button type="button" className="catalog-page__submit-button" onClick={() => navigateToPage("submit-link")}>
-                <Plus size={15} />
-                İlan ekle
-              </button>
             </section>
 
             {(catalogNotice || (isAdminUser && removedListingIds.length > 0)) && (
@@ -1955,6 +2029,18 @@ export default function App() {
                   </span>
                 </div>
 
+                {activeFilterChips.length > 0 ? (
+                  <div className="filter-chips" aria-label="Uygulanan filtreler">
+                    <span className="micro-label">Filtreler</span>
+                    {activeFilterChips.map((chip) => (
+                      <button type="button" key={chip.key} onClick={chip.onRemove}>
+                        {chip.label}
+                        <X size={12} />
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
                 <section className="catalog-spotlight" aria-label="Hızlı ilan alanları">
                   <button
                     type="button"
@@ -1965,7 +2051,9 @@ export default function App() {
                   >
                     <TrendingDown size={18} />
                     <span>En ucuz</span>
-                    <strong>{catalogHighlights.cheapest ? "Fiyata göre sırala" : "Yok"}</strong>
+                    <strong className="mono">
+                      {catalogHighlights.cheapest ? formatCurrency(catalogHighlights.cheapest.price) : "Yok"}
+                    </strong>
                   </button>
 
                   <button
@@ -1993,7 +2081,9 @@ export default function App() {
                   >
                     <Gem size={18} />
                     <span>Pahalı</span>
-                    <strong>{catalogHighlights.expensive ? "Fiyata göre sırala" : "Yok"}</strong>
+                    <strong className="mono">
+                      {catalogHighlights.expensive ? formatCurrency(catalogHighlights.expensive.price) : "Yok"}
+                    </strong>
                   </button>
 
                   <button
@@ -2040,13 +2130,6 @@ export default function App() {
                     </dl>
                   </section>
                 ) : null}
-
-                <CatalogWatchPanel
-                  items={activeWatchItems}
-                  onOpenListing={navigateToListing}
-                  onRemoveItem={handleRemoveWatchItem}
-                  onSetPriceAlert={handleSetPriceAlert}
-                />
 
                 <section className="dashboard">
                   {isCatalogLoading && (
@@ -2101,6 +2184,10 @@ export default function App() {
                     totalPages={catalogTotalPages}
                     onPageChange={handleCatalogPageChange}
                     onOpenListing={navigateToListing}
+                    getListingInsight={(listing) => {
+                      const insight = getCatalogListingInsight(listing, activeCatalogListings, buyabilityIndex);
+                      return { score: insight.score, deltaPercent: insight.priceDeltaPercent == null ? null : -insight.priceDeltaPercent };
+                    }}
                     onRemoveListing={handleRemoveListing}
                     canRemoveListing={isAdminUser}
                     isFavoriteListing={(listing) => watchItemMap.has(listing.id)}
@@ -2222,6 +2309,34 @@ export default function App() {
           </section>
         )}
       </main>
+
+      {isPortfolioOpen ? (
+        <>
+          <button
+            type="button"
+            className="portfolio-backdrop"
+            aria-label="Portföyü kapat"
+            onClick={() => setIsPortfolioOpen(false)}
+          />
+          <aside className="portfolio-drawer" aria-label="Portföyüm">
+            <header className="portfolio-drawer__head">
+              <span className="micro-label">Portföyüm</span>
+              <button type="button" aria-label="Kapat" onClick={() => setIsPortfolioOpen(false)}>
+                <X size={16} />
+              </button>
+            </header>
+            <CatalogWatchPanel
+              items={activeWatchItems}
+              onOpenListing={(listing) => {
+                setIsPortfolioOpen(false);
+                navigateToListing(listing);
+              }}
+              onRemoveItem={handleRemoveWatchItem}
+              onSetPriceAlert={handleSetPriceAlert}
+            />
+          </aside>
+        </>
+      ) : null}
 
       {selectedListing && selectedListingInsight ? (
         <ListingDetailPanel
