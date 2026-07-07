@@ -7,6 +7,16 @@ import { cleanPublicListingText } from "../utils/display";
 import { getSourceLabel } from "../utils/source";
 import "./CatalogCard.css";
 
+function getSourceKey(label: string): string {
+  const needle = label.toLocaleLowerCase("tr-TR");
+  if (needle.includes("sahibinden")) return "sahibinden";
+  if (needle.includes("letgo")) return "letgo";
+  if (needle.includes("dolap")) return "dolap";
+  if (needle.includes("donanım") || needle.includes("donanim")) return "donanimhaber";
+  if (needle.includes("pusula")) return "pecid";
+  return "external";
+}
+
 interface CatalogCardProps {
   readonly listing: CatalogListing;
   readonly onOpenDetails: (listing: CatalogListing) => void;
@@ -92,6 +102,7 @@ export function CatalogCard({
   const publicTitle = cleanPublicListingText(listing.title);
   const publicModel = getCanonicalGpuModel(listing) || cleanPublicListingText(listing.model);
   const sourceLabel = getSourceLabel(listing);
+  const sourceKey = getSourceKey(sourceLabel);
 
   const isArchive = isArchiveSegment(listing.segment);
   const range = isArchive ? null : parseSegmentRange(listing.segment);
@@ -153,7 +164,7 @@ export function CatalogCard({
       </span>
 
       <span className="ledger-row__source">
-        <span className="ledger-row__source-pill">{sourceLabel.toLocaleUpperCase("tr-TR")}</span>
+        <span className="ledger-row__source-pill" data-source={sourceKey}>{sourceLabel.toLocaleUpperCase("tr-TR")}</span>
         <span className="ledger-row__source-brand">{listing.brand.toLocaleUpperCase("tr-TR")}</span>
       </span>
 

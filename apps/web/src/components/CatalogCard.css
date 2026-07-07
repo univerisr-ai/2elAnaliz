@@ -72,7 +72,7 @@
 .ledger-row {
   display: grid;
   grid-template-columns:
-    46px 64px 78px minmax(0, 1fr) 96px 104px 92px 62px 56px var(--ledger-actions);
+    46px 64px 108px minmax(0, 1fr) 96px 104px 92px 62px 56px var(--ledger-actions);
   gap: 8px;
   align-items: center;
   padding: 10px 12px;
@@ -263,19 +263,47 @@
 
 .ledger-row__source-pill {
   max-width: 100%;
-  overflow: hidden;
   padding: 2px 6px;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-sm);
   background: var(--bg-surface);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-secondary);
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ledger-row__source-pill[data-source="sahibinden"] {
+  background: #FCF3E8;
+  border-color: rgba(180, 83, 9, 0.32);
+  color: #B45309;
+}
+
+.ledger-row__source-pill[data-source="letgo"] {
+  background: #FDEFF5;
+  border-color: rgba(190, 24, 93, 0.28);
+  color: #BE185D;
+}
+
+.ledger-row__source-pill[data-source="dolap"] {
+  background: #E9F5F1;
+  border-color: rgba(13, 124, 102, 0.3);
+  color: #0D7C66;
+}
+
+.ledger-row__source-pill[data-source="donanimhaber"] {
+  background: #EDF2FB;
+  border-color: rgba(55, 88, 164, 0.3);
+  color: #3758A4;
+}
+
+.ledger-row__source-pill[data-source="pecid"] {
+  background: var(--accent-primary-dim);
+  border-color: rgba(194, 65, 12, 0.32);
+  color: var(--accent-primary-strong);
 }
 
 .ledger-row__source-brand {

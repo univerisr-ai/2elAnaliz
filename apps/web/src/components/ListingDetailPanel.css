@@ -975,3 +975,9 @@
     flex-basis: 100%;
   }
 }
+
+.listing-detail__source-pill[data-source="sahibinden"] { background: #FCF3E8; border-color: rgba(180, 83, 9, 0.32); color: #B45309; }
+.listing-detail__source-pill[data-source="letgo"] { background: #FDEFF5; border-color: rgba(190, 24, 93, 0.28); color: #BE185D; }
+.listing-detail__source-pill[data-source="dolap"] { background: #E9F5F1; border-color: rgba(13, 124, 102, 0.3); color: #0D7C66; }
+.listing-detail__source-pill[data-source="donanimhaber"] { background: #EDF2FB; border-color: rgba(55, 88, 164, 0.3); color: #3758A4; }
+.listing-detail__source-pill[data-source="pecid"] { background: var(--accent-primary-dim); border-color: rgba(194, 65, 12, 0.32); color: var(--accent-primary-strong); }

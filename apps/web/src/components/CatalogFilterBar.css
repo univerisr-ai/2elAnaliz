@@ -260,3 +260,9 @@
   border-color: var(--accent-primary);
   color: var(--accent-primary);
 }
+
+.catalog-filter__source:not(.is-active) .catalog-filter__source-box[data-source="sahibinden"] { border-color: #B45309; background: #FCF3E8; }
+.catalog-filter__source:not(.is-active) .catalog-filter__source-box[data-source="letgo"] { border-color: #BE185D; background: #FDEFF5; }
+.catalog-filter__source:not(.is-active) .catalog-filter__source-box[data-source="dolap"] { border-color: #0D7C66; background: #E9F5F1; }
+.catalog-filter__source:not(.is-active) .catalog-filter__source-box[data-source="donanimhaber"] { border-color: #3758A4; background: #EDF2FB; }
+.catalog-filter__source:not(.is-active) .catalog-filter__source-box[data-source="pecid"] { border-color: #C2410C; background: #FDF0E7; }

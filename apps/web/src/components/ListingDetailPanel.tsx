@@ -81,6 +81,16 @@ const DEFAULT_CHECK_ITEMS: readonly string[] = [
 
 const SCORE_SEGMENT_COUNT = 10;
 
+function sourceKeyForLabel(label: string): string {
+  const needle = label.toLocaleLowerCase("tr-TR");
+  if (needle.includes("sahibinden")) return "sahibinden";
+  if (needle.includes("letgo")) return "letgo";
+  if (needle.includes("dolap")) return "dolap";
+  if (needle.includes("donanım") || needle.includes("donanim")) return "donanimhaber";
+  if (needle.includes("pusula")) return "pecid";
+  return "external";
+}
+
 export function ListingDetailPanel({
   listing,
   insight,
@@ -250,7 +260,7 @@ export function ListingDetailPanel({
             </span>
             <h3 className="listing-detail__title">{publicTitle}</h3>
             <div className="listing-detail__meta">
-              <span className="listing-detail__source-pill">{sourceLabel}</span>
+              <span className="listing-detail__source-pill" data-source={sourceKeyForLabel(sourceLabel)}>{sourceLabel}</span>
               <span>{listing.brand}</span>
               <span>{listing.location || "Konum belirtilmemiş"}</span>
               {listing.listedAtLabel ? <span>{listing.listedAtLabel}</span> : null}

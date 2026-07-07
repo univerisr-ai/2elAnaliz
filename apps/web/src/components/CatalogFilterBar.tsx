@@ -110,7 +110,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
                 aria-pressed={isActive}
                 onClick={() => update("source", option.value)}
               >
-                <span className="catalog-filter__source-box" aria-hidden="true">
+                <span className="catalog-filter__source-box" data-source={option.value} aria-hidden="true">
                   {isActive ? (
                     <svg width="9" height="8" viewBox="0 0 9 8">
                       <path d="M1 4 L3.4 6.4 L8 1.4" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />

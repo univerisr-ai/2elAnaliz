@@ -82,7 +82,7 @@ const DEFAULT_CATALOG_FILTERS: CatalogFilterState = {
 const CATALOG_FETCH_PAGE_SIZE = 5000;
 const CATALOG_FETCH_CONCURRENCY = 3;
 const CATALOG_PAGE_SIZE = 120;
-const CATALOG_ENTRY_LOADING_MS = 4000;
+const CATALOG_ENTRY_LOADING_MS = 800;
 const SITE_URL_RAW = (import.meta.env.VITE_SITE_URL?.trim() || "https://www.gpupusula.shop").replace(/\/+$/g, "");
 const SITE_URL = SITE_URL_RAW === "https://gpupusula.shop" ? "https://www.gpupusula.shop" : SITE_URL_RAW;
 const DEFAULT_SEO_KEYWORDS =
@@ -408,42 +408,14 @@ function CatalogLoadingScreen({
   readonly listingCount: number;
   readonly productType: ProductType;
 }) {
-  const isCpu = productType === "cpu";
-
   return (
-    <section
-      className={`catalog-loader ${isCpu ? "catalog-loader--cpu" : "catalog-loader--gpu"} container`}
-      aria-live="polite"
-      aria-label="Katalog yükleniyor"
-    >
-      <div className="catalog-loader__device" aria-hidden="true">
-        {isCpu ? (
-          <div className="catalog-loader__cpu">
-            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--top" />
-            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--right" />
-            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--bottom" />
-            <span className="catalog-loader__cpu-pins catalog-loader__cpu-pins--left" />
-            <span className="catalog-loader__cpu-core" />
-            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--one" />
-            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--two" />
-            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--three" />
-            <span className="catalog-loader__cpu-trace catalog-loader__cpu-trace--four" />
-            <span className="catalog-loader__scan catalog-loader__scan--cpu" />
-          </div>
-        ) : (
-          <div className="catalog-loader__gpu">
-            <span className="catalog-loader__io" />
-            <span className="catalog-loader__fan catalog-loader__fan--one" />
-            <span className="catalog-loader__fan catalog-loader__fan--two" />
-            <span className="catalog-loader__edge" />
-            <span className="catalog-loader__scan" />
-          </div>
-        )}
-      </div>
-
+    <section className="catalog-loader container" aria-live="polite" aria-label="Katalog yükleniyor">
+      <span className="catalog-loader__spinner" aria-hidden="true" />
       <div className="catalog-loader__copy">
-        <h3>Katalog hazırlanıyor</h3>
-        <p>{listingCount.toLocaleString("tr-TR")} ilan yükleniyor.</p>
+        <strong>Defter hazırlanıyor</strong>
+        <span className="mono">
+          {listingCount > 0 ? `${listingCount.toLocaleString("tr-TR")} ${productType === "cpu" ? "işlemci" : "ekran kartı"} ilanı` : "İlanlar yükleniyor"}
+        </span>
       </div>
     </section>
   );
