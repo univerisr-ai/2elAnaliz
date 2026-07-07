@@ -40,9 +40,9 @@
   gap: 8px;
   min-height: 32px;
   padding: 0 12px;
-  border: 1px solid rgba(0, 51, 160, 0.2);
+  border: 1px solid rgba(34, 211, 238, 0.2);
   border-radius: var(--radius-full);
-  background: rgba(233, 243, 240, 0.95);
+  background: var(--accent-primary-dim);
   color: var(--text-accent);
   font-size: 0.7rem;
   font-weight: 700;
@@ -74,7 +74,7 @@
   font: inherit;
   font-size: 0.88rem;
   outline: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
 .filter-bar__search-input::placeholder {
@@ -82,8 +82,8 @@
 }
 
 .filter-bar__search-input:focus {
-  border-color: var(--border-strong);
-  box-shadow: 0 0 0 4px var(--accent-secondary-dim);
+  border-color: var(--accent-primary);
+  box-shadow: var(--ring-focus);
 }
 
 .filter-bar__control-grid {
@@ -151,7 +151,7 @@
   font: inherit;
   font-size: 0.82rem;
   outline: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
 }
 
 .filter-bar__select {
@@ -159,7 +159,7 @@
   padding: 0 34px 0 12px;
   appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2366798f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237e8aa3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
 }
@@ -177,8 +177,8 @@
 
 .filter-bar__select:focus,
 .filter-bar__range-input:focus {
-  border-color: var(--border-strong);
-  box-shadow: 0 0 0 3px var(--accent-secondary-dim);
+  border-color: var(--accent-primary);
+  box-shadow: var(--ring-focus);
 }
 
 .filter-bar__select option {
@@ -198,21 +198,22 @@
   width: 100%;
   min-height: 40px;
   padding: 0 12px;
-  border: 1px solid var(--border-input);
+  border: 1px solid var(--border-card);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--text-secondary);
+  background: var(--bg-card);
+  color: var(--text-primary);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 700;
   cursor: pointer;
-  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
 }
 
 .filter-bar__reset-btn:hover {
   color: var(--text-primary);
-  border-color: var(--border-card);
-  background: rgba(255, 255, 255, 0.99);
+  border-color: var(--border-strong);
+  background: var(--bg-card-hover);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 1080px) {

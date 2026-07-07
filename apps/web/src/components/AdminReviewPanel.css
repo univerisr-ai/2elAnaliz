@@ -54,7 +54,7 @@
   padding: 0 13px;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-card);
   color: var(--text-primary);
   font-size: 0.76rem;
   font-weight: 800;
@@ -75,9 +75,9 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border: 1px solid rgba(181, 90, 90, 0.24);
+  border: 1px solid rgba(248, 113, 113, 0.24);
   border-radius: var(--radius-md);
-  background: #fff7f7;
+  background: var(--accent-danger-dim);
   color: var(--accent-danger);
 }
 
@@ -108,10 +108,15 @@
   padding: 0 12px;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-card);
   color: var(--text-secondary);
   font-size: 0.78rem;
   font-weight: 850;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.admin-review__tabs button:hover {
+  border-color: var(--border-strong);
 }
 
 .admin-review__tabs button.is-active {
@@ -126,7 +131,7 @@
   min-width: 24px;
   min-height: 24px;
   border-radius: var(--radius-full);
-  background: #ffffff;
+  background: var(--accent-primary-dim);
   color: var(--accent-primary-strong);
 }
 
@@ -135,21 +140,21 @@
   padding: 12px 14px;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-md);
-  background: #f8faff;
+  background: var(--soft-surface);
   color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 800;
 }
 
 .admin-review__message--success {
-  border-color: rgba(0, 51, 160, 0.22);
+  border-color: rgba(34, 211, 238, 0.22);
   background: var(--accent-primary-dim);
   color: var(--accent-primary-strong);
 }
 
 .admin-review__message--error {
-  border-color: rgba(181, 90, 90, 0.28);
-  background: #fff7f7;
+  border-color: rgba(248, 113, 113, 0.28);
+  background: var(--accent-danger-dim);
   color: var(--accent-danger);
 }
 
@@ -165,7 +170,7 @@
   padding: 14px;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
-  background: #ffffff;
+  background: var(--bg-card);
 }
 
 .admin-review__image {
@@ -175,7 +180,7 @@
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: var(--radius-md);
-  background: #eef2ff;
+  background: var(--bg-secondary);
   color: var(--text-tertiary);
 }
 
@@ -218,7 +223,7 @@
   min-height: 30px;
   padding: 7px 10px 0;
   border-radius: var(--radius-md);
-  background: #edf2fb;
+  background: var(--accent-primary-dim);
   color: var(--accent-primary-strong);
   font-size: 0.68rem;
 }
@@ -247,9 +252,9 @@
   display: grid;
   gap: 8px;
   padding: 12px;
-  border: 1px solid rgba(0, 51, 160, 0.16);
+  border: 1px solid rgba(34, 211, 238, 0.16);
   border-radius: var(--radius-md);
-  background: #f4f7ff;
+  background: var(--soft-surface);
 }
 
 .admin-review__analysis div {
@@ -279,7 +284,7 @@
 
 .admin-review__analysis--muted {
   border-style: dashed;
-  background: #fafbff;
+  background: var(--bg-secondary);
 }
 
 .admin-review__note {
@@ -301,15 +306,20 @@
   padding: 0 12px;
   border: 1px solid var(--border-input);
   border-radius: var(--radius-md);
-  background: #ffffff;
+  background: var(--bg-input);
   color: var(--text-primary);
   font-size: 0.78rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.admin-review__note input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .admin-review__note input:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--accent-primary-dim);
+  box-shadow: var(--ring-focus);
 }
 
 .admin-review__actions {
@@ -324,15 +334,26 @@
 }
 
 .admin-review__actions .admin-review__approve {
-  border-color: var(--accent-primary);
-  background: var(--accent-primary);
-  color: #ffffff;
+  border-color: var(--accent-success);
+  background: var(--accent-success);
+  color: var(--text-on-accent);
+}
+
+.admin-review__actions .admin-review__approve:hover:not(:disabled) {
+  border-color: var(--accent-success);
+  background: var(--accent-success);
+  box-shadow: 0 0 24px rgba(52, 211, 153, 0.22);
 }
 
 .admin-review__actions .admin-review__danger {
-  border-color: rgba(181, 90, 90, 0.26);
-  background: #fff7f7;
+  border-color: rgba(248, 113, 113, 0.26);
+  background: var(--accent-danger-dim);
   color: var(--accent-danger);
+}
+
+.admin-review__actions .admin-review__danger:hover:not(:disabled) {
+  border-color: var(--accent-danger);
+  background: var(--accent-danger-dim);
 }
 
 @media (max-width: 760px) {

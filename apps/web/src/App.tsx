@@ -1717,6 +1717,24 @@ export default function App() {
                 </button>
               </article>
             </section>
+
+            <section className="home-steps container" aria-label="Nasıl çalışır">
+              <article className="home-steps__card">
+                <span className="home-steps__badge">01</span>
+                <strong>Tara</strong>
+                <p>Sahibinden, Letgo, Dolap ve forumlardan toplanan güncel ikinci el GPU ilanları tek katalogda birleşir.</p>
+              </article>
+              <article className="home-steps__card">
+                <span className="home-steps__badge">02</span>
+                <strong>Karşılaştır</strong>
+                <p>Model, fiyat aralığı ve konum filtreleriyle ilanları daralt; piyasa referansına göre konumunu gör.</p>
+              </article>
+              <article className="home-steps__card">
+                <span className="home-steps__badge">03</span>
+                <strong>Karar ver</strong>
+                <p>Alınabilirlik skoru, fiyat alarmı ve takip listesiyle doğru zamanda doğru ilana yaklaş.</p>
+              </article>
+            </section>
           </section>
         )}
 
