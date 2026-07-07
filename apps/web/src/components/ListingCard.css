@@ -122,7 +122,7 @@
 }
 
 .listing-card__deal-badge {
-  border-color: rgba(52, 211, 153, 0.3);
+  border-color: rgba(5, 150, 105, 0.3);
   background: var(--accent-success-dim);
   color: var(--accent-success);
 }

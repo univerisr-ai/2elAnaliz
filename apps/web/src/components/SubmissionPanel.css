@@ -185,12 +185,12 @@
 }
 
 .submission-panel__auth-panel.is-recommended {
-  border-color: rgba(34, 211, 238, 0.32);
+  border-color: rgba(8, 145, 178, 0.32);
   box-shadow: var(--shadow-card), var(--glow-accent);
 }
 
 .submission-panel__auth-panel--register {
-  background: linear-gradient(180deg, var(--accent-secondary-dim), rgba(167, 139, 250, 0) 55%), var(--bg-card);
+  background: linear-gradient(180deg, var(--accent-secondary-dim), rgba(124, 58, 237, 0) 55%), var(--bg-card);
 }
 
 .submission-panel__auth-strip {
@@ -527,13 +527,13 @@
 }
 
 .submission-panel__message--success {
-  border-color: rgba(34, 211, 238, 0.22);
+  border-color: rgba(8, 145, 178, 0.22);
   color: var(--accent-primary-strong);
   background: var(--accent-primary-dim);
 }
 
 .submission-panel__message--error {
-  border-color: rgba(248, 113, 113, 0.28);
+  border-color: rgba(220, 38, 38, 0.28);
   color: var(--accent-danger);
   background: var(--accent-danger-dim);
 }
@@ -757,7 +757,7 @@
 
 .submission-panel__remove-button {
   padding: 0 10px;
-  border: 1px solid rgba(248, 113, 113, 0.3);
+  border: 1px solid rgba(220, 38, 38, 0.3);
   border-radius: var(--radius-md);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);

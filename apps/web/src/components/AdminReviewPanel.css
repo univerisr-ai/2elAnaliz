@@ -75,7 +75,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
-  border: 1px solid rgba(248, 113, 113, 0.24);
+  border: 1px solid rgba(220, 38, 38, 0.24);
   border-radius: var(--radius-md);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);
@@ -147,13 +147,13 @@
 }
 
 .admin-review__message--success {
-  border-color: rgba(34, 211, 238, 0.22);
+  border-color: rgba(8, 145, 178, 0.22);
   background: var(--accent-primary-dim);
   color: var(--accent-primary-strong);
 }
 
 .admin-review__message--error {
-  border-color: rgba(248, 113, 113, 0.28);
+  border-color: rgba(220, 38, 38, 0.28);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);
 }
@@ -252,7 +252,7 @@
   display: grid;
   gap: 8px;
   padding: 12px;
-  border: 1px solid rgba(34, 211, 238, 0.16);
+  border: 1px solid rgba(8, 145, 178, 0.16);
   border-radius: var(--radius-md);
   background: var(--soft-surface);
 }
@@ -342,11 +342,11 @@
 .admin-review__actions .admin-review__approve:hover:not(:disabled) {
   border-color: var(--accent-success);
   background: var(--accent-success);
-  box-shadow: 0 0 24px rgba(52, 211, 153, 0.22);
+  box-shadow: 0 0 24px rgba(5, 150, 105, 0.18);
 }
 
 .admin-review__actions .admin-review__danger {
-  border-color: rgba(248, 113, 113, 0.26);
+  border-color: rgba(220, 38, 38, 0.26);
   background: var(--accent-danger-dim);
   color: var(--accent-danger);
 }

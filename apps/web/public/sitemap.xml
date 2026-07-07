@@ -2,259 +2,877 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.gpupusula.shop/</loc>
-    <lastmod>2026-05-22T21:19:57.610Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.903Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/marketplace</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/marketplace/cpu</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/sat</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/ilan-ekle/link</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/ilan-ekle/manuel</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/giris</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/kayit</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/hakkimizda</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-5090</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-5070-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-5080</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-5050</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-5080-16-gb</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-5050-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-5070</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.gpupusula.shop/model/rtx-5070-16-gb</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.gpupusula.shop/model/rtx-5070-12-gb</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-5060-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/model/rtx-5060</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5080</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5060-ti-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/model/rtx-5060-ti</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-4090</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-5060-ti-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-4080</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-5070</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5070-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5090-32-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-9070-xt-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-9070-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-4000-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-4000</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/model/rtx-4070</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-4060</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-3090</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-ti-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-3080</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-3070</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-super-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-3060</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rtx-3060-12-gb</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-ti-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/gtx-1660-super</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-ti-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/gtx-1650</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4080</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/gtx-1080-ti</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rtx-4080-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/gtx-1060-6-gb</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7900-xtx-24-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/gtx-960</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7600-xt-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/gtx-960-4-gb</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7600-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rx-7900-xtx</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.gpupusula.shop/model/rx-7800-xt</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7700-xt-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/model/rx-7700-xt</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rx-7600</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7800-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rx-6900-xt</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7800-xt-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rx-6800-xt</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7900-gre</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rx-6700-xt</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-7900-xtx</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3050-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3050</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3050-6-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3070-ti-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3090-24-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3090</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-9070-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/model/rx-6600</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/rx-580-8-gb</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-6650-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.gpupusula.shop/model/intel-arc-a770</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <loc>https://www.gpupusula.shop/model/rx-6600-xt-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6600-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6650-xt-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6700-10-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6750-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6750-xt-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6950-xt-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-4000-20-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2070</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2060-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2060-super-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2070-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2080-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2070-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2080</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2080-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2000-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/intel-arc-b580</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/intel-arc-b580-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6600-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5500</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5500-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5500-xt-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5600-xt-6-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5500-xt-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5700-xt-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5600-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5700</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-5700-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1660-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1650-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1650-super-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1660-6-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1650</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1650-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1660-super-6-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1660-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1660-ti-6-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1660</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.gpupusula.shop/model/intel-arc-a750</loc>
-    <lastmod>2026-05-22T21:19:57.611Z</lastmod>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/temiz-a750-8gb-limited-edition</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/intel-arc-a750-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/monster-a770-16gb-ekran-karti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2080-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-260</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-750-ti-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/ekran-kart</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1050-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1050-ti-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-6500</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1080-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1080-ti-11-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-4070-ti-super-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/nvs-510</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/quadro-rtx-pro</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-8000-48-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2060-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2070-super-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3080-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6950-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5000-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-9060-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-2060</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6700</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6400</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6500-xt-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3070-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6900-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-7900-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6400-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3070-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-4080-super</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3090-ti</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-9070</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6800-xt-20-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6800-xt-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5090</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5080-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-5070-16-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-4090</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-4060</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3080</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3070</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3060</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rtx-3060-12-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-1060-6-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-960</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/gtx-960-4-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-7600</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6800-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-6700-xt</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/rx-580-8-gb</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.gpupusula.shop/model/intel-arc-a770</loc>
+    <lastmod>2026-07-07T12:27:08.904Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>

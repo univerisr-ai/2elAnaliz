@@ -4,7 +4,7 @@
   z-index: 100;
   background: var(--bg-glass);
   border-bottom: 1px solid var(--border-subtle);
-  box-shadow: 0 8px 30px rgba(2, 6, 16, 0.35);
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
   backdrop-filter: blur(18px) saturate(1.4);
   animation: header-drop 520ms var(--ease-out) both;
 }
@@ -156,7 +156,7 @@
   right: 5px;
   width: 7px;
   height: 7px;
-  border: 2px solid #05080f;
+  border: 2px solid #ffffff;
   border-radius: var(--radius-full);
   background: var(--accent-primary);
 }
@@ -199,7 +199,7 @@
   border: 0;
   background: var(--gradient-button);
   color: #ffffff;
-  box-shadow: 0 10px 22px rgba(34, 211, 238, 0.14), inset 0 0 0 1px rgba(34, 211, 238, 0.2);
+  box-shadow: 0 10px 22px rgba(8, 145, 178, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.28);
 }
 
 .header__account-chip {
@@ -236,7 +236,7 @@
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
   background: var(--panel-bg);
-  box-shadow: 0 22px 48px rgba(2, 6, 16, 0.16);
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.14);
   transform-origin: top right;
   animation: popover-in 220ms var(--ease-out) both;
 }
@@ -297,7 +297,7 @@
 
 .header__notification-item:hover {
   transform: translateX(2px);
-  border-color: rgba(34, 211, 238, 0.22);
+  border-color: rgba(8, 145, 178, 0.22);
   background: var(--accent-primary-dim);
 }
 
