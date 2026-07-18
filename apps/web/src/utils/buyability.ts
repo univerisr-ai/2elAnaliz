@@ -136,7 +136,9 @@ function getSuspiciousLowPriceReason(
 }
 
 function isIndexableMarketPrice(listing: CatalogListing): boolean {
+  // Arsiv ilanlarin bayat fiyatlari medyan/istatistik havuzunu kirletmez.
   return (
+    !/^ar[sş][iı]v$/i.test(listing.segment?.trim() ?? "") &&
     listing.price >= 750 &&
     getRiskFlags(listing).length === 0 &&
     !getLegacyLowPriorityReason(listing) &&

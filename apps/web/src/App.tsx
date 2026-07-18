@@ -280,7 +280,9 @@ function isCatalogReferenceBuyableListing(
   buyabilityIndex: BuyabilityIndex,
 ): boolean {
   const insight = getCatalogListingInsight(listing, comparisonListings, buyabilityIndex);
-  return insight.isReferenceBased && insight.score >= 74;
+  // Referans fiyat yoksa (ör. CPU katalogu) yeterli karşılaştırma örneklemi de kabul edilir;
+  // aksi halde "Popüler model" ve "Alınabilir" kartları o ürün tipinde hep boş kalıyordu.
+  return insight.score >= 74 && (insight.isReferenceBased || insight.comparableCount >= 5);
 }
 
 function sortCatalogListings(
