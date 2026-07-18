@@ -829,3 +829,44 @@ select option {
     radial-gradient(ellipse 45% 50% at 12% 90%, rgba(52, 211, 153, 0.1), transparent 58%),
     #FBFAFD;
 }
+
+/* ---- 3D Kart Eğimi ---- */
+
+.tilt-3d {
+  --tx: 0;
+  --ty: 0;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: perspective(620px) rotateX(calc(var(--ty) * -7deg)) rotateY(calc(var(--tx) * 9deg));
+  transition: transform 420ms var(--ease-spring);
+  will-change: transform;
+}
+
+.tilt-3d.is-tilting {
+  transition: transform 90ms ease-out;
+  z-index: 3;
+}
+
+.tilt-3d.is-tilting img {
+  transform: scale(1.06);
+}
+
+.tilt-3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at calc(50% + var(--tx) * 45%) calc(50% + var(--ty) * 45%),
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.08) 42%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.tilt-3d.is-tilting::after {
+  opacity: 1;
+}

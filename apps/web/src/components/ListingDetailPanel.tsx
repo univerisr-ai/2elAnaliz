@@ -244,7 +244,7 @@ export function ListingDetailPanel({
 
         <span className="listing-detail__print-edge" aria-hidden="true" />
         <div className="listing-detail__scroll">
-          <div className="listing-detail__media listing-detail__section" style={sectionStyle(0)}>
+          <div className="listing-detail__media listing-detail__section tilt-3d" style={sectionStyle(0)}>
             {imageUrl ? (
               <img src={imageUrl} alt={publicTitle} onError={handleImageError} />
             ) : (

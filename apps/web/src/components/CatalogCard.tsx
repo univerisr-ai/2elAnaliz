@@ -147,7 +147,7 @@ export function CatalogCard({
     >
       <span className="ledger-row__folio">{folio != null ? `No. ${folio.toLocaleString("tr-TR")}` : "—"}</span>
 
-      <span className="ledger-row__photo">
+      <span className="ledger-row__photo tilt-3d">
         {showImage ? (
           <img
             className="ledger-row__image"

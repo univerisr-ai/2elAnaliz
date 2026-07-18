@@ -27,6 +27,7 @@ import { ListingDetailPanel } from "./components/ListingDetailPanel";
 import { Ticker } from "./components/Ticker";
 import { Mascot } from "./components/Mascot";
 import { defterTarget, flyTicketToPanel } from "./utils/ticket-morph";
+import { initTilt3d } from "./utils/tilt-3d";
 import { SubmissionPanel } from "./components/SubmissionPanel";
 import { AdminReviewPanel } from "./components/AdminReviewPanel";
 import {
@@ -975,6 +976,10 @@ export default function App() {
       isCancelled = true;
     };
   }, [activeCatalogProduct]);
+
+  useEffect(() => {
+    initTilt3d();
+  }, []);
 
   useEffect(() => {
     setCatalogPage(1);
