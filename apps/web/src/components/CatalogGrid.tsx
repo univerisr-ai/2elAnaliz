@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
 import type { CatalogListing } from "../types/listing";
 import { CatalogCard } from "./CatalogCard";
+import { CountUp } from "./CountUp";
 import "./CatalogCard.css";
 
 interface CatalogGridProps {
@@ -63,7 +64,7 @@ export function CatalogGrid({
 
       <header className="ledger__topline">
         <span className="ledger__topline-label">
-          Defter · {total.toLocaleString("tr-TR")} kayıt
+          Defter · <CountUp value={total} /> kayıt
         </span>
         <span className="ledger__topline-page">
           Sayfa {currentPage.toLocaleString("tr-TR")} / {Math.max(totalPages, 1).toLocaleString("tr-TR")}

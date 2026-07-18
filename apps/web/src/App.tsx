@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { CatalogFilterState, CatalogListing, CatalogSourceFilter, DashboardSummary, GpuListing, ProductType } from "./types/listing";
 import { CATALOG_SORT_OPTIONS } from "./types/listing";
+import { CountUp } from "./components/CountUp";
 import { Header, type HeaderNotification } from "./components/Header";
 import { CatalogFilterBar } from "./components/CatalogFilterBar";
 import { CatalogGrid } from "./components/CatalogGrid";
@@ -1411,13 +1412,17 @@ export default function App() {
   });
 
   const indexBlocks = [
-    { label: "İlan", value: formatCount(catalogDisplayTotal), foot: "6 saatte bir yenilenir" },
+    { label: "İlan", value: <CountUp value={catalogDisplayTotal} format={formatCount} />, foot: "6 saatte bir yenilenir" },
     {
       label: "Model",
-      value: recognizedModelCount ? formatCount(recognizedModelCount) : "—",
+      value: recognizedModelCount ? <CountUp value={recognizedModelCount} format={formatCount} delayMs={90} /> : "—",
       foot: "4 kaynaktan eşlendi",
     },
-    { label: "Alınabilir aday", value: candidateCount ? formatCount(candidateCount) : "—", foot: "Skor ≥ 75" },
+    {
+      label: "Alınabilir aday",
+      value: candidateCount ? <CountUp value={candidateCount} format={formatCount} delayMs={180} /> : "—",
+      foot: "Skor ≥ 75",
+    },
   ];
 
   function resetCatalogView() {
@@ -2095,7 +2100,7 @@ export default function App() {
                     <TrendingDown size={18} />
                     <span>En ucuz</span>
                     <strong className="mono">
-                      {catalogHighlights.cheapest ? formatCurrency(catalogHighlights.cheapest.price) : "Yok"}
+                      {catalogHighlights.cheapest ? <CountUp value={catalogHighlights.cheapest.price} format={formatCurrency} /> : "Yok"}
                     </strong>
                   </button>
 
@@ -2125,7 +2130,11 @@ export default function App() {
                     <Gem size={18} />
                     <span>Pahalı</span>
                     <strong className="mono">
-                      {catalogHighlights.expensive ? formatCurrency(catalogHighlights.expensive.price) : "Yok"}
+                      {catalogHighlights.expensive ? (
+                        <CountUp value={catalogHighlights.expensive.price} format={formatCurrency} delayMs={80} />
+                      ) : (
+                        "Yok"
+                      )}
                     </strong>
                   </button>
 
@@ -2140,7 +2149,15 @@ export default function App() {
                   >
                     <BadgeDollarSign size={18} />
                     <span>Alınabilir</span>
-                    <strong>{catalogHighlights.buyableCount > 0 ? `${formatCount(catalogHighlights.buyableCount)} ilan` : "Yok"}</strong>
+                    <strong>
+                      {catalogHighlights.buyableCount > 0 ? (
+                        <>
+                          <CountUp value={catalogHighlights.buyableCount} format={formatCount} delayMs={160} /> ilan
+                        </>
+                      ) : (
+                        "Yok"
+                      )}
+                    </strong>
                   </button>
                 </section>
 
