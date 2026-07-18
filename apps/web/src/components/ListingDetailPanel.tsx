@@ -83,7 +83,7 @@ const DEFAULT_CHECK_ITEMS: readonly string[] = [
 const SCORE_SEGMENT_COUNT = 10;
 
 /** Skor sayacı: 0'dan hedefe hızla tırmanır (ease-out), makbuz yazımıyla senkron başlar. */
-function ScoreCounter({ target, delayMs = 540 }: { readonly target: number; readonly delayMs?: number }) {
+function ScoreCounter({ target, delayMs = 900 }: { readonly target: number; readonly delayMs?: number }) {
   const [shown, setShown] = useState(0);
   const rafRef = useRef(0);
 
@@ -270,14 +270,28 @@ export function ListingDetailPanel({
     return { "--stagger": order } as CSSProperties;
   }
 
+  const [isClosing, setIsClosing] = useState(false);
+  function handleGracefulClose() {
+    if (isClosing) {
+      return;
+    }
+    setIsClosing(true);
+    window.setTimeout(onClose, 280);
+  }
+
   return (
-    <div className="listing-detail" role="dialog" aria-modal="true" aria-label="İlan detay ve alınabilirlik">
-      <button type="button" className="listing-detail__backdrop" onClick={onClose} aria-label="Detayı kapat" />
+    <div
+      className={`listing-detail ${isClosing ? "listing-detail--closing" : ""}`}
+      role="dialog"
+      aria-modal="true"
+      aria-label="İlan detay ve alınabilirlik"
+    >
+      <button type="button" className="listing-detail__backdrop" onClick={handleGracefulClose} aria-label="Detayı kapat" />
 
       <aside className="listing-detail__panel">
         <header className="listing-detail__topbar">
           <span className="listing-detail__topbar-title">EMİR FİŞİ</span>
-          <button type="button" className="listing-detail__close" onClick={onClose} aria-label="Detayı kapat">
+          <button type="button" className="listing-detail__close" onClick={handleGracefulClose} aria-label="Detayı kapat">
             <X size={15} />
           </button>
         </header>

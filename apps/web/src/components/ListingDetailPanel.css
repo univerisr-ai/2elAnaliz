@@ -990,7 +990,7 @@
    ============================================================ */
 
 .listing-detail__scroll {
-  animation: receipt-feed 1050ms linear 120ms both;
+  animation: receipt-feed 1050ms linear 470ms both;
 }
 
 /* Yazdırma sırasında eski bölüm kademe animasyonu devre dışı —
@@ -1103,7 +1103,7 @@
 
 /* Yazıcı kafası: üst bar yazdırma boyunca minik titrer */
 .listing-detail__topbar {
-  animation: printer-hum 1050ms linear 120ms;
+  animation: printer-hum 1050ms linear 470ms;
 }
 
 @keyframes printer-hum {
@@ -1118,7 +1118,7 @@
 
 /* Skor mührü: yazım skor bloğundan geçerken vurulur */
 .listing-detail__score-row {
-  animation: stamp-hit 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 560ms both;
+  animation: stamp-hit 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 910ms both;
   transform-origin: 30% 60%;
 }
 
@@ -1145,4 +1145,34 @@
 :root[data-theme="dark"] .listing-detail__source-pill[data-source="dolap"] { background: rgba(61, 190, 148, 0.12); border-color: rgba(61, 190, 148, 0.34); color: #3DBE94; }
 :root[data-theme="dark"] .listing-detail__source-pill[data-source="donanimhaber"] { background: rgba(110, 143, 216, 0.13); border-color: rgba(110, 143, 216, 0.36); color: #8CA8E8; }
 :root[data-theme="dark"] .listing-detail__source-pill[data-source="pecid"] { background: var(--accent-primary-dim); border-color: rgba(249, 120, 68, 0.38); color: var(--accent-primary-strong); }
+
+/* ── Zarif kapanış: fiş toplanır, perde iner ───────────────── */
+
+.listing-detail--closing .listing-detail__backdrop {
+  animation: ld-fade-out 240ms ease both;
+}
+
+.listing-detail--closing .listing-detail__panel {
+  animation: ld-slide-out 280ms cubic-bezier(0.5, 0, 0.75, 0.4) both;
+}
+
+@keyframes ld-fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ld-slide-out {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(103%);
+  }
+}
 
