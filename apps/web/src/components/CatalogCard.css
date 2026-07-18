@@ -118,7 +118,7 @@
   cursor: pointer;
   content-visibility: auto;
   contain-intrinsic-size: auto 66px;
-  animation: ledger-fade-up 300ms var(--ease-out) both;
+  animation: ink-write 420ms var(--ease-out) both;
   transition: background var(--transition-fast);
 }
 
@@ -160,6 +160,45 @@
 .ledger__table > .ledger-row:nth-child(20) { animation-delay: 270ms; }
 .ledger__table > .ledger-row:nth-child(21) { animation-delay: 285ms; }
 .ledger__table > .ledger-row:nth-child(n + 22) { animation-delay: 300ms; }
+
+/* Mürekkep yazımı: satır soldan sağa kalemle çekilir gibi açılır */
+@keyframes ink-write {
+  from {
+    opacity: 0.85;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Fiyat "kuruması": rakam önce ıslak (bulanık), sonra netleşir */
+.ledger-row__price-value {
+  animation: ink-dry 700ms ease-out 240ms both;
+}
+
+.ledger__table > .ledger-row:nth-child(n + 22) .ledger-row__price-value {
+  animation: none;
+}
+
+@keyframes ink-dry {
+  from {
+    filter: blur(3px);
+    opacity: 0.45;
+  }
+
+  60% {
+    filter: blur(1px);
+    opacity: 0.85;
+  }
+
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
 
 @keyframes ledger-fade-up {
   from {

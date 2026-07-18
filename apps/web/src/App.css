@@ -1186,15 +1186,63 @@
   gap: 8px;
 }
 
+/* Mürekkep dolumu: iskelet kutuları yerine satır satır "yazılan" çizgiler */
 .market-state__skeleton span,
 .dashboard__preview-strip span,
 .listing-grid__standby-grid div {
+  position: relative;
   overflow: hidden;
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent), #ECE9E1;
-  background-size: 220% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(circle at 7px 7px, #CBC3DA 3.5px, transparent 4.5px),
+    repeating-linear-gradient(180deg, #DDD7E7 0 9px, transparent 9px 24px);
+  background-position: 0 2px, 0 0;
+  background-repeat: no-repeat, repeat-y;
+  animation: ink-loop 1.7s ease-in-out infinite;
+}
+
+.market-state__skeleton span:nth-child(2),
+.dashboard__preview-strip span:nth-child(2),
+.listing-grid__standby-grid div:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.market-state__skeleton span:nth-child(3),
+.dashboard__preview-strip span:nth-child(3),
+.listing-grid__standby-grid div:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+.dashboard__preview-strip span:nth-child(4) {
+  animation-delay: 0.66s;
+}
+
+@keyframes ink-loop {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  58% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+
+  78% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+
+  96% {
+    opacity: 0.12;
+    clip-path: inset(0 0 0 0);
+  }
+
+  100% {
+    opacity: 0.12;
+    clip-path: inset(0 100% 0 0);
+  }
 }
 
 .market-state__skeleton span {
