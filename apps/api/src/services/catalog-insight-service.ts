@@ -521,10 +521,12 @@ export function getModelPriorityScore(listing: ModelListing): number {
 }
 
 export function getCatalogRankingScore(
-  listing: ModelListing,
+  listing: ModelListing & { readonly segment?: string },
   insight: Pick<BuyabilityInsight, "score">,
 ): number {
-  return insight.score * 10 + getModelPriorityScore(listing);
+  // Arsiv ilanlar hicbir zaman aktif ilanlarin onune gecmez; kendi aralarinda skorla dizilir.
+  const archivePenalty = /^ar[sş][iı]v$/i.test(listing.segment?.trim() ?? "") ? -1_000_000 : 0;
+  return archivePenalty + insight.score * 10 + getModelPriorityScore(listing);
 }
 
 export function buildBuyabilityIndex(

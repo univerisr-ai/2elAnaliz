@@ -121,6 +121,18 @@ function deriveSegment(rawSegment, price) {
   return segmentFromPrice(price);
 }
 
+/*
+ * Gercek arsiv: ilan pespese taramalarda gorulmediyse (varsayilan 72 saat)
+ * satilmis/kaldirilmis sayilir. lastSeenAt damgasini merge adimi basar.
+ */
+const ARCHIVE_AFTER_MS = (Number(process.env.ARCHIVE_AFTER_HOURS) || 72) * 60 * 60 * 1000;
+
+function isStaleListing(lastSeenAt) {
+  if (!lastSeenAt) return false;
+  const seen = Date.parse(lastSeenAt);
+  return Number.isFinite(seen) && Date.now() - seen > ARCHIVE_AFTER_MS;
+}
+
 function pickListings(root) {
   if (Array.isArray(root)) return root;
   if (!root || typeof root !== 'object') return [];
@@ -485,7 +497,8 @@ function mapRawCatalogListing(raw, index, fallbackProductType = 'gpu') {
     url: url || '#',
     imageUrl: pickImageUrl(raw) || null,
     location: normalizeLocation(firstField(raw, ['konum', 'location', 'city'])) || 'Konum yok',
-    segment: deriveSegment(firstField(raw, ['segment', 'priceSegment']), price),
+    segment: isStaleListing(toStr(raw?.lastSeenAt)) ? 'Arsiv' : deriveSegment(firstField(raw, ['segment', 'priceSegment']), price),
+    lastSeenAt: toStr(raw?.lastSeenAt) || null,
     listedAtLabel: toStr(firstField(raw, ['tarih', 'listedAtLabel', 'date']), 'Tarih yok'),
     source: source.source,
     sourceType: source.sourceType,

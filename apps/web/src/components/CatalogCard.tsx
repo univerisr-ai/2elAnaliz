@@ -210,7 +210,18 @@ export function CatalogCard({
 
       <span className="ledger-row__price">
         <span className="ledger-row__price-value">{priceLabel}</span>
-        {isArchive ? <span className="ledger-row__archive-chip">ARŞİV</span> : null}
+        {isArchive ? (
+          <span
+            className="ledger-row__archive-chip"
+            title={
+              listing.lastSeenAt
+                ? `Son görülme: ${new Date(listing.lastSeenAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })} — ilan kaynağında bulunamıyor`
+                : "İlan artık kaynağında bulunamıyor"
+            }
+          >
+            ARŞİV
+          </span>
+        ) : null}
       </span>
 
       <span className="ledger-row__delta">

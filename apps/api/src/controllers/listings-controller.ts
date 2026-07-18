@@ -351,6 +351,7 @@ function sanitizeCatalogListing(listing: CatalogListing, context: PublicCatalogC
     sourceLabel: getPublicSourceLabel(listing.sourceType, listing.source),
     externalUrl: isInternal ? null : normalizePublicExternalUrl(listing.url),
     isInternal,
+    lastSeenAt: listing.lastSeenAt ?? null,
   };
 }
 

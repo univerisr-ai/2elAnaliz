@@ -310,7 +310,20 @@ function segmentFromPrice(price: number): string {
   return `${lo.toLocaleString("tr-TR")}-${(lo + width).toLocaleString("tr-TR")} TL`;
 }
 
-function deriveSegment(rawSegment: string | undefined, price: number): string {
+const ARCHIVE_AFTER_MS = (Number(process.env.ARCHIVE_AFTER_HOURS) || 72) * 60 * 60 * 1000;
+
+function isStaleListing(lastSeenAt: string | null | undefined): boolean {
+  if (!lastSeenAt) {
+    return false;
+  }
+  const seen = Date.parse(lastSeenAt);
+  return Number.isFinite(seen) && Date.now() - seen > ARCHIVE_AFTER_MS;
+}
+
+function deriveSegment(rawSegment: string | undefined, price: number, lastSeenAt?: string | null): string {
+  if (isStaleListing(lastSeenAt)) {
+    return "Arsiv";
+  }
   const segment = rawSegment?.trim() ?? "";
   if (segment && !/^ar[sş][iı]v$/i.test(segment)) {
     return segment;
@@ -588,11 +601,12 @@ export function mapRawCatalogListing(
     url: listing.url?.trim() || "#",
     imageUrl: pickRawListingImageUrl(listing) || null,
     location: normalizeLocation(listing.konum || listing.location || "Konum yok"),
-    segment: deriveSegment(listing.segment, price),
+    segment: deriveSegment(listing.segment, price, typeof listing.lastSeenAt === "string" ? listing.lastSeenAt : null),
     listedAtLabel: listing.tarih?.trim() || listing.listedAtLabel?.trim() || listing.listedAt?.trim() || "Tarih yok",
     source: source as CatalogListing["source"],
     sourceType,
     productType,
+    lastSeenAt: typeof listing.lastSeenAt === "string" ? listing.lastSeenAt : null,
   };
 }
 
