@@ -1161,3 +1161,15 @@
   white-space: nowrap;
 }
 
+/* ---- Filtre töreni: eski sayfa mürekkep silinir gibi soluklaşır ---- */
+
+.ledger__table.is-rewriting .ledger-row {
+  animation: ledger-fade-out 160ms ease both;
+}
+
+@keyframes ledger-fade-out {
+  to {
+    opacity: 0.12;
+  }
+}
+

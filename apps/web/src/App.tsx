@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
   ArrowRight,
@@ -1158,6 +1158,36 @@ export default function App() {
     }
   }, [catalogPage, catalogTotalPages]);
 
+  /* Filtre töreni: liste ışık hızında değişmez — eski sayfa 160ms soluklaşır,
+     yeni satırlar mürekkeple yazılır ("defter yeniden yazılıyor"). */
+  const rewriteSignature = JSON.stringify([
+    catalogFilters,
+    activePriceCategory,
+    selectedModelCategories,
+    spotlightFilter,
+    catalogPage,
+  ]);
+  const [displayedCatalogListings, setDisplayedCatalogListings] = useState(visibleCatalogListings);
+  const [isLedgerRewriting, setIsLedgerRewriting] = useState(false);
+  const rewriteSignatureRef = useRef(rewriteSignature);
+  useEffect(() => {
+    if (rewriteSignatureRef.current === rewriteSignature) {
+      setDisplayedCatalogListings(visibleCatalogListings);
+      return;
+    }
+    rewriteSignatureRef.current = rewriteSignature;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDisplayedCatalogListings(visibleCatalogListings);
+      return;
+    }
+    setIsLedgerRewriting(true);
+    const timer = window.setTimeout(() => {
+      setDisplayedCatalogListings(visibleCatalogListings);
+      setIsLedgerRewriting(false);
+    }, 160);
+    return () => window.clearTimeout(timer);
+  }, [rewriteSignature, visibleCatalogListings]);
+
 
   const catalogDisplayTotal = catalogTotal || activeCatalogListings.length || (isCpuCatalogPage ? 0 : featuredListings.length);
   const isCatalogScreenLoading = isCatalogLoading || isCatalogEntryLoading;
@@ -2237,7 +2267,8 @@ export default function App() {
 
                 {!isCatalogLoading && !catalogError && (
                   <CatalogGrid
-                    listings={visibleCatalogListings}
+                    listings={displayedCatalogListings}
+                    isRewriting={isLedgerRewriting}
                     total={filteredCatalogListings.length}
                     currentPage={catalogPage}
                     pageSize={CATALOG_PAGE_SIZE}

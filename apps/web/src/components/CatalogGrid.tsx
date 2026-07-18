@@ -5,6 +5,7 @@ import { CountUp } from "./CountUp";
 import "./CatalogCard.css";
 
 interface CatalogGridProps {
+  readonly isRewriting?: boolean;
   readonly listings: readonly CatalogListing[];
   readonly total: number;
   readonly currentPage: number;
@@ -37,6 +38,7 @@ const LEDGER_COLUMNS = [
 ] as const;
 
 export function CatalogGrid({
+  isRewriting = false,
   listings,
   total,
   currentPage,
@@ -71,7 +73,7 @@ export function CatalogGrid({
         </span>
       </header>
 
-      <div className="ledger__table">
+      <div className={`ledger__table ${isRewriting ? "is-rewriting" : ""}`}>
         <div className="ledger__head" aria-hidden="true">
           {LEDGER_COLUMNS.map((column) => (
             <span key={column.key} className={`ledger__hcell ledger__hcell--${column.key}`}>
