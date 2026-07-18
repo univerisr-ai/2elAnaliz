@@ -159,6 +159,11 @@ export function CatalogCard({
           />
         ) : (
           <span className="ledger-row__plate" aria-label="Görsel yok">
+            <span className="plate-buddy" aria-hidden="true">
+              <span className="plate-buddy__eye" />
+              <span className="plate-buddy__eye" />
+              <span className="plate-buddy__zzz">z</span>
+            </span>
             <span className="ledger-row__plate-name">{publicModel.toLocaleUpperCase("tr-TR")}</span>
             <span className="ledger-row__plate-caption">GÖRSEL YOK</span>
           </span>
@@ -231,7 +236,7 @@ export function CatalogCard({
         {score != null && scoreTone != null ? (
           <>
             <span className="ledger-row__score-line">
-              <span className={`ledger-row__score-value ledger-row__score-value--${scoreTone}`}>{score}</span>
+              <span className={`ledger-row__score-value ledger-row__score-value--${scoreTone}`} data-elite={score >= 95}>{score}</span>
               <span className="ledger-row__score-cap">/100</span>
             </span>
             <span className="ledger-row__score-bar" aria-hidden="true">

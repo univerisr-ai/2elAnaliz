@@ -1125,20 +1125,16 @@
 @keyframes stamp-hit {
   0% {
     opacity: 0;
-    transform: scale(1.7) rotate(-9deg);
+    transform: scale(0.92);
   }
 
-  55% {
+  60% {
     opacity: 1;
-    transform: scale(0.94) rotate(-1deg);
-  }
-
-  75% {
-    transform: scale(1.04) rotate(-2deg);
+    transform: scale(1.03);
   }
 
   100% {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
   }
 }

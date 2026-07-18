@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from "react";
+import {useEffect, useMemo, useState, type CSSProperties, type FormEvent, useRef} from "react";
 import type { BuyabilityInsight, CatalogListing } from "../types/listing";
 import type { ListingComment } from "../services/api-service";
 import { createListingComment, fetchListingComments } from "../services/api-service";
@@ -80,6 +80,45 @@ const DEFAULT_CHECK_ITEMS: readonly string[] = [
 ];
 
 const SCORE_SEGMENT_COUNT = 10;
+
+/** Skor sayacı: 0'dan hedefe hızla tırmanır (ease-out), makbuz yazımıyla senkron başlar. */
+function ScoreCounter({ target, delayMs = 540 }: { readonly target: number; readonly delayMs?: number }) {
+  const [shown, setShown] = useState(0);
+  const rafRef = useRef(0);
+
+  useEffect(() => {
+    setShown(0);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setShown(target);
+      return;
+    }
+
+    const duration = 620;
+    let start = 0;
+    let timer = 0;
+
+    function tick(now: number) {
+      if (!start) start = now;
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setShown(Math.round(eased * target));
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    timer = window.setTimeout(() => {
+      rafRef.current = requestAnimationFrame(tick);
+    }, delayMs);
+
+    return () => {
+      window.clearTimeout(timer);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, delayMs]);
+
+  return <strong>{shown}</strong>;
+}
 
 function sourceKeyForLabel(label: string): string {
   const needle = label.toLocaleLowerCase("tr-TR");
@@ -275,7 +314,7 @@ export function ListingDetailPanel({
           >
             <div className="listing-detail__score-row">
               <span className="listing-detail__score-value">
-                <strong>{insight.score}</strong>
+                <ScoreCounter target={insight.score} key={listing.id} />
                 <span>/100</span>
               </span>
               <span className="listing-detail__score-pill">{insight.label}</span>
