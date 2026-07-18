@@ -300,7 +300,7 @@ export function ListingDetailPanel({
         <div className="listing-detail__scroll">
           <div className="listing-detail__media listing-detail__section tilt-3d" style={sectionStyle(0)}>
             {imageUrl ? (
-              <img src={imageUrl} alt={publicTitle} onError={handleImageError} />
+              <img src={imageUrl} alt={publicTitle} onLoad={(event) => event.currentTarget.classList.add("is-loaded")} onError={handleImageError} />
             ) : (
               <div className="listing-detail__plate" aria-label="Görsel yok">
                 <span className="listing-detail__plate-name">{plateName}</span>

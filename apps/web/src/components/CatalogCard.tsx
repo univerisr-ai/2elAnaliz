@@ -161,6 +161,7 @@ export function CatalogCard({
             alt={publicTitle}
             loading="lazy"
             decoding="async"
+            onLoad={(event) => event.currentTarget.classList.add("is-loaded")}
             onError={handleImageError}
           />
         ) : (
