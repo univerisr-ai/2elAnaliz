@@ -1194,3 +1194,11 @@
   transition: transform 120ms var(--ease-out), background var(--transition-fast), border-color var(--transition-fast);
 }
 
+/* ---- Mobil: üst araç çubuğunda sayfa zaten var; topline'daki tekrarı gizle ---- */
+
+@media (max-width: 720px) {
+  .ledger__topline-page {
+    display: none;
+  }
+}
+

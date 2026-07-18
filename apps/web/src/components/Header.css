@@ -603,9 +603,13 @@
   }
 
   .header__search kbd,
-  .header__icon-btn,
+  .header__icon-btn:not(.header__icon-btn--theme),
   .header__notifications {
     display: none;
+  }
+
+  .header__icon-btn--theme {
+    flex: none;
   }
 
   .header__portfolio {
