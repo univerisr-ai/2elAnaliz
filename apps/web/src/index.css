@@ -979,6 +979,34 @@ select option {
   }
 }
 
+/* Geniş ekran: içerik ortalı kaldığından sol tarafta boşluk oluşur —
+   güneş/ay o boşluğun ortasına yerleşir. */
+@media (min-width: 1720px) {
+  :root:not([data-theme="dark"])::before {
+    top: 30vh;
+    left: calc((100vw - 1400px) / 4 - 110px);
+    margin-left: 0;
+  }
+
+  :root:not([data-theme="dark"])::after {
+    top: calc(30vh + 68px);
+    left: calc((100vw - 1400px) / 4 - 42px);
+    margin-left: 0;
+  }
+
+  :root[data-theme="dark"]::before {
+    top: calc(30vh + 35px);
+    left: calc((100vw - 1400px) / 4 - 75px);
+    margin-left: 0;
+  }
+
+  :root[data-theme="dark"]::after {
+    top: calc(30vh + 72px);
+    left: calc((100vw - 1400px) / 4 - 38px);
+    margin-left: 0;
+  }
+}
+
 @media (max-width: 900px) {
   :root::before,
   :root::after {
