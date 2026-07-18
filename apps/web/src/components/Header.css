@@ -38,6 +38,12 @@
   color: #f2f0ec;
 }
 
+.header__brand-mark svg {
+  transform: rotate(var(--needle-deg, 0deg));
+  transition: transform 950ms var(--ease-spring);
+  will-change: transform;
+}
+
 .header__brand-copy {
   display: grid;
   gap: 1px;

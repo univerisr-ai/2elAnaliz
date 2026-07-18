@@ -666,6 +666,7 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState<string>("Bilinmiyor");
   const [catalogPage, setCatalogPage] = useState(1);
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
+  const [navDirection, setNavDirection] = useState<"left" | "right">("right");
   const [isCatalogEntryLoading, setIsCatalogEntryLoading] = useState(false);
   const [accountSession, setAccountSession] = useState<Session | null>(null);
   const [accountProfile, setAccountProfile] = useState<SubmissionProfile | null>(null);
@@ -676,8 +677,20 @@ export default function App() {
   const activeCatalogProduct: ProductType = activePage === "cpu" ? "cpu" : "gpu";
   const isCpuCatalogPage = activeCatalogProduct === "cpu";
 
+  const NAV_ORDER: readonly PageView[] = useMemo(
+    () => ["home", "catalog", "cpu", "submit-link", "submit-manual", "signin", "signup", "admin", "about"],
+    [],
+  );
+
   const pushRoute = useCallback((route: AppRouteState, path: string) => {
-    setActivePage(route.page);
+    setActivePage((previousPage) => {
+      const fromIndex = NAV_ORDER.indexOf(previousPage);
+      const toIndex = NAV_ORDER.indexOf(route.page);
+      if (fromIndex !== toIndex) {
+        setNavDirection(toIndex > fromIndex ? "right" : "left");
+      }
+      return route.page;
+    });
     setRouteModelSlug(route.modelSlug);
     setRouteListingId(route.listingId);
 
@@ -1721,7 +1734,7 @@ export default function App() {
         portfolioCount={activeWatchItems.length}
       />
 
-      <main className="app-main">
+      <main className={`app-main app-main--${navDirection}`}>
         {activePage === "home" && (
           <section className="page page--home" aria-labelledby="home-title">
             <section className="desk container">
@@ -1864,7 +1877,11 @@ export default function App() {
         )}
 
         {(activePage === "catalog" || activePage === "cpu") && (
-          <section className={`page page--catalog ${isCpuCatalogPage ? "page--cpu-catalog" : ""}`} aria-labelledby="catalog-title">
+          <section
+            key={activeCatalogProduct}
+            className={`page page--catalog ${isCpuCatalogPage ? "page--cpu-catalog" : ""}`}
+            aria-labelledby="catalog-title"
+          >
             <section className="catalog-page__intro container">
               <div>
                 <span className="micro-label catalog-page__eyebrow">

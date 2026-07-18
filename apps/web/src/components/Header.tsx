@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Bell, Compass, Search, UserCircle } from "lucide-react";
 import "./Header.css";
 
@@ -52,6 +53,20 @@ function isNavItemActive(itemKey: PageView, activePage: PageView): boolean {
   return itemKey === "submit-link" && (activePage === "submit-manual" || activePage === "signin" || activePage === "signup");
 }
 
+/* Pusula ibresi: her sayfanın bir "kerterizi" var; gezinmede ibre tam tur atıp
+   yeni yöne kilitlenir. */
+const PAGE_BEARINGS: Record<PageView, number> = {
+  home: 0,
+  catalog: 60,
+  cpu: 120,
+  "submit-link": 180,
+  "submit-manual": 180,
+  signin: 220,
+  signup: 220,
+  admin: 300,
+  about: 260,
+};
+
 function formatSyncLabel(lastUpdated: string): string {
   const timeMatch = lastUpdated.match(/(\d{1,2}[:.]\d{2})(?::\d{2})?\s*$/);
   return timeMatch ? timeMatch[1].replace(".", ":") : lastUpdated;
@@ -79,11 +94,19 @@ export function Header({
   const notificationCount = notifications.length;
   const isCpuPage = activePage === "cpu";
 
+  const needleTurns = useRef(0);
+  const needlePrevPage = useRef(activePage);
+  if (needlePrevPage.current !== activePage) {
+    needleTurns.current += 1;
+    needlePrevPage.current = activePage;
+  }
+  const needleDeg = needleTurns.current * 360 + PAGE_BEARINGS[activePage];
+
   return (
     <header className="header" id="site-header">
       <div className="header__inner">
         <button type="button" className="header__brand" onClick={() => onNavigate("home")}>
-          <span className="header__brand-mark" aria-hidden="true">
+          <span className="header__brand-mark" aria-hidden="true" style={{ "--needle-deg": `${needleDeg}deg` } as React.CSSProperties}>
             <Compass size={16} />
           </span>
           <span className="header__brand-copy">

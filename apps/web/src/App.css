@@ -1656,3 +1656,36 @@
     background-position: -80% 0;
   }
 }
+
+/* Pusula ibresi geçişi: içerik gidilen yönden süzülür */
+.app-main--right .page {
+  animation: page-from-right 460ms var(--ease-out) both;
+}
+
+.app-main--left .page {
+  animation: page-from-left 460ms var(--ease-out) both;
+}
+
+@keyframes page-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes page-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
