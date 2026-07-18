@@ -31,6 +31,21 @@
       }
     </script>
     <title>İkinci El Ekran Kartı Fiyatları ve GPU İlanları | GPU Pusula</title>
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("gp-theme");
+          if (theme !== "dark" && theme !== "light") {
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          document.documentElement.dataset.theme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute("content", theme === "dark" ? "#131318" : "#f6f8fc");
+        } catch (e) {
+          document.documentElement.dataset.theme = "light";
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root">
@@ -78,6 +93,14 @@
 
         @media (prefers-reduced-motion: reduce) {
           .boot-loader__chip { animation: none; }
+        }
+
+        :root[data-theme="dark"] .boot-loader {
+          background: #131318;
+        }
+
+        :root[data-theme="dark"] .boot-loader__text {
+          color: #a9aeb9;
         }
       </style>
       <div class="boot-loader" aria-label="GPU Pusula yükleniyor">

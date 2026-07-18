@@ -83,7 +83,7 @@
   padding: 0 16px;
   border: 0;
   background: var(--bg-ink);
-  color: #fff;
+  color: var(--text-on-ink);
   box-shadow: none;
 }
 

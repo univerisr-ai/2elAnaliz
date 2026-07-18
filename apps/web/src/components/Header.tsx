@@ -1,6 +1,25 @@
-import { useRef } from "react";
-import { Bell, Compass, Search, UserCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { Bell, Compass, Moon, Search, Sun, UserCircle } from "lucide-react";
 import "./Header.css";
+
+type ThemeName = "light" | "dark";
+
+function readInitialTheme(): ThemeName {
+  if (typeof document !== "undefined" && document.documentElement.dataset.theme === "dark") {
+    return "dark";
+  }
+  return "light";
+}
+
+function applyTheme(theme: ThemeName): void {
+  document.documentElement.dataset.theme = theme;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#131318" : "#f6f8fc");
+  try {
+    localStorage.setItem("gp-theme", theme);
+  } catch {
+    // Gizli modda tercih kalıcı olmayabilir; tema yine de uygulanır.
+  }
+}
 
 type PageView = "home" | "catalog" | "cpu" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
 type AuthIntent = "signin" | "signup";
@@ -94,6 +113,13 @@ export function Header({
   const notificationCount = notifications.length;
   const isCpuPage = activePage === "cpu";
 
+  const [theme, setTheme] = useState<ThemeName>(readInitialTheme);
+  function toggleTheme() {
+    const next: ThemeName = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    applyTheme(next);
+  }
+
   const needleTurns = useRef(0);
   const needlePrevPage = useRef(activePage);
   if (needlePrevPage.current !== activePage) {
@@ -161,6 +187,16 @@ export function Header({
             <span className="header__sync-dot" aria-hidden="true" />
             Son senkron {formatSyncLabel(lastUpdated)}
           </span>
+
+          <button
+            type="button"
+            className="header__icon-btn header__icon-btn--theme"
+            aria-label={theme === "dark" ? "Açık temaya geç" : "Koyu temaya geç"}
+            title={theme === "dark" ? "Açık tema" : "Koyu tema"}
+            onClick={toggleTheme}
+          >
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
 
           <div className="header__notifications">
             <button

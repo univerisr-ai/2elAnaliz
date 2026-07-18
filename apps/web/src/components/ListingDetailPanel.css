@@ -716,7 +716,7 @@
   border: none;
   border-radius: var(--radius-md, 4px);
   background: var(--bg-ink, #14161a);
-  color: #ffffff;
+  color: var(--text-on-ink, #ffffff);
   cursor: pointer;
   font-family: var(--font-sans, "IBM Plex Sans", sans-serif);
   font-size: 12px;
@@ -778,7 +778,7 @@
   border: none;
   border-radius: var(--radius-md, 4px);
   background: var(--bg-ink, #14161a);
-  color: #ffffff;
+  color: var(--text-on-ink, #ffffff);
   cursor: pointer;
   font-family: var(--font-mono, "IBM Plex Mono", ui-monospace, monospace);
   font-size: 10px;
@@ -872,7 +872,7 @@
   height: 38px;
   border-radius: var(--radius-md, 4px);
   background: var(--bg-ink, #14161a);
-  color: #ffffff;
+  color: var(--text-on-ink, #ffffff);
   text-decoration: none;
   font-family: var(--font-sans, "IBM Plex Sans", sans-serif);
   font-size: 12.5px;
@@ -1138,3 +1138,11 @@
     transform: scale(1);
   }
 }
+
+/* ---- Gece Seansı: koyu tema rozetleri ---- */
+:root[data-theme="dark"] .listing-detail__source-pill[data-source="sahibinden"] { background: rgba(224, 164, 79, 0.13); border-color: rgba(224, 164, 79, 0.38); color: #E3A44F; }
+:root[data-theme="dark"] .listing-detail__source-pill[data-source="letgo"] { background: rgba(236, 100, 160, 0.12); border-color: rgba(236, 100, 160, 0.36); color: #EC64A0; }
+:root[data-theme="dark"] .listing-detail__source-pill[data-source="dolap"] { background: rgba(61, 190, 148, 0.12); border-color: rgba(61, 190, 148, 0.34); color: #3DBE94; }
+:root[data-theme="dark"] .listing-detail__source-pill[data-source="donanimhaber"] { background: rgba(110, 143, 216, 0.13); border-color: rgba(110, 143, 216, 0.36); color: #8CA8E8; }
+:root[data-theme="dark"] .listing-detail__source-pill[data-source="pecid"] { background: var(--accent-primary-dim); border-color: rgba(249, 120, 68, 0.38); color: var(--accent-primary-strong); }
+

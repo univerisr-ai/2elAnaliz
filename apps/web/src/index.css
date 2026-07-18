@@ -13,6 +13,7 @@
   --panel-bg: #FFFFFF;
   --soft-surface: #F7F6F2;
   --bg-ink: #14161A;
+  --text-on-ink: #FFFFFF;
   --accent-primary: #C2410C;
   --accent-primary-strong: #9A3412;
   --accent-primary-dim: #FDF0E7;
@@ -60,6 +61,46 @@
   --c-amd: #E8544A;
   --c-intel: #3B82D6;
   --c-ink: #1A1A1A;
+}
+
+/* Gece Seansı: koyu tema — aynı defter, loş masa lambası */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-primary: #131318;
+  --bg-secondary: #17171E;
+  --bg-tertiary: #1C1C24;
+  --bg-card: #1A1A21;
+  --bg-card-hover: #1F1F28;
+  --bg-glass: rgba(19, 19, 24, 0.92);
+  --bg-input: #16161C;
+  --bg-surface: #17171D;
+  --panel-bg: #1A1A21;
+  --soft-surface: #1E1E26;
+  --bg-ink: #ECEAE4;
+  --text-on-ink: #14161A;
+  --accent-primary: #F97844;
+  --accent-primary-strong: #FF9A6B;
+  --accent-primary-dim: rgba(249, 120, 68, 0.13);
+  --accent-secondary: #F97844;
+  --accent-secondary-dim: rgba(249, 120, 68, 0.13);
+  --accent-success: #43C583;
+  --accent-success-dim: rgba(67, 197, 131, 0.12);
+  --accent-warning: #E3A44F;
+  --accent-warning-dim: rgba(227, 164, 79, 0.12);
+  --accent-danger: #F26D85;
+  --accent-danger-dim: rgba(242, 109, 133, 0.12);
+  --text-primary: #EAE8E2;
+  --text-secondary: #A9AEB9;
+  --text-tertiary: #80858F;
+  --text-accent: #FF9268;
+  --border-subtle: #222229;
+  --border-card: #26262E;
+  --border-strong: #EAE8E2;
+  --border-input: #30303A;
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-panel: -12px 0 32px rgba(0, 0, 0, 0.55);
+  --ring-focus: 0 0 0 2px rgba(249, 120, 68, 0.4);
 }
 
 *,
@@ -828,6 +869,15 @@ select option {
     radial-gradient(ellipse 65% 62% at 68% 88%, rgba(255, 116, 67, 0.12), transparent 60%),
     radial-gradient(ellipse 45% 50% at 12% 90%, rgba(52, 211, 153, 0.1), transparent 58%),
     #FBFAFD;
+}
+
+:root[data-theme="dark"] .pastel-wash {
+  background:
+    radial-gradient(ellipse 60% 70% at 18% 22%, rgba(129, 74, 255, 0.14), transparent 60%),
+    radial-gradient(ellipse 55% 60% at 82% 18%, rgba(244, 208, 63, 0.08), transparent 62%),
+    radial-gradient(ellipse 65% 62% at 68% 88%, rgba(255, 116, 67, 0.1), transparent 60%),
+    radial-gradient(ellipse 45% 50% at 12% 90%, rgba(52, 211, 153, 0.08), transparent 58%),
+    #17171E;
 }
 
 /* ---- 3D Kart Eğimi ---- */

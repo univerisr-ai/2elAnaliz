@@ -842,7 +842,7 @@
 .catalog-pagination__page.is-active {
   border-color: var(--bg-ink);
   background: var(--bg-ink);
-  color: var(--text-on-accent);
+  color: var(--text-on-ink);
 }
 
 .catalog-pagination__ellipsis {
@@ -1081,3 +1081,44 @@
   0%, 100% { text-shadow: 0 0 0 transparent; }
   50% { text-shadow: 0 0 10px rgba(14, 124, 74, 0.45); }
 }
+
+/* ---- Gece Seansı: koyu tema uyarlamaları ---- */
+
+:root[data-theme="dark"] .ledger-row__plate {
+  background: repeating-linear-gradient(180deg, #1F1F27 0 9px, #23232C 9px 10px);
+}
+
+:root[data-theme="dark"] .ledger-row__plate::before {
+  background: #3A3229;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="sahibinden"] {
+  background: rgba(224, 164, 79, 0.13);
+  border-color: rgba(224, 164, 79, 0.38);
+  color: #E3A44F;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="letgo"] {
+  background: rgba(236, 100, 160, 0.12);
+  border-color: rgba(236, 100, 160, 0.36);
+  color: #EC64A0;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="dolap"] {
+  background: rgba(61, 190, 148, 0.12);
+  border-color: rgba(61, 190, 148, 0.34);
+  color: #3DBE94;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="donanimhaber"] {
+  background: rgba(110, 143, 216, 0.13);
+  border-color: rgba(110, 143, 216, 0.36);
+  color: #8CA8E8;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="pecid"] {
+  background: var(--accent-primary-dim);
+  border-color: rgba(249, 120, 68, 0.38);
+  color: var(--accent-primary-strong);
+}
+

@@ -181,3 +181,15 @@
 .catch-ticket::after {
   bottom: -5px;
 }
+
+/* ---- Gece Seansı: koyu bant ---- */
+
+:root[data-theme="dark"] .ticker,
+:root[data-theme="dark"] .ticker__label {
+  background: #16161C;
+}
+
+:root[data-theme="dark"] .catch-ticket {
+  background: var(--bg-card);
+}
+
