@@ -101,6 +101,26 @@ function pickImageUrl(listing) {
   return '';
 }
 
+/*
+ * Fiyattan segment etiketi üretir ("5.000-5.500 TL" formatı, scraper'larla ayni dil).
+ * "Arsiv" yalnizca fiyati olmayan kayitlara kalir: segmentsiz kaynaklarin (Dolap,
+ * Letgo, Donanim Haber) canli ilanlarini arsiv sanma hatasinin kalici cozumu.
+ * Ikizi: apps/api/src/services/dashboard-cache-service.ts icindeki deriveSegment.
+ */
+function segmentFromPrice(price) {
+  if (!Number.isFinite(price) || price <= 0) return 'Arsiv';
+  const width =
+    price < 1000 ? 250 : price < 10000 ? 500 : price < 20000 ? 1000 : price < 30000 ? 2500 : price < 50000 ? 5000 : 10000;
+  const lo = Math.floor(price / width) * width;
+  return `${lo.toLocaleString('tr-TR')}-${(lo + width).toLocaleString('tr-TR')} TL`;
+}
+
+function deriveSegment(rawSegment, price) {
+  const segment = toStr(rawSegment);
+  if (segment && !/^ar[sş][iı]v$/i.test(segment)) return segment;
+  return segmentFromPrice(price);
+}
+
 function pickListings(root) {
   if (Array.isArray(root)) return root;
   if (!root || typeof root !== 'object') return [];
@@ -465,7 +485,7 @@ function mapRawCatalogListing(raw, index, fallbackProductType = 'gpu') {
     url: url || '#',
     imageUrl: pickImageUrl(raw) || null,
     location: normalizeLocation(firstField(raw, ['konum', 'location', 'city'])) || 'Konum yok',
-    segment: toStr(firstField(raw, ['segment', 'priceSegment']), 'Arsiv'),
+    segment: deriveSegment(firstField(raw, ['segment', 'priceSegment']), price),
     listedAtLabel: toStr(firstField(raw, ['tarih', 'listedAtLabel', 'date']), 'Tarih yok'),
     source: source.source,
     sourceType: source.sourceType,
