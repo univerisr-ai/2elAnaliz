@@ -53,7 +53,10 @@ function firstField(obj, keys) {
 
 function imageUrlFromUnknown(value) {
   if (typeof value === 'string') {
-    return value.trim();
+    const trimmed = value.trim();
+    // Yalniz gercek uzak adresler; '/api/image/listing/...' gibi proxy yollari
+    // baseline uzerinden geri sizarsa gorseli 'yok' say.
+    return /^https?:\/\//i.test(trimmed) ? trimmed : '';
   }
 
   if (Array.isArray(value)) {
