@@ -12,7 +12,12 @@ function readInitialTheme(): ThemeName {
 }
 
 function applyTheme(theme: ThemeName): void {
-  document.documentElement.dataset.theme = theme;
+  const rootEl = document.documentElement;
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    rootEl.classList.add("theme-transition");
+    window.setTimeout(() => rootEl.classList.remove("theme-transition"), 560);
+  }
+  rootEl.dataset.theme = theme;
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#131318" : "#f6f8fc");
   try {
     localStorage.setItem("gp-theme", theme);
