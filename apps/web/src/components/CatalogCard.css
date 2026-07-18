@@ -1139,3 +1139,13 @@
   background: var(--accent-success);
 }
 
+/* ---- Arşiv satırı: tireler yerine sakin "son görülme" notu ---- */
+
+.ledger-row__closed {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+

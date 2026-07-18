@@ -112,7 +112,7 @@ export function CatalogCard({
   const listedText = meaningfulText(listing.listedAtLabel);
   const seenText = lastSeenLabel(listing.lastSeenAt);
   const dateText = listedText ?? seenText;
-  const isSeenFallback = !listedText && Boolean(seenText);
+  const isSeenFallback = !listedText && Boolean(seenText) && !isArchive;
   const range = isArchive ? null : parseSegmentRange(listing.segment);
   const rangePercent = range
     ? Math.min(100, Math.max(0, ((listing.price - range.min) / (range.max - range.min)) * 100))
@@ -199,7 +199,7 @@ export function CatalogCard({
       </span>
 
       <span className="ledger-row__range">
-        {range ? (
+        {isArchive ? null : range ? (
           <span
             className="ledger-row__range-widget"
             aria-label={`Segment aralığı ${range.min.toLocaleString("tr-TR")} – ${range.max.toLocaleString("tr-TR")} TL`}
@@ -235,7 +235,7 @@ export function CatalogCard({
       </span>
 
       <span className="ledger-row__delta">
-        {deltaPercent != null && deltaTone != null ? (
+        {isArchive ? null : deltaPercent != null && deltaTone != null ? (
           <>
             <span className="ledger-row__delta-track" aria-hidden="true">
               <span className="ledger-row__delta-axis" />
@@ -254,7 +254,13 @@ export function CatalogCard({
       </span>
 
       <span className="ledger-row__score">
-        {score != null && scoreTone != null ? (
+        {isArchive ? (
+          listing.lastSeenAt ? (
+            <span className="ledger-row__closed">
+              son {new Date(listing.lastSeenAt).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+            </span>
+          ) : null
+        ) : score != null && scoreTone != null ? (
           <>
             <span className="ledger-row__score-line">
               <span className={`ledger-row__score-value ledger-row__score-value--${scoreTone}`} data-elite={score >= 95}>{score}</span>
