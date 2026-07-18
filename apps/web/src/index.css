@@ -123,7 +123,8 @@ html {
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background: var(--bg-primary);
+  /* Zemini html boyar; gövde şeffaf kalır ki gök süsleri (güneş/ay) görünsün. */
+  background: transparent;
   color: var(--text-primary);
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -869,6 +870,123 @@ select option {
     radial-gradient(ellipse 65% 62% at 68% 88%, rgba(255, 116, 67, 0.12), transparent 60%),
     radial-gradient(ellipse 45% 50% at 12% 90%, rgba(52, 211, 153, 0.1), transparent 58%),
     #FBFAFD;
+}
+
+/* ---- Gök süsleri: gündüz dönen ışınlı güneş, gece süzülen hilal ---- */
+
+/* Gündüz — ışın çarkı: yumuşak pastel ışınlar güneşin etrafında ağır ağır döner */
+:root:not([data-theme="dark"])::before {
+  content: "";
+  position: fixed;
+  top: 65px;
+  right: 360px;
+  width: 220px;
+  height: 220px;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(240, 177, 62, 0.4) 0deg 6.5deg,
+    transparent 6.5deg 30deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
+  mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
+  animation: sun-spin 70s linear infinite;
+}
+
+/* Gündüz — güneş çekirdeği: nefes alan sıcak sarı yuvarlak */
+:root:not([data-theme="dark"])::after {
+  content: "";
+  position: fixed;
+  top: 133px;
+  right: 428px;
+  width: 84px;
+  height: 84px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, #F5C349 0 30px, rgba(245, 195, 73, 0.35) 31px 37px, transparent 40px);
+  animation: sun-breathe 6s ease-in-out infinite alternate;
+}
+
+@keyframes sun-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sun-breathe {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.05);
+  }
+}
+
+/* Gece — ay halesi */
+:root[data-theme="dark"]::before {
+  content: "";
+  position: fixed;
+  top: 100px;
+  right: 395px;
+  width: 150px;
+  height: 150px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(234, 232, 226, 0.11), transparent 62%);
+  animation: moon-glow 5.5s ease-in-out infinite alternate;
+}
+
+/* Gece — hilal: kâğıt rengi ay, hafifçe sallanıp süzülür */
+:root[data-theme="dark"]::after {
+  content: "";
+  position: fixed;
+  top: 137px;
+  right: 432px;
+  width: 76px;
+  height: 76px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, #E9E6DE 0 36px, transparent 37px);
+  -webkit-mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
+  mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
+  animation: moon-rock 7s ease-in-out infinite alternate;
+}
+
+@keyframes moon-glow {
+  from {
+    opacity: 0.7;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes moon-rock {
+  from {
+    transform: rotate(-18deg) translateY(0);
+  }
+
+  to {
+    transform: rotate(-8deg) translateY(-7px);
+  }
+}
+
+@media (max-width: 900px) {
+  :root::before,
+  :root::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root::before,
+  :root::after {
+    animation: none;
+  }
 }
 
 /* ---- Gece göğü: koyu temada süzülen ve göz kırpan yıldızlar ---- */
