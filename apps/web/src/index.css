@@ -915,7 +915,7 @@ select option {
   );
   -webkit-mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
   mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
-  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, sun-spin 70s linear 700ms infinite;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, sun-spin 30s linear infinite;
 }
 
 /* Gündüz — güneş çekirdeği: nefes alan sıcak sarı yuvarlak */
@@ -930,7 +930,7 @@ select option {
   pointer-events: none;
   z-index: -1;
   background: radial-gradient(circle, #F5C349 0 30px, rgba(245, 195, 73, 0.35) 31px 37px, transparent 40px);
-  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, sun-breathe 6s ease-in-out 700ms infinite alternate;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, sun-breathe 6s ease-in-out infinite alternate;
 }
 
 @keyframes sun-spin {
@@ -961,7 +961,7 @@ select option {
   pointer-events: none;
   z-index: -1;
   background: radial-gradient(circle, rgba(234, 232, 226, 0.11), transparent 62%);
-  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, moon-glow 5.5s ease-in-out 700ms infinite alternate;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, moon-glow 5.5s ease-in-out infinite alternate;
 }
 
 /* Gece — hilal: kâğıt rengi ay, hafifçe sallanıp süzülür */
@@ -978,18 +978,18 @@ select option {
   background: radial-gradient(circle, #E9E6DE 0 36px, transparent 37px);
   -webkit-mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
   mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
-  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, moon-rock 7s ease-in-out 700ms infinite alternate;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, moon-rock 7s ease-in-out infinite alternate;
 }
 
 @keyframes sky-rise {
   from {
     opacity: 0;
-    transform: translateY(46px);
+    margin-top: 46px;
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    margin-top: 0;
   }
 }
 
@@ -1052,6 +1052,77 @@ select option {
   :root::before,
   :root::after {
     animation: none;
+  }
+}
+
+/* ---- Gündüz göğü: süzülen pastel bulutlar ve ışık zerreleri ---- */
+
+:root:not([data-theme="dark"]) body::before,
+:root:not([data-theme="dark"]) body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: -1200px;
+  width: calc(100vw + 1200px);
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  background-repeat: repeat-x;
+}
+
+/* Uzak bulutlar: iri, ağır, beyaz — düz (flat) Pusula Soft dilinde */
+:root:not([data-theme="dark"]) body::before {
+  background-image:
+    radial-gradient(ellipse 92px 34px at 210px 150px, rgba(255, 255, 255, 0.85) 99%, transparent 100%),
+    radial-gradient(ellipse 70px 30px at 272px 128px, rgba(255, 255, 255, 0.85) 99%, transparent 100%),
+    radial-gradient(ellipse 62px 26px at 156px 130px, rgba(255, 255, 255, 0.85) 99%, transparent 100%),
+    radial-gradient(ellipse 74px 28px at 840px 330px, rgba(255, 255, 255, 0.6) 99%, transparent 100%),
+    radial-gradient(ellipse 54px 22px at 890px 312px, rgba(255, 255, 255, 0.6) 99%, transparent 100%),
+    radial-gradient(ellipse 60px 24px at 520px 566px, rgba(255, 255, 255, 0.45) 99%, transparent 100%),
+    radial-gradient(ellipse 44px 18px at 566px 552px, rgba(255, 255, 255, 0.45) 99%, transparent 100%);
+  background-size: 1200px 720px;
+  animation: cloud-drift-far 240s linear infinite, sky-fade-in 900ms ease;
+}
+
+/* Yakın bulutlar: küçük, hafif, biraz daha hızlı */
+:root:not([data-theme="dark"]) body::after {
+  background-image:
+    radial-gradient(ellipse 56px 20px at 130px 236px, rgba(255, 255, 255, 0.55) 99%, transparent 100%),
+    radial-gradient(ellipse 40px 16px at 168px 224px, rgba(255, 255, 255, 0.55) 99%, transparent 100%),
+    radial-gradient(ellipse 48px 18px at 600px 440px, rgba(255, 255, 255, 0.4) 99%, transparent 100%);
+  background-size: 760px 640px;
+  animation: cloud-drift-near 150s linear infinite, sky-fade-in 900ms ease;
+}
+
+/* Işık zerreleri: güneş civarında yumuşakça parlayıp sönen sıcak noktalar */
+:root:not([data-theme="dark"]) #root::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  background-repeat: repeat;
+  background-image:
+    radial-gradient(2px 2px at 240px 190px, rgba(240, 177, 62, 0.5), transparent 2.6px),
+    radial-gradient(1.6px 1.6px at 420px 320px, rgba(240, 177, 62, 0.38), transparent 2.1px),
+    radial-gradient(1.8px 1.8px at 640px 150px, rgba(245, 195, 73, 0.42), transparent 2.3px),
+    radial-gradient(1.5px 1.5px at 130px 420px, rgba(240, 177, 62, 0.3), transparent 2px);
+  background-size: 820px 560px;
+  animation: star-twinkle 5.4s ease-in-out infinite, sky-fade-in 900ms ease;
+}
+
+@keyframes cloud-drift-far {
+  to {
+    transform: translateX(1200px);
+  }
+}
+
+@keyframes cloud-drift-near {
+  to {
+    transform: translateX(760px);
   }
 }
 
@@ -1160,9 +1231,9 @@ select option {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root[data-theme="dark"] body::before,
-  :root[data-theme="dark"] body::after,
-  :root[data-theme="dark"] #root::before {
+  body::before,
+  body::after,
+  #root::before {
     animation: none;
   }
 }
