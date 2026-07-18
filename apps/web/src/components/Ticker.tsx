@@ -3,7 +3,7 @@ import "./Ticker.css";
 
 interface TickerProps {
   readonly items: readonly GpuListing[];
-  readonly onSelect: (item: GpuListing) => void;
+  readonly onSelect: (item: GpuListing, element: HTMLElement) => void;
 }
 
 function formatTickerPrice(value: number): string {
@@ -32,7 +32,7 @@ export function Ticker({ items, onSelect }: TickerProps) {
               key={`${item.id}-${index}`}
               tabIndex={index >= items.length ? -1 : 0}
               aria-hidden={index >= items.length}
-              onClick={() => onSelect(item)}
+              onClick={(event) => onSelect(item, event.currentTarget)}
             >
               <strong>{item.model}</strong>
               <span className="ticker__price">{formatTickerPrice(item.price)}</span>

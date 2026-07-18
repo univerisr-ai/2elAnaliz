@@ -111,3 +111,73 @@
     padding: 0 10px;
   }
 }
+
+/* Banttan Yakala — sökülen parça bantta soluklaşır */
+.ticker__item.is-caught {
+  opacity: 0.18;
+  filter: saturate(0.4);
+  transition: opacity 220ms ease, filter 220ms ease;
+}
+
+/* Uçan fırsat bileti (body altına eklenir) */
+.catch-ticket {
+  position: fixed;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 18px;
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+
+.catch-ticket strong {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.catch-ticket__price {
+  color: var(--text-secondary);
+}
+
+.catch-ticket__delta {
+  color: var(--accent-success);
+  font-weight: 600;
+}
+
+.catch-ticket__notch {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--accent-primary);
+}
+
+.catch-ticket::before,
+.catch-ticket::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-primary);
+}
+
+.catch-ticket::before {
+  top: -5px;
+}
+
+.catch-ticket::after {
+  bottom: -5px;
+}

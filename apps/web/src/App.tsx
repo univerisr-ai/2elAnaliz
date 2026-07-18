@@ -26,6 +26,7 @@ import { Footer } from "./components/Footer";
 import { ListingDetailPanel } from "./components/ListingDetailPanel";
 import { Ticker } from "./components/Ticker";
 import { Mascot } from "./components/Mascot";
+import { defterTarget, flyTicketToPanel } from "./utils/ticket-morph";
 import { SubmissionPanel } from "./components/SubmissionPanel";
 import { AdminReviewPanel } from "./components/AdminReviewPanel";
 import {
@@ -1661,7 +1662,42 @@ export default function App() {
 
   return (
     <>
-      <Ticker items={featuredListings} onSelect={(item) => navigateToModelSlug(slugifyModelLabel(item.model))} />
+      <Ticker
+        items={featuredListings}
+        onSelect={(item, element) => {
+          const normalize = (value: string) => value.toLocaleLowerCase("tr-TR").replace(/\s+/g, " ").trim();
+          const wantedModel = normalize(item.model);
+          const match =
+            catalogListings.find(
+              (listing) => listing.price === item.price && normalize(listing.model) === wantedModel,
+            ) ??
+            catalogListings.find(
+              (listing) => listing.price === item.price && normalize(listing.title).includes(wantedModel),
+            );
+          if (match) {
+            flyTicketToPanel(
+              element,
+              {
+                model: item.model,
+                priceText: `${item.price.toLocaleString("tr-TR")} TL`,
+                deltaText: `%-${item.discountPercent}`,
+              },
+              () => navigateToListing(match),
+            );
+          } else {
+            flyTicketToPanel(
+              element,
+              {
+                model: item.model,
+                priceText: `${item.price.toLocaleString("tr-TR")} TL`,
+                deltaText: `%-${item.discountPercent}`,
+              },
+              () => navigateToModelSlug(slugifyModelLabel(item.model)),
+              defterTarget(),
+            );
+          }
+        }}
+      />
       <Header
         activePage={activePage}
         onNavigate={(page) => {
