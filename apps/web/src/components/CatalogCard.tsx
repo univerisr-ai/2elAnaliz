@@ -5,6 +5,8 @@ import { buildImageCandidateUrls } from "../utils/media";
 import { getCanonicalGpuModel, getModelFamily } from "../utils/catalog-taxonomy";
 import { cleanPublicListingText } from "../utils/display";
 import { getSourceLabel } from "../utils/source";
+import { bellSwing, sparkBurst } from "../utils/micro-fx";
+import { mascotCheer } from "./Mascot";
 import "./CatalogCard.css";
 
 function getSourceKey(label: string): string {
@@ -257,6 +259,10 @@ export function CatalogCard({
             title={isFavorite ? "Favoriden kaldır" : "Favoriye ekle"}
             onClick={(event) => {
               event.stopPropagation();
+              if (!isFavorite) {
+                sparkBurst(event.currentTarget, "#F4D03F");
+                mascotCheer();
+              }
               onToggleFavorite(listing);
             }}
           >
@@ -273,6 +279,7 @@ export function CatalogCard({
             }
             onClick={(event) => {
               event.stopPropagation();
+              bellSwing(event.currentTarget);
               onSetPriceAlert(listing);
             }}
           >

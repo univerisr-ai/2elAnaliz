@@ -140,3 +140,64 @@
     display: none;
   }
 }
+
+/* ---- Tepki durumları ---- */
+
+/* Şifre yazılıyor: herkes gözlerini kapatır, gülümseme ciddileşir */
+body[data-mascot-focus="password"] .mascot__eye {
+  animation: none;
+  transform: scaleY(0.08);
+  transition: transform 0.25s var(--ease-spring);
+}
+
+body[data-mascot-focus="password"] .mascot__pupil {
+  opacity: 0;
+}
+
+body[data-mascot-focus="password"] .mascot__smile {
+  height: 3px;
+  border-radius: 999px;
+  border-width: 2px;
+}
+
+/* Şifre görünür yapıldı: mor karakter tek gözle dikizler 👀 */
+body[data-mascot-focus="peek"] .mascot__eye {
+  animation: none;
+  transform: scaleY(0.08);
+}
+
+body[data-mascot-focus="peek"] .mascot__char--purple .mascot__eye:first-child {
+  transform: scaleY(1);
+}
+
+body[data-mascot-focus="peek"] .mascot__char--purple .mascot__eye:first-child .mascot__pupil {
+  opacity: 1;
+}
+
+/* Sevinç: kısa zıplama (favori eklenince vb.) */
+body[data-mascot-cheer="1"] .mascot__char {
+  animation: mascot-jump 0.6s var(--ease-spring);
+}
+
+body[data-mascot-cheer="1"] .mascot__char--orange {
+  animation-delay: 0.06s;
+}
+
+body[data-mascot-cheer="1"] .mascot__char--yellow {
+  animation-delay: 0.12s;
+}
+
+@keyframes mascot-jump {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  30% {
+    transform: translateY(2px) scaleY(0.92);
+  }
+
+  60% {
+    transform: translateY(-12px) scaleY(1.05);
+  }
+}
