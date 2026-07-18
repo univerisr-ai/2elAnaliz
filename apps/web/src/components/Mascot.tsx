@@ -134,15 +134,23 @@ export function Mascot({ size = 150, mood = "happy" }: MascotProps) {
       </div>
       <div className="mascot__char mascot__char--orange">
         <span className="mascot__eyes">
-          <span className="mascot__eye mascot__eye--dot" />
-          <span className="mascot__eye mascot__eye--dot" />
+          <span className="mascot__eye">
+            <span className="mascot__pupil" />
+          </span>
+          <span className="mascot__eye">
+            <span className="mascot__pupil" />
+          </span>
         </span>
         <span className="mascot__smile" />
       </div>
       <div className="mascot__char mascot__char--yellow">
         <span className="mascot__eyes">
-          <span className="mascot__eye mascot__eye--dot" />
-          <span className="mascot__eye mascot__eye--dot" />
+          <span className="mascot__eye">
+            <span className="mascot__pupil" />
+          </span>
+          <span className="mascot__eye">
+            <span className="mascot__pupil" />
+          </span>
         </span>
         <span className="mascot__smile" />
       </div>
