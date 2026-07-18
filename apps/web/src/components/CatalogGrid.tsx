@@ -63,10 +63,10 @@ export function CatalogGrid({
 
       <header className="ledger__topline">
         <span className="ledger__topline-label">
-          DEFTER — {total.toLocaleString("tr-TR")} KAYIT
+          Defter · {total.toLocaleString("tr-TR")} kayıt
         </span>
         <span className="ledger__topline-page">
-          SAYFA {currentPage.toLocaleString("tr-TR")} / {Math.max(totalPages, 1).toLocaleString("tr-TR")}
+          Sayfa {currentPage.toLocaleString("tr-TR")} / {Math.max(totalPages, 1).toLocaleString("tr-TR")}
         </span>
       </header>
 

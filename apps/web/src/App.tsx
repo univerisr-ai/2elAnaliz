@@ -25,6 +25,7 @@ import { CatalogGrid } from "./components/CatalogGrid";
 import { Footer } from "./components/Footer";
 import { ListingDetailPanel } from "./components/ListingDetailPanel";
 import { Ticker } from "./components/Ticker";
+import { Mascot } from "./components/Mascot";
 import { SubmissionPanel } from "./components/SubmissionPanel";
 import { AdminReviewPanel } from "./components/AdminReviewPanel";
 import {
@@ -410,7 +411,7 @@ function CatalogLoadingScreen({
 }) {
   return (
     <section className="catalog-loader container" aria-live="polite" aria-label="Katalog yükleniyor">
-      <span className="catalog-loader__spinner" aria-hidden="true" />
+      <Mascot size={130} mood="calm" />
       <div className="catalog-loader__copy">
         <strong>Defter hazırlanıyor</strong>
         <span className="mono">
@@ -1679,12 +1680,13 @@ export default function App() {
         {activePage === "home" && (
           <section className="page page--home" aria-labelledby="home-title">
             <section className="desk container">
-              <header className="desk__head">
+              <header className="desk__head pastel-wash">
                 <div>
-                  <span className="micro-label desk__eyebrow">Piyasa Özeti</span>
+                  <span className="micro-label desk__eyebrow">Piyasa özeti</span>
                   <h2 id="home-title">Açık seans — {sessionDateLabel}</h2>
+                  <span className="desk__meta">Son senkron {lastUpdated} · 4 kaynak aktif</span>
                 </div>
-                <span className="desk__meta mono">Son senkron {lastUpdated} · Kaynak 4 aktif</span>
+                <Mascot size={170} />
               </header>
 
               <div className="desk__index" aria-label="Piyasa endeksleri">

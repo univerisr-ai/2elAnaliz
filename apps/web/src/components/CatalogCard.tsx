@@ -300,7 +300,7 @@ export function CatalogCard({
               onOpenDetails(listing);
             }}
           >
-            İNCELE
+            İncele
           </button>
         </span>
         {alertTargetPrice != null ? (

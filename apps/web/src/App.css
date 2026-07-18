@@ -20,8 +20,15 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 14px;
-  padding-bottom: 4px;
+  gap: 20px;
+  padding: 26px 30px 0;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  animation: grow-up 900ms var(--ease-spring) both;
+}
+
+.desk__head > div {
+  padding-bottom: 24px;
 }
 
 .desk__eyebrow {
@@ -37,10 +44,10 @@
 }
 
 .desk__meta {
+  display: inline-block;
+  margin-top: 8px;
   color: var(--text-tertiary);
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.76rem;
   white-space: nowrap;
 }
 
@@ -72,7 +79,7 @@
   color: var(--text-primary);
   font-size: clamp(2rem, 3.4vw, 2.9rem);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.02em;
   line-height: 1;
 }
 
@@ -293,8 +300,8 @@
   color: var(--text-primary);
   font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .desk__protocol p {
@@ -531,6 +538,9 @@
 
 .catalog-spotlight__item:hover:not(:disabled) {
   border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+  transition: transform 0.3s var(--ease-spring), border-color var(--transition-fast), box-shadow 0.3s ease;
 }
 
 .catalog-spotlight__item.is-active {
@@ -554,11 +564,8 @@
 
 .catalog-spotlight__item span {
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .catalog-spotlight__item strong {

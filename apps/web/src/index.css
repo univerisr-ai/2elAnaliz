@@ -2,9 +2,9 @@
 
 :root {
   color-scheme: light;
-  --bg-primary: #F7F6F2;
-  --bg-secondary: #F1EFE9;
-  --bg-tertiary: #ECE9E1;
+  --bg-primary: #F6F4F8;
+  --bg-secondary: #EFEDF4;
+  --bg-tertiary: #E9E6EF;
   --bg-card: #FFFFFF;
   --bg-card-hover: #FCFBF8;
   --bg-glass: rgba(255, 255, 255, 0.92);
@@ -29,16 +29,16 @@
   --text-tertiary: #8A8478;
   --text-accent: #C2410C;
   --text-on-accent: #FFFFFF;
-  --border-subtle: #EEEBE3;
-  --border-card: #E6E3DB;
+  --border-subtle: #EFEDF4;
+  --border-card: #E5E2EB;
   --border-strong: #101418;
   --border-input: #D9D5CB;
   --gradient-brand: none;
   --gradient-button: none;
-  --radius-sm: 3px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -47,8 +47,8 @@
   --transition-fast: 150ms var(--ease-standard);
   --transition-base: 290ms var(--ease-out);
   --transition-slow: 720ms var(--ease-emphasis);
-  --shadow-card: 0 0 0 rgba(0, 0, 0, 0);
-  --shadow-card-hover: 0 2px 10px rgba(16, 20, 24, 0.06);
+  --shadow-card: 0 6px 24px rgba(20, 22, 26, 0.05);
+  --shadow-card-hover: 0 12px 32px rgba(20, 22, 26, 0.09);
   --shadow-panel: -12px 0 32px rgba(16, 20, 24, 0.1);
   --glow-accent: 0 0 0 rgba(0, 0, 0, 0);
   --glow-violet: 0 0 0 rgba(0, 0, 0, 0);
@@ -56,6 +56,10 @@
   --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: var(--font-sans);
+  --c-purple: #6B21FF;
+  --c-orange: #FF7443;
+  --c-yellow: #F4D03F;
+  --c-ink: #1A1A1A;
 }
 
 *,
@@ -104,11 +108,11 @@ h4 {
 }
 
 .micro-label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--text-secondary);
 }
 
@@ -774,4 +778,54 @@ select option {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* ---- Pusula Soft: organik animasyon sözlüğü (proje1/proje2 stili) ---- */
+
+@keyframes grow-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scaleY(0.92);
+  }
+
+  60% {
+    transform: translateY(-3px) scaleY(1.02);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(1.03);
+  }
+}
+
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  95% {
+    transform: scaleY(0.08);
+  }
+}
+
+.pastel-wash {
+  background:
+    radial-gradient(ellipse 60% 70% at 18% 22%, rgba(107, 33, 255, 0.1), transparent 60%),
+    radial-gradient(ellipse 55% 60% at 82% 18%, rgba(244, 208, 63, 0.16), transparent 62%),
+    radial-gradient(ellipse 65% 62% at 68% 88%, rgba(255, 116, 67, 0.12), transparent 60%),
+    radial-gradient(ellipse 45% 50% at 12% 90%, rgba(52, 211, 153, 0.1), transparent 58%),
+    #FBFAFD;
 }
