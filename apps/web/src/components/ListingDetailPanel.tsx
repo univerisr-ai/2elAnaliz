@@ -8,6 +8,7 @@ import { cleanPublicListingText } from "../utils/display";
 import { getCanonicalGpuModel, getModelFamily } from "../utils/catalog-taxonomy";
 import { getExternalListingUrl, getSourceLabel } from "../utils/source";
 import { Star, Trash2, X } from "lucide-react";
+import { lastSeenLabel, meaningfulText } from "../utils/listing-presentation";
 import "./ListingDetailPanel.css";
 
 interface ListingDetailPanelProps {
@@ -301,9 +302,11 @@ export function ListingDetailPanel({
             <h3 className="listing-detail__title">{publicTitle}</h3>
             <div className="listing-detail__meta">
               <span className="listing-detail__source-pill" data-source={sourceKeyForLabel(sourceLabel)}>{sourceLabel}</span>
-              <span>{listing.brand}</span>
-              <span>{listing.location || "Konum belirtilmemiş"}</span>
-              {listing.listedAtLabel ? <span>{listing.listedAtLabel}</span> : null}
+              {meaningfulText(listing.brand) ? <span>{listing.brand}</span> : null}
+              {meaningfulText(listing.location) ? <span>{listing.location}</span> : null}
+              {meaningfulText(listing.listedAtLabel) ?? lastSeenLabel(listing.lastSeenAt) ? (
+                <span>{meaningfulText(listing.listedAtLabel) ?? lastSeenLabel(listing.lastSeenAt)}</span>
+              ) : null}
             </div>
           </div>
 

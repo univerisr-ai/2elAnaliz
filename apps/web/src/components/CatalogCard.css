@@ -1122,3 +1122,20 @@
   color: var(--accent-primary-strong);
 }
 
+/* ---- Tarihsiz ilanlarda tazelik göstergesi: "Bugün doğrulandı" ---- */
+
+.ledger-row__date--seen {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent-success);
+}
+
+.ledger-row__date--seen::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--accent-success);
+}
+

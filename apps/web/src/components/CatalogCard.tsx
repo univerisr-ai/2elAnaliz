@@ -7,6 +7,7 @@ import { cleanPublicListingText } from "../utils/display";
 import { getSourceLabel } from "../utils/source";
 import { bellSwing, sparkBurst } from "../utils/micro-fx";
 import { mascotCheer } from "./Mascot";
+import { lastSeenLabel, meaningfulText } from "../utils/listing-presentation";
 import "./CatalogCard.css";
 
 function getSourceKey(label: string): string {
@@ -107,6 +108,11 @@ export function CatalogCard({
   const sourceKey = getSourceKey(sourceLabel);
 
   const isArchive = isArchiveSegment(listing.segment);
+  const locationText = meaningfulText(listing.location);
+  const listedText = meaningfulText(listing.listedAtLabel);
+  const seenText = lastSeenLabel(listing.lastSeenAt);
+  const dateText = listedText ?? seenText;
+  const isSeenFallback = !listedText && Boolean(seenText);
   const range = isArchive ? null : parseSegmentRange(listing.segment);
   const rangePercent = range
     ? Math.min(100, Math.max(0, ((listing.price - range.min) / (range.max - range.min)) * 100))
@@ -172,7 +178,9 @@ export function CatalogCard({
 
       <span className="ledger-row__source">
         <span className="ledger-row__source-pill" data-source={sourceKey}>{sourceLabel.toLocaleUpperCase("tr-TR")}</span>
-        <span className="ledger-row__source-brand">{listing.brand.toLocaleUpperCase("tr-TR")}</span>
+        {meaningfulText(listing.brand) ? (
+          <span className="ledger-row__source-brand">{listing.brand.toLocaleUpperCase("tr-TR")}</span>
+        ) : null}
       </span>
 
       <span className="ledger-row__main">
@@ -184,8 +192,10 @@ export function CatalogCard({
       </span>
 
       <span className="ledger-row__where">
-        <span className="ledger-row__location">{listing.location}</span>
-        <span className="ledger-row__date">{listing.listedAtLabel}</span>
+        {locationText ? <span className="ledger-row__location">{locationText}</span> : null}
+        {dateText ? (
+          <span className={`ledger-row__date ${isSeenFallback ? "ledger-row__date--seen" : ""}`}>{dateText}</span>
+        ) : null}
       </span>
 
       <span className="ledger-row__range">
