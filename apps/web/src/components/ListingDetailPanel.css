@@ -1009,10 +1009,6 @@
    skor rozeti yazım oradan geçerken mühür gibi vurulur.
    ============================================================ */
 
-.listing-detail__scroll {
-  animation: receipt-feed 1050ms linear 470ms both;
-}
-
 /* Yazdırma sırasında eski bölüm kademe animasyonu devre dışı —
    içerik zaten maskeyle açığa çıkıyor. */
 .listing-detail__section {
@@ -1064,16 +1060,43 @@
   left: 0;
   right: 0;
   top: 50px;
-  height: 12px;
+  bottom: 0;
   z-index: 5;
   pointer-events: none;
+  background: var(--bg-primary, #f7f6f2);
+  will-change: transform;
+  animation: receipt-cover 1050ms linear 470ms both;
+}
+
+.listing-detail__print-edge::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -11px;
+  height: 12px;
   background:
-    linear-gradient(-45deg, transparent 8px, #ffffff 0),
-    linear-gradient(45deg, transparent 8px, #ffffff 0);
+    linear-gradient(-45deg, transparent 8px, var(--bg-primary, #f7f6f2) 0),
+    linear-gradient(45deg, transparent 8px, var(--bg-primary, #f7f6f2) 0);
   background-size: 14px 12px;
   background-repeat: repeat-x;
-  filter: drop-shadow(0 3px 5px rgba(20, 22, 26, 0.14));
-  animation: receipt-edge 1050ms linear 120ms both;
+  filter: drop-shadow(0 -3px 5px rgba(20, 22, 26, 0.14));
+}
+
+@keyframes receipt-cover {
+  0% {
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  99% {
+    visibility: visible;
+  }
+
+  100% {
+    transform: translateY(103%);
+    visibility: hidden;
+  }
 }
 
 @keyframes receipt-edge {
