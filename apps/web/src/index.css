@@ -56,9 +56,9 @@
   --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: var(--font-sans);
-  --c-purple: #6B21FF;
-  --c-orange: #FF7443;
-  --c-yellow: #F4D03F;
+  --c-nvidia: #79BD30;
+  --c-amd: #E8544A;
+  --c-intel: #3B82D6;
   --c-ink: #1A1A1A;
 }
 

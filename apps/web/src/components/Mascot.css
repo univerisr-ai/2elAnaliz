@@ -24,7 +24,7 @@
   width: 34%;
   height: 96%;
   border-radius: 999px 999px 0 0;
-  background: var(--c-purple);
+  background: var(--c-nvidia);
   transform: skewX(calc(var(--mx) * -5deg)) scaleY(calc(1 + var(--my) * -0.04));
   z-index: 1;
 }
@@ -35,7 +35,7 @@
   width: 56%;
   height: 62%;
   border-radius: 999px 999px 0 0;
-  background: var(--c-orange);
+  background: var(--c-amd);
   transform: skewX(calc(var(--mx) * -4deg)) scaleY(calc(1 + var(--my) * -0.03));
   z-index: 2;
   animation-delay: 0.6s;
@@ -47,7 +47,7 @@
   width: 30%;
   height: 40%;
   border-radius: 999px 999px 0 0;
-  background: var(--c-yellow);
+  background: var(--c-intel);
   transform: skewX(calc(var(--mx) * 3deg)) scaleY(calc(1 + var(--my) * -0.03));
   z-index: 3;
   animation-delay: 1.1s;
@@ -200,4 +200,28 @@ body[data-mascot-cheer="1"] .mascot__char--yellow {
   60% {
     transform: translateY(-12px) scaleY(1.05);
   }
+}
+
+/* Üç Çip kontrast ayarı: mavi (Intel) karakterde gözler ve gülümseme beyaz */
+.mascot__char--yellow .mascot__eye--dot {
+  background: #ffffff;
+}
+
+.mascot__char--yellow .mascot__smile {
+  border-color: #ffffff;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+/* Kırmızı (AMD) karakterde de beyaz yüz daha sıcak okunuyor */
+.mascot__char--orange .mascot__eye--dot {
+  background: #ffffff;
+}
+
+.mascot__char--orange .mascot__smile {
+  border-color: #ffffff;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
 }
