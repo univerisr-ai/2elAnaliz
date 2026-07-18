@@ -58,7 +58,7 @@
   top: 26%;
   left: 50%;
   display: flex;
-  gap: 18%;
+  gap: 7px;
   transform: translate(calc(-50% + var(--mx) * 5px), calc(var(--my) * 3px));
   transition: transform 0.4s var(--ease-spring);
   will-change: transform;
@@ -66,10 +66,12 @@
 
 .mascot__char--orange .mascot__eyes {
   top: 30%;
+  gap: 6px;
 }
 
 .mascot__char--yellow .mascot__eyes {
   top: 24%;
+  gap: 5px;
 }
 
 .mascot__eye {

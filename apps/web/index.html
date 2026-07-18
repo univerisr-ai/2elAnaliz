@@ -33,7 +33,62 @@
     <title>İkinci El Ekran Kartı Fiyatları ve GPU İlanları | GPU Pusula</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        .boot-loader {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 18px;
+          background: #f6f4f8;
+          font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+        }
+
+        .boot-loader__chips {
+          display: flex;
+          align-items: flex-end;
+          gap: 4px;
+          height: 64px;
+        }
+
+        .boot-loader__chip {
+          border-radius: 999px 999px 0 0;
+          transform-origin: bottom center;
+          animation: boot-bounce 1.1s ease-in-out infinite;
+        }
+
+        .boot-loader__chip--nvidia { width: 26px; height: 58px; background: #79bd30; }
+        .boot-loader__chip--amd { width: 34px; height: 40px; background: #e8544a; animation-delay: 0.15s; }
+        .boot-loader__chip--intel { width: 22px; height: 26px; background: #3b82d6; animation-delay: 0.3s; }
+
+        .boot-loader__text {
+          color: #6b7280;
+          font-size: 13px;
+          letter-spacing: 0.04em;
+        }
+
+        @keyframes boot-bounce {
+          0%, 100% { transform: scaleY(1); }
+          40% { transform: scaleY(0.82); }
+          65% { transform: scaleY(1.06); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .boot-loader__chip { animation: none; }
+        }
+      </style>
+      <div class="boot-loader" aria-label="GPU Pusula yükleniyor">
+        <div class="boot-loader__chips" aria-hidden="true">
+          <span class="boot-loader__chip boot-loader__chip--nvidia"></span>
+          <span class="boot-loader__chip boot-loader__chip--amd"></span>
+          <span class="boot-loader__chip boot-loader__chip--intel"></span>
+        </div>
+        <span class="boot-loader__text">GPU Pusula açılıyor…</span>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
