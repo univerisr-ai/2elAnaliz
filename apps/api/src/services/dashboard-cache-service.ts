@@ -294,6 +294,43 @@ function normalizeLocation(location: string): string {
     .replace(/\s+/g, " ");
 }
 
+/*
+ * Fiyattan segment etiketi üretir ("5.000-5.500 TL" formatı, scraper'larla aynı dil).
+ * "Arsiv" yalnızca fiyatı olmayan kayıtlara kalır: segmentsiz kaynakların (Dolap,
+ * Letgo, Donanım Haber) canlı ilanlarını arşiv sanma hatasının kalıcı çözümü.
+ * İkizi: scripts/prepare-api-dashboard-cache.mjs içindeki deriveSegment.
+ */
+function segmentFromPrice(price: number): string {
+  if (!Number.isFinite(price) || price <= 0) {
+    return "Arsiv";
+  }
+  const width =
+    price < 1000 ? 250 : price < 10000 ? 500 : price < 20000 ? 1000 : price < 30000 ? 2500 : price < 50000 ? 5000 : 10000;
+  const lo = Math.floor(price / width) * width;
+  return `${lo.toLocaleString("tr-TR")}-${(lo + width).toLocaleString("tr-TR")} TL`;
+}
+
+const ARCHIVE_AFTER_MS = (Number(process.env.ARCHIVE_AFTER_HOURS) || 72) * 60 * 60 * 1000;
+
+function isStaleListing(lastSeenAt: string | null | undefined): boolean {
+  if (!lastSeenAt) {
+    return false;
+  }
+  const seen = Date.parse(lastSeenAt);
+  return Number.isFinite(seen) && Date.now() - seen > ARCHIVE_AFTER_MS;
+}
+
+function deriveSegment(rawSegment: string | undefined, price: number, lastSeenAt?: string | null): string {
+  if (isStaleListing(lastSeenAt)) {
+    return "Arsiv";
+  }
+  const segment = rawSegment?.trim() ?? "";
+  if (segment && !/^ar[sş][iı]v$/i.test(segment)) {
+    return segment;
+  }
+  return segmentFromPrice(price);
+}
+
 function detectSource(url: string | undefined): "Sahibinden" | "Letgo" | "Dolap" | "Donanim Haber" | "Facebook" | "Technopat" | "Techolay" | "Harici" {
   const value = url?.toLowerCase() ?? "";
 
@@ -564,11 +601,12 @@ export function mapRawCatalogListing(
     url: listing.url?.trim() || "#",
     imageUrl: pickRawListingImageUrl(listing) || null,
     location: normalizeLocation(listing.konum || listing.location || "Konum yok"),
-    segment: listing.segment?.trim() || "Arsiv",
+    segment: deriveSegment(listing.segment, price, typeof listing.lastSeenAt === "string" ? listing.lastSeenAt : null),
     listedAtLabel: listing.tarih?.trim() || listing.listedAtLabel?.trim() || listing.listedAt?.trim() || "Tarih yok",
     source: source as CatalogListing["source"],
     sourceType,
     productType,
+    lastSeenAt: typeof listing.lastSeenAt === "string" ? listing.lastSeenAt : null,
   };
 }
 

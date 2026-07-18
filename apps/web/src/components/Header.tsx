@@ -12,13 +12,24 @@ function readInitialTheme(): ThemeName {
 }
 
 function applyTheme(theme: ThemeName): void {
-  document.documentElement.dataset.theme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#131318" : "#f6f8fc");
-  try {
-    localStorage.setItem("gp-theme", theme);
-  } catch {
-    // Gizli modda tercih kalıcı olmayabilir; tema yine de uygulanır.
+  const commit = () => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#131318" : "#f6f8fc");
+    try {
+      localStorage.setItem("gp-theme", theme);
+    } catch {
+      // Gizli modda tercih kalıcı olmayabilir; tema yine de uygulanır.
+    }
+  };
+
+  // Soldan sağa perde süpürmesi; desteklemeyen tarayıcıda ve
+  // hareket-azaltmada anında geçiş.
+  const doc = document as Document & { startViewTransition?: (callback: () => void) => unknown };
+  if (!doc.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    commit();
+    return;
   }
+  doc.startViewTransition(commit);
 }
 
 type PageView = "home" | "catalog" | "cpu" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";
@@ -248,7 +259,7 @@ export function Header({
           {onOpenPortfolio ? (
             <button type="button" className="header__portfolio" onClick={onOpenPortfolio}>
               Portföyüm
-              {portfolioCount > 0 ? <strong>{portfolioCount}</strong> : null}
+              {portfolioCount > 0 ? <strong key={portfolioCount}>{portfolioCount}</strong> : null}
             </button>
           ) : null}
 

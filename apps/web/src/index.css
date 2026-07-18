@@ -113,6 +113,9 @@
 
 html {
   min-height: 100%;
+  /* Gök katmanları (bulut/yıldız kayması) görünmez yatay taşma yaratıp mobil
+     yerleşim genişliğini büyütmesin — sabit panellerin konumunu bozuyordu. */
+  overflow-x: clip;
   background: var(--bg-primary);
   font-size: 16px;
   scroll-behavior: smooth;
@@ -872,6 +875,28 @@ select option {
     #FBFAFD;
 }
 
+/* Tema değişim sahnesi: yeni tema soldan sağa perde gibi süpürülür (View Transitions).
+   Eski/yeni kareler GPU anlık görüntüsü olduğundan titreşim imkânsız. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: theme-wipe 950ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes theme-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 /* ---- Gök süsleri: gündüz dönen ışınlı güneş, gece süzülen hilal ---- */
 
 /* Gündüz — ışın çarkı: yumuşak pastel ışınlar güneşin etrafında ağır ağır döner */
@@ -893,7 +918,7 @@ select option {
   );
   -webkit-mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
   mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
-  animation: sun-spin 70s linear infinite;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, sun-spin 30s linear infinite;
 }
 
 /* Gündüz — güneş çekirdeği: nefes alan sıcak sarı yuvarlak */
@@ -908,7 +933,7 @@ select option {
   pointer-events: none;
   z-index: -1;
   background: radial-gradient(circle, #F5C349 0 30px, rgba(245, 195, 73, 0.35) 31px 37px, transparent 40px);
-  animation: sun-breathe 6s ease-in-out infinite alternate;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, sun-breathe 6s ease-in-out infinite alternate;
 }
 
 @keyframes sun-spin {
@@ -939,7 +964,7 @@ select option {
   pointer-events: none;
   z-index: -1;
   background: radial-gradient(circle, rgba(234, 232, 226, 0.11), transparent 62%);
-  animation: moon-glow 5.5s ease-in-out infinite alternate;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, moon-glow 5.5s ease-in-out infinite alternate;
 }
 
 /* Gece — hilal: kâğıt rengi ay, hafifçe sallanıp süzülür */
@@ -956,7 +981,19 @@ select option {
   background: radial-gradient(circle, #E9E6DE 0 36px, transparent 37px);
   -webkit-mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
   mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
-  animation: moon-rock 7s ease-in-out infinite alternate;
+  animation: sky-rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both, moon-rock 7s ease-in-out infinite alternate;
+}
+
+@keyframes sky-rise {
+  from {
+    opacity: 0;
+    margin-top: 46px;
+  }
+
+  to {
+    opacity: 1;
+    margin-top: 0;
+  }
 }
 
 @keyframes moon-glow {
@@ -1021,6 +1058,77 @@ select option {
   }
 }
 
+/* ---- Gündüz göğü: süzülen pastel bulutlar ve ışık zerreleri ---- */
+
+:root:not([data-theme="dark"]) body::before,
+:root:not([data-theme="dark"]) body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: -1200px;
+  width: calc(100vw + 1200px);
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  background-repeat: repeat-x;
+}
+
+/* Uzak bulutlar: iri, ağır, beyaz — düz (flat) Pusula Soft dilinde */
+:root:not([data-theme="dark"]) body::before {
+  background-image:
+    radial-gradient(ellipse 92px 34px at 210px 150px, rgba(255, 255, 255, 0.85) 99%, transparent 100%),
+    radial-gradient(ellipse 70px 30px at 272px 128px, rgba(255, 255, 255, 0.85) 99%, transparent 100%),
+    radial-gradient(ellipse 62px 26px at 156px 130px, rgba(255, 255, 255, 0.85) 99%, transparent 100%),
+    radial-gradient(ellipse 74px 28px at 840px 330px, rgba(255, 255, 255, 0.6) 99%, transparent 100%),
+    radial-gradient(ellipse 54px 22px at 890px 312px, rgba(255, 255, 255, 0.6) 99%, transparent 100%),
+    radial-gradient(ellipse 60px 24px at 520px 566px, rgba(255, 255, 255, 0.45) 99%, transparent 100%),
+    radial-gradient(ellipse 44px 18px at 566px 552px, rgba(255, 255, 255, 0.45) 99%, transparent 100%);
+  background-size: 1200px 720px;
+  animation: cloud-drift-far 240s linear infinite, sky-fade-in 900ms ease;
+}
+
+/* Yakın bulutlar: küçük, hafif, biraz daha hızlı */
+:root:not([data-theme="dark"]) body::after {
+  background-image:
+    radial-gradient(ellipse 56px 20px at 130px 236px, rgba(255, 255, 255, 0.55) 99%, transparent 100%),
+    radial-gradient(ellipse 40px 16px at 168px 224px, rgba(255, 255, 255, 0.55) 99%, transparent 100%),
+    radial-gradient(ellipse 48px 18px at 600px 440px, rgba(255, 255, 255, 0.4) 99%, transparent 100%);
+  background-size: 760px 640px;
+  animation: cloud-drift-near 150s linear infinite, sky-fade-in 900ms ease;
+}
+
+/* Işık zerreleri: güneş civarında yumuşakça parlayıp sönen sıcak noktalar */
+:root:not([data-theme="dark"]) #root::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  pointer-events: none;
+  z-index: -1;
+  background-repeat: repeat;
+  background-image:
+    radial-gradient(2px 2px at 240px 190px, rgba(240, 177, 62, 0.5), transparent 2.6px),
+    radial-gradient(1.6px 1.6px at 420px 320px, rgba(240, 177, 62, 0.38), transparent 2.1px),
+    radial-gradient(1.8px 1.8px at 640px 150px, rgba(245, 195, 73, 0.42), transparent 2.3px),
+    radial-gradient(1.5px 1.5px at 130px 420px, rgba(240, 177, 62, 0.3), transparent 2px);
+  background-size: 820px 560px;
+  animation: star-twinkle 5.4s ease-in-out infinite, sky-fade-in 900ms ease;
+}
+
+@keyframes cloud-drift-far {
+  to {
+    transform: translateX(1200px);
+  }
+}
+
+@keyframes cloud-drift-near {
+  to {
+    transform: translateX(760px);
+  }
+}
+
 /* ---- Gece göğü: koyu temada süzülen ve göz kırpan yıldızlar ---- */
 
 :root[data-theme="dark"] body::before,
@@ -1050,7 +1158,7 @@ select option {
     radial-gradient(1.2px 1.2px at 128px 512px, rgba(234, 232, 226, 0.45), transparent 1.6px),
     radial-gradient(1px 1px at 596px 96px, rgba(240, 226, 214, 0.5), transparent 1.4px);
   background-size: 640px 560px;
-  animation: star-drift-far 150s linear infinite;
+  animation: star-drift-far 150s linear infinite, sky-fade-in 900ms ease;
 }
 
 /* Katman 2: yakın yıldızlar — biraz iri, süzülürken yanıp söner (faz A) */
@@ -1060,7 +1168,7 @@ select option {
     radial-gradient(2px 2px at 563px 74px, rgba(240, 228, 208, 0.85), transparent 2.6px),
     radial-gradient(1.8px 1.8px at 476px 331px, rgba(234, 232, 226, 0.8), transparent 2.3px);
   background-size: 720px 540px;
-  animation: star-drift-near 95s linear infinite, star-twinkle 4.4s ease-in-out infinite;
+  animation: star-drift-near 95s linear infinite, star-twinkle 4.4s ease-in-out infinite, sky-fade-in 900ms ease;
 }
 
 /* Katman 3: yanıp sönen ikinci grup (faz B) — farklı tempo, araya kaçık */
@@ -1079,12 +1187,22 @@ select option {
     radial-gradient(1.5px 1.5px at 189px 393px, rgba(234, 232, 226, 0.75), transparent 2px),
     radial-gradient(1.6px 1.6px at 611px 448px, rgba(240, 228, 208, 0.7), transparent 2.1px);
   background-size: 680px 620px;
-  animation: star-drift-blink 120s linear infinite, star-twinkle 6.2s ease-in-out 2.1s infinite;
+  animation: star-drift-blink 120s linear infinite, star-twinkle 6.2s ease-in-out 2.1s infinite, sky-fade-in 900ms ease;
 }
 
 @keyframes star-drift-blink {
   to {
     transform: translateY(620px);
+  }
+}
+
+@keyframes sky-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }
 
@@ -1116,9 +1234,9 @@ select option {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root[data-theme="dark"] body::before,
-  :root[data-theme="dark"] body::after,
-  :root[data-theme="dark"] #root::before {
+  body::before,
+  body::after,
+  #root::before {
     animation: none;
   }
 }

@@ -7,6 +7,7 @@ import { cleanPublicListingText } from "../utils/display";
 import { getSourceLabel } from "../utils/source";
 import { bellSwing, sparkBurst } from "../utils/micro-fx";
 import { mascotCheer } from "./Mascot";
+import { lastSeenLabel, meaningfulText } from "../utils/listing-presentation";
 import "./CatalogCard.css";
 
 function getSourceKey(label: string): string {
@@ -107,6 +108,11 @@ export function CatalogCard({
   const sourceKey = getSourceKey(sourceLabel);
 
   const isArchive = isArchiveSegment(listing.segment);
+  const locationText = meaningfulText(listing.location);
+  const listedText = meaningfulText(listing.listedAtLabel);
+  const seenText = lastSeenLabel(listing.lastSeenAt);
+  const dateText = listedText ?? seenText;
+  const isSeenFallback = !listedText && Boolean(seenText) && !isArchive;
   const range = isArchive ? null : parseSegmentRange(listing.segment);
   const rangePercent = range
     ? Math.min(100, Math.max(0, ((listing.price - range.min) / (range.max - range.min)) * 100))
@@ -155,6 +161,7 @@ export function CatalogCard({
             alt={publicTitle}
             loading="lazy"
             decoding="async"
+            onLoad={(event) => event.currentTarget.classList.add("is-loaded")}
             onError={handleImageError}
           />
         ) : (
@@ -172,7 +179,9 @@ export function CatalogCard({
 
       <span className="ledger-row__source">
         <span className="ledger-row__source-pill" data-source={sourceKey}>{sourceLabel.toLocaleUpperCase("tr-TR")}</span>
-        <span className="ledger-row__source-brand">{listing.brand.toLocaleUpperCase("tr-TR")}</span>
+        {meaningfulText(listing.brand) ? (
+          <span className="ledger-row__source-brand">{listing.brand.toLocaleUpperCase("tr-TR")}</span>
+        ) : null}
       </span>
 
       <span className="ledger-row__main">
@@ -184,12 +193,14 @@ export function CatalogCard({
       </span>
 
       <span className="ledger-row__where">
-        <span className="ledger-row__location">{listing.location}</span>
-        <span className="ledger-row__date">{listing.listedAtLabel}</span>
+        {locationText ? <span className="ledger-row__location">{locationText}</span> : null}
+        {dateText ? (
+          <span className={`ledger-row__date ${isSeenFallback ? "ledger-row__date--seen" : ""}`}>{dateText}</span>
+        ) : null}
       </span>
 
       <span className="ledger-row__range">
-        {range ? (
+        {isArchive ? null : range ? (
           <span
             className="ledger-row__range-widget"
             aria-label={`Segment aralığı ${range.min.toLocaleString("tr-TR")} – ${range.max.toLocaleString("tr-TR")} TL`}
@@ -210,11 +221,22 @@ export function CatalogCard({
 
       <span className="ledger-row__price">
         <span className="ledger-row__price-value">{priceLabel}</span>
-        {isArchive ? <span className="ledger-row__archive-chip">ARŞİV</span> : null}
+        {isArchive ? (
+          <span
+            className="ledger-row__archive-chip"
+            title={
+              listing.lastSeenAt
+                ? `Son görülme: ${new Date(listing.lastSeenAt).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })} — ilan kaynağında bulunamıyor`
+                : "İlan artık kaynağında bulunamıyor"
+            }
+          >
+            ARŞİV
+          </span>
+        ) : null}
       </span>
 
       <span className="ledger-row__delta">
-        {deltaPercent != null && deltaTone != null ? (
+        {isArchive ? null : deltaPercent != null && deltaTone != null ? (
           <>
             <span className="ledger-row__delta-track" aria-hidden="true">
               <span className="ledger-row__delta-axis" />
@@ -233,7 +255,13 @@ export function CatalogCard({
       </span>
 
       <span className="ledger-row__score">
-        {score != null && scoreTone != null ? (
+        {isArchive ? (
+          listing.lastSeenAt ? (
+            <span className="ledger-row__closed">
+              son {new Date(listing.lastSeenAt).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+            </span>
+          ) : null
+        ) : score != null && scoreTone != null ? (
           <>
             <span className="ledger-row__score-line">
               <span className={`ledger-row__score-value ledger-row__score-value--${scoreTone}`} data-elite={score >= 95}>{score}</span>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
   ArrowRight,
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { CatalogFilterState, CatalogListing, CatalogSourceFilter, DashboardSummary, GpuListing, ProductType } from "./types/listing";
 import { CATALOG_SORT_OPTIONS } from "./types/listing";
+import { CountUp } from "./components/CountUp";
 import { Header, type HeaderNotification } from "./components/Header";
 import { CatalogFilterBar } from "./components/CatalogFilterBar";
 import { CatalogGrid } from "./components/CatalogGrid";
@@ -280,7 +281,9 @@ function isCatalogReferenceBuyableListing(
   buyabilityIndex: BuyabilityIndex,
 ): boolean {
   const insight = getCatalogListingInsight(listing, comparisonListings, buyabilityIndex);
-  return insight.isReferenceBased && insight.score >= 74;
+  // Referans fiyat yoksa (ör. CPU katalogu) yeterli karşılaştırma örneklemi de kabul edilir;
+  // aksi halde "Popüler model" ve "Alınabilir" kartları o ürün tipinde hep boş kalıyordu.
+  return insight.score >= 74 && (insight.isReferenceBased || insight.comparableCount >= 5);
 }
 
 function sortCatalogListings(
@@ -1155,6 +1158,36 @@ export default function App() {
     }
   }, [catalogPage, catalogTotalPages]);
 
+  /* Filtre töreni: liste ışık hızında değişmez — eski sayfa 160ms soluklaşır,
+     yeni satırlar mürekkeple yazılır ("defter yeniden yazılıyor"). */
+  const rewriteSignature = JSON.stringify([
+    catalogFilters,
+    activePriceCategory,
+    selectedModelCategories,
+    spotlightFilter,
+    catalogPage,
+  ]);
+  const [displayedCatalogListings, setDisplayedCatalogListings] = useState(visibleCatalogListings);
+  const [isLedgerRewriting, setIsLedgerRewriting] = useState(false);
+  const rewriteSignatureRef = useRef(rewriteSignature);
+  useEffect(() => {
+    if (rewriteSignatureRef.current === rewriteSignature) {
+      setDisplayedCatalogListings(visibleCatalogListings);
+      return;
+    }
+    rewriteSignatureRef.current = rewriteSignature;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setDisplayedCatalogListings(visibleCatalogListings);
+      return;
+    }
+    setIsLedgerRewriting(true);
+    const timer = window.setTimeout(() => {
+      setDisplayedCatalogListings(visibleCatalogListings);
+      setIsLedgerRewriting(false);
+    }, 160);
+    return () => window.clearTimeout(timer);
+  }, [rewriteSignature, visibleCatalogListings]);
+
 
   const catalogDisplayTotal = catalogTotal || activeCatalogListings.length || (isCpuCatalogPage ? 0 : featuredListings.length);
   const isCatalogScreenLoading = isCatalogLoading || isCatalogEntryLoading;
@@ -1409,13 +1442,17 @@ export default function App() {
   });
 
   const indexBlocks = [
-    { label: "İlan", value: formatCount(catalogDisplayTotal), foot: "6 saatte bir yenilenir" },
+    { label: "İlan", value: <CountUp value={catalogDisplayTotal} format={formatCount} />, foot: "6 saatte bir yenilenir" },
     {
       label: "Model",
-      value: recognizedModelCount ? formatCount(recognizedModelCount) : "—",
+      value: recognizedModelCount ? <CountUp value={recognizedModelCount} format={formatCount} delayMs={90} /> : "—",
       foot: "4 kaynaktan eşlendi",
     },
-    { label: "Alınabilir aday", value: candidateCount ? formatCount(candidateCount) : "—", foot: "Skor ≥ 75" },
+    {
+      label: "Alınabilir aday",
+      value: candidateCount ? <CountUp value={candidateCount} format={formatCount} delayMs={180} /> : "—",
+      foot: "Skor ≥ 75",
+    },
   ];
 
   function resetCatalogView() {
@@ -1452,9 +1489,29 @@ export default function App() {
   function handleCatalogPageChange(nextPage: number) {
     const boundedPage = Math.min(Math.max(1, nextPage), catalogTotalPages);
     setCatalogPage(boundedPage);
-    window.requestAnimationFrame(() => {
-      document.getElementById("listing-feed")?.scrollIntoView({ block: "start", behavior: "smooth" });
-    });
+    // Yeniden-yazım (160ms) oturduktan sonra kaydır; yoksa hedef zemin oynar.
+    window.setTimeout(() => {
+      const feed = document.getElementById("listing-feed");
+      if (!feed) {
+        return;
+      }
+      const top = feed.getBoundingClientRect().top;
+      if (top > 40 && top < 160) {
+        return; // defter başı zaten görünümde; yerinden oynatma
+      }
+      feed.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
+      // Satır yükseklikleri kayış sırasında netleştiğinden hedef birkaç piksel
+      // kayabilir; kayış bitince sessizce hizala.
+      window.setTimeout(() => {
+        const settledTop = feed.getBoundingClientRect().top;
+        if (Math.abs(settledTop - 80) > 12) {
+          feed.scrollIntoView({ block: "start", behavior: "auto" });
+        }
+      }, 900);
+    }, 200);
   }
 
   function handleToggleNotifications() {
@@ -2093,7 +2150,7 @@ export default function App() {
                     <TrendingDown size={18} />
                     <span>En ucuz</span>
                     <strong className="mono">
-                      {catalogHighlights.cheapest ? formatCurrency(catalogHighlights.cheapest.price) : "Yok"}
+                      {catalogHighlights.cheapest ? <CountUp value={catalogHighlights.cheapest.price} format={formatCurrency} /> : "Yok"}
                     </strong>
                   </button>
 
@@ -2123,7 +2180,11 @@ export default function App() {
                     <Gem size={18} />
                     <span>Pahalı</span>
                     <strong className="mono">
-                      {catalogHighlights.expensive ? formatCurrency(catalogHighlights.expensive.price) : "Yok"}
+                      {catalogHighlights.expensive ? (
+                        <CountUp value={catalogHighlights.expensive.price} format={formatCurrency} delayMs={80} />
+                      ) : (
+                        "Yok"
+                      )}
                     </strong>
                   </button>
 
@@ -2138,7 +2199,15 @@ export default function App() {
                   >
                     <BadgeDollarSign size={18} />
                     <span>Alınabilir</span>
-                    <strong>{catalogHighlights.buyableCount > 0 ? `${formatCount(catalogHighlights.buyableCount)} ilan` : "Yok"}</strong>
+                    <strong>
+                      {catalogHighlights.buyableCount > 0 ? (
+                        <>
+                          <CountUp value={catalogHighlights.buyableCount} format={formatCount} delayMs={160} /> ilan
+                        </>
+                      ) : (
+                        "Yok"
+                      )}
+                    </strong>
                   </button>
                 </section>
 
@@ -2218,7 +2287,8 @@ export default function App() {
 
                 {!isCatalogLoading && !catalogError && (
                   <CatalogGrid
-                    listings={visibleCatalogListings}
+                    listings={displayedCatalogListings}
+                    isRewriting={isLedgerRewriting}
                     total={filteredCatalogListings.length}
                     currentPage={catalogPage}
                     pageSize={CATALOG_PAGE_SIZE}

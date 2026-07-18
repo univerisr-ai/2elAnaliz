@@ -230,6 +230,9 @@ async function main() {
   const pipelinePath = path.resolve(pipelineArg || './data/inbox/pipeline-messages.json');
 
   const sourceDirs = await listSourceDirs(sourceRoot);
+  // Ilan saglik takibi: taze artifact'te gorulen her ilan bu turun damgasini alir;
+  // yalniz baseline'dan tasinanlar eski damgasini korur (arsiv tespitinin temeli).
+  const mergeSeenAt = new Date().toISOString();
   const mergedListings = [];
   const seen = new Set();
   const sourceMetas = [];
@@ -267,6 +270,7 @@ async function main() {
       const enrichedListing = {
         ...listing,
         productType: normalizeProductType(listing?.productType || listing?.product_type) || productType,
+        lastSeenAt: mergeSeenAt,
       };
       const key = dedupeKey(enrichedListing);
       if (!key || seen.has(key)) continue;
@@ -312,6 +316,7 @@ async function main() {
     const enrichedListing = {
       ...listing,
       productType,
+      lastSeenAt: listing?.lastSeenAt || mergeSeenAt,
     };
     const dedupe = dedupeKey(enrichedListing);
     if (!dedupe || seen.has(dedupe)) continue;

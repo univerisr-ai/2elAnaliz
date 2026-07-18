@@ -1,9 +1,12 @@
-import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { CatalogListing } from "../types/listing";
 import { CatalogCard } from "./CatalogCard";
+import { Mascot } from "./Mascot";
+import { CountUp } from "./CountUp";
 import "./CatalogCard.css";
 
 interface CatalogGridProps {
+  readonly isRewriting?: boolean;
   readonly listings: readonly CatalogListing[];
   readonly total: number;
   readonly currentPage: number;
@@ -36,6 +39,7 @@ const LEDGER_COLUMNS = [
 ] as const;
 
 export function CatalogGrid({
+  isRewriting = false,
   listings,
   total,
   currentPage,
@@ -63,14 +67,14 @@ export function CatalogGrid({
 
       <header className="ledger__topline">
         <span className="ledger__topline-label">
-          Defter · {total.toLocaleString("tr-TR")} kayıt
+          Defter · <CountUp value={total} /> kayıt
         </span>
         <span className="ledger__topline-page">
           Sayfa {currentPage.toLocaleString("tr-TR")} / {Math.max(totalPages, 1).toLocaleString("tr-TR")}
         </span>
       </header>
 
-      <div className="ledger__table">
+      <div className={`ledger__table ${isRewriting ? "is-rewriting" : ""}`}>
         <div className="ledger__head" aria-hidden="true">
           {LEDGER_COLUMNS.map((column) => (
             <span key={column.key} className={`ledger__hcell ledger__hcell--${column.key}`}>
@@ -81,9 +85,9 @@ export function CatalogGrid({
 
         {listings.length === 0 ? (
           <div className="ledger__empty">
-            <SearchX size={22} aria-hidden="true" />
-            <h3 className="ledger__empty-title">Bu filtrelerle kayıt bulunamadı</h3>
-            <p className="ledger__empty-text">Aramayı sadeleştir veya fiyat aralığını genişlet.</p>
+            <Mascot size={120} mood="calm" />
+            <h3 className="ledger__empty-title">Defterin bu sayfası bomboş</h3>
+            <p className="ledger__empty-text">Üç Çip de bir şey bulamadı — filtreyi biraz gevşetmeyi deneyelim mi?</p>
           </div>
         ) : (
           listings.map((listing, index) => (

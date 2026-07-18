@@ -94,6 +94,8 @@ export interface CatalogListing {
   readonly sourceType?: "pecid" | "sahibinden" | "letgo" | "dolap" | "donanimhaber" | "facebook" | "forum" | "external";
   readonly productType?: ProductType;
   readonly isInternal?: boolean;
+  /** Ilanin taze bir taramada en son gorulme zamani; arsiv tespitinin kaynagi. */
+  readonly lastSeenAt?: string | null;
 }
 
 export interface DashboardRefreshLogEntry {

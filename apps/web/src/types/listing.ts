@@ -95,6 +95,8 @@ export interface CatalogListing {
   readonly sourceLabel?: string | null;
   readonly externalUrl?: string | null;
   readonly isInternal?: boolean;
+  /** İlanın taze bir taramada en son görülme zamanı; arşiv rozetinin dayanağı. */
+  readonly lastSeenAt?: string | null;
 }
 
 export interface CatalogModelSummary {

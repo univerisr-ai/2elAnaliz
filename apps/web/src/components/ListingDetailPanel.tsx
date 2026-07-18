@@ -8,6 +8,7 @@ import { cleanPublicListingText } from "../utils/display";
 import { getCanonicalGpuModel, getModelFamily } from "../utils/catalog-taxonomy";
 import { getExternalListingUrl, getSourceLabel } from "../utils/source";
 import { Star, Trash2, X } from "lucide-react";
+import { lastSeenLabel, meaningfulText } from "../utils/listing-presentation";
 import "./ListingDetailPanel.css";
 
 interface ListingDetailPanelProps {
@@ -82,7 +83,7 @@ const DEFAULT_CHECK_ITEMS: readonly string[] = [
 const SCORE_SEGMENT_COUNT = 10;
 
 /** Skor sayacı: 0'dan hedefe hızla tırmanır (ease-out), makbuz yazımıyla senkron başlar. */
-function ScoreCounter({ target, delayMs = 540 }: { readonly target: number; readonly delayMs?: number }) {
+function ScoreCounter({ target, delayMs = 900 }: { readonly target: number; readonly delayMs?: number }) {
   const [shown, setShown] = useState(0);
   const rafRef = useRef(0);
 
@@ -269,14 +270,28 @@ export function ListingDetailPanel({
     return { "--stagger": order } as CSSProperties;
   }
 
+  const [isClosing, setIsClosing] = useState(false);
+  function handleGracefulClose() {
+    if (isClosing) {
+      return;
+    }
+    setIsClosing(true);
+    window.setTimeout(onClose, 280);
+  }
+
   return (
-    <div className="listing-detail" role="dialog" aria-modal="true" aria-label="İlan detay ve alınabilirlik">
-      <button type="button" className="listing-detail__backdrop" onClick={onClose} aria-label="Detayı kapat" />
+    <div
+      className={`listing-detail ${isClosing ? "listing-detail--closing" : ""}`}
+      role="dialog"
+      aria-modal="true"
+      aria-label="İlan detay ve alınabilirlik"
+    >
+      <button type="button" className="listing-detail__backdrop" onClick={handleGracefulClose} aria-label="Detayı kapat" />
 
       <aside className="listing-detail__panel">
         <header className="listing-detail__topbar">
           <span className="listing-detail__topbar-title">EMİR FİŞİ</span>
-          <button type="button" className="listing-detail__close" onClick={onClose} aria-label="Detayı kapat">
+          <button type="button" className="listing-detail__close" onClick={handleGracefulClose} aria-label="Detayı kapat">
             <X size={15} />
           </button>
         </header>
@@ -285,7 +300,7 @@ export function ListingDetailPanel({
         <div className="listing-detail__scroll">
           <div className="listing-detail__media listing-detail__section tilt-3d" style={sectionStyle(0)}>
             {imageUrl ? (
-              <img src={imageUrl} alt={publicTitle} onError={handleImageError} />
+              <img src={imageUrl} alt={publicTitle} onLoad={(event) => event.currentTarget.classList.add("is-loaded")} onError={handleImageError} />
             ) : (
               <div className="listing-detail__plate" aria-label="Görsel yok">
                 <span className="listing-detail__plate-name">{plateName}</span>
@@ -301,9 +316,11 @@ export function ListingDetailPanel({
             <h3 className="listing-detail__title">{publicTitle}</h3>
             <div className="listing-detail__meta">
               <span className="listing-detail__source-pill" data-source={sourceKeyForLabel(sourceLabel)}>{sourceLabel}</span>
-              <span>{listing.brand}</span>
-              <span>{listing.location || "Konum belirtilmemiş"}</span>
-              {listing.listedAtLabel ? <span>{listing.listedAtLabel}</span> : null}
+              {meaningfulText(listing.brand) ? <span>{listing.brand}</span> : null}
+              {meaningfulText(listing.location) ? <span>{listing.location}</span> : null}
+              {meaningfulText(listing.listedAtLabel) ?? lastSeenLabel(listing.lastSeenAt) ? (
+                <span>{meaningfulText(listing.listedAtLabel) ?? lastSeenLabel(listing.lastSeenAt)}</span>
+              ) : null}
             </div>
           </div>
 
