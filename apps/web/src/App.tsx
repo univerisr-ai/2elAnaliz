@@ -1489,9 +1489,29 @@ export default function App() {
   function handleCatalogPageChange(nextPage: number) {
     const boundedPage = Math.min(Math.max(1, nextPage), catalogTotalPages);
     setCatalogPage(boundedPage);
-    window.requestAnimationFrame(() => {
-      document.getElementById("listing-feed")?.scrollIntoView({ block: "start", behavior: "smooth" });
-    });
+    // Yeniden-yazım (160ms) oturduktan sonra kaydır; yoksa hedef zemin oynar.
+    window.setTimeout(() => {
+      const feed = document.getElementById("listing-feed");
+      if (!feed) {
+        return;
+      }
+      const top = feed.getBoundingClientRect().top;
+      if (top > 40 && top < 160) {
+        return; // defter başı zaten görünümde; yerinden oynatma
+      }
+      feed.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      });
+      // Satır yükseklikleri kayış sırasında netleştiğinden hedef birkaç piksel
+      // kayabilir; kayış bitince sessizce hizala.
+      window.setTimeout(() => {
+        const settledTop = feed.getBoundingClientRect().top;
+        if (Math.abs(settledTop - 80) > 12) {
+          feed.scrollIntoView({ block: "start", behavior: "auto" });
+        }
+      }, 900);
+    }, 200);
   }
 
   function handleToggleNotifications() {
