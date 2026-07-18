@@ -634,7 +634,16 @@ function setSeoJsonLd(title: string, description: string, canonicalPath: string)
 }
 
 export default function App() {
-  const initialRoute = useMemo(() => parseAppRoute(), []);
+  const initialRoute = useMemo(() => {
+    const route = parseAppRoute();
+    // Girişte dogrudan Marketplace: kok adres deftere yonlendirilir.
+    // "Ana Sayfa" menuden hala erisilebilir (yonlendirme yalnizca ilk aciliste).
+    if (route.page === "home" && typeof window !== "undefined" && window.location.pathname === "/") {
+      window.history.replaceState(null, "", "/marketplace");
+      return { page: "catalog" as PageView, modelSlug: null, listingId: null };
+    }
+    return route;
+  }, []);
   const [activePage, setActivePage] = useState<PageView>(initialRoute.page);
   const [routeModelSlug, setRouteModelSlug] = useState<string | null>(initialRoute.modelSlug);
   const [routeListingId, setRouteListingId] = useState<string | null>(initialRoute.listingId);
