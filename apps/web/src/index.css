@@ -879,7 +879,8 @@ select option {
   content: "";
   position: fixed;
   top: 65px;
-  right: 360px;
+  left: 50%;
+  margin-left: -110px;
   width: 220px;
   height: 220px;
   pointer-events: none;
@@ -900,7 +901,8 @@ select option {
   content: "";
   position: fixed;
   top: 133px;
-  right: 428px;
+  left: 50%;
+  margin-left: -42px;
   width: 84px;
   height: 84px;
   pointer-events: none;
@@ -930,7 +932,8 @@ select option {
   content: "";
   position: fixed;
   top: 100px;
-  right: 395px;
+  left: 50%;
+  margin-left: -75px;
   width: 150px;
   height: 150px;
   pointer-events: none;
@@ -944,7 +947,8 @@ select option {
   content: "";
   position: fixed;
   top: 137px;
-  right: 432px;
+  left: 50%;
+  margin-left: -38px;
   width: 76px;
   height: 76px;
   pointer-events: none;
