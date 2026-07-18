@@ -253,7 +253,7 @@ export function Header({
           {onOpenPortfolio ? (
             <button type="button" className="header__portfolio" onClick={onOpenPortfolio}>
               Portföyüm
-              {portfolioCount > 0 ? <strong>{portfolioCount}</strong> : null}
+              {portfolioCount > 0 ? <strong key={portfolioCount}>{portfolioCount}</strong> : null}
             </button>
           ) : null}
 

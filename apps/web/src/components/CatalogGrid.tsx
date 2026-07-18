@@ -1,6 +1,7 @@
-import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { CatalogListing } from "../types/listing";
 import { CatalogCard } from "./CatalogCard";
+import { Mascot } from "./Mascot";
 import { CountUp } from "./CountUp";
 import "./CatalogCard.css";
 
@@ -84,9 +85,9 @@ export function CatalogGrid({
 
         {listings.length === 0 ? (
           <div className="ledger__empty">
-            <SearchX size={22} aria-hidden="true" />
-            <h3 className="ledger__empty-title">Bu filtrelerle kayıt bulunamadı</h3>
-            <p className="ledger__empty-text">Aramayı sadeleştir veya fiyat aralığını genişlet.</p>
+            <Mascot size={120} mood="calm" />
+            <h3 className="ledger__empty-title">Defterin bu sayfası bomboş</h3>
+            <p className="ledger__empty-text">Üç Çip de bir şey bulamadı — filtreyi biraz gevşetmeyi deneyelim mi?</p>
           </div>
         ) : (
           listings.map((listing, index) => (

@@ -209,6 +209,39 @@
   height: 6px;
   border-radius: var(--radius-full);
   background: var(--accent-success);
+  animation: sync-alive 2.6s ease-in-out infinite;
+}
+
+@keyframes sync-alive {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(67, 197, 131, 0.45);
+  }
+
+  45% {
+    box-shadow: 0 0 0 5px rgba(67, 197, 131, 0);
+  }
+}
+
+@keyframes badge-pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.45);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__sync-dot,
+  .header__portfolio strong {
+    animation: none;
+  }
 }
 
 .header__icon-btn {
@@ -273,6 +306,7 @@
 }
 
 .header__portfolio strong {
+  animation: badge-pulse 560ms var(--ease-spring);
   display: inline-flex;
   align-items: center;
   justify-content: center;
