@@ -12,18 +12,24 @@ function readInitialTheme(): ThemeName {
 }
 
 function applyTheme(theme: ThemeName): void {
-  const rootEl = document.documentElement;
-  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    rootEl.classList.add("theme-transition");
-    window.setTimeout(() => rootEl.classList.remove("theme-transition"), 560);
+  const commit = () => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#131318" : "#f6f8fc");
+    try {
+      localStorage.setItem("gp-theme", theme);
+    } catch {
+      // Gizli modda tercih kalıcı olmayabilir; tema yine de uygulanır.
+    }
+  };
+
+  // Soldan sağa perde süpürmesi; desteklemeyen tarayıcıda ve
+  // hareket-azaltmada anında geçiş.
+  const doc = document as Document & { startViewTransition?: (callback: () => void) => unknown };
+  if (!doc.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    commit();
+    return;
   }
-  rootEl.dataset.theme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#131318" : "#f6f8fc");
-  try {
-    localStorage.setItem("gp-theme", theme);
-  } catch {
-    // Gizli modda tercih kalıcı olmayabilir; tema yine de uygulanır.
-  }
+  doc.startViewTransition(commit);
 }
 
 type PageView = "home" | "catalog" | "cpu" | "submit-link" | "submit-manual" | "signin" | "signup" | "admin" | "about";

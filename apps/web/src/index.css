@@ -872,17 +872,26 @@ select option {
     #FBFAFD;
 }
 
-/* Tema değişim sahnesi: renkler damga değil, akış — düğmeye basınca kısa süreliğine */
-:root.theme-transition,
-:root.theme-transition *,
-:root.theme-transition *::before,
-:root.theme-transition *::after {
-  transition:
-    background-color 480ms ease,
-    background 480ms ease,
-    color 480ms ease,
-    border-color 480ms ease,
-    box-shadow 480ms ease !important;
+/* Tema değişim sahnesi: yeni tema soldan sağa perde gibi süpürülür (View Transitions).
+   Eski/yeni kareler GPU anlık görüntüsü olduğundan titreşim imkânsız. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: theme-wipe 950ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes theme-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 /* ---- Gök süsleri: gündüz dönen ışınlı güneş, gece süzülen hilal ---- */
