@@ -981,3 +981,165 @@
 .listing-detail__source-pill[data-source="dolap"] { background: #E9F5F1; border-color: rgba(13, 124, 102, 0.3); color: #0D7C66; }
 .listing-detail__source-pill[data-source="donanimhaber"] { background: #EDF2FB; border-color: rgba(55, 88, 164, 0.3); color: #3758A4; }
 .listing-detail__source-pill[data-source="pecid"] { background: var(--accent-primary-dim); border-color: rgba(194, 65, 12, 0.32); color: var(--accent-primary-strong); }
+
+/* ============================================================
+   MAKBUZ YAZDIRMA — panel içeriği termal yazıcıdan çıkar gibi
+   tepeden aşağı "beslenerek" basılır; tırtıklı kenar yazım
+   çizgisini takip eder, yazıcı kafası (üst bar) hafif titrer,
+   skor rozeti yazım oradan geçerken mühür gibi vurulur.
+   ============================================================ */
+
+.listing-detail__scroll {
+  animation: receipt-feed 1050ms linear 120ms both;
+}
+
+/* Yazdırma sırasında eski bölüm kademe animasyonu devre dışı —
+   içerik zaten maskeyle açığa çıkıyor. */
+.listing-detail__section {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+@keyframes receipt-feed {
+  0% {
+    clip-path: inset(0 0 100% 0);
+  }
+
+  12% {
+    clip-path: inset(0 0 82% 0);
+  }
+
+  17% {
+    clip-path: inset(0 0 80% 0);
+  }
+
+  34% {
+    clip-path: inset(0 0 57% 0);
+  }
+
+  40% {
+    clip-path: inset(0 0 55% 0);
+  }
+
+  58% {
+    clip-path: inset(0 0 30% 0);
+  }
+
+  63% {
+    clip-path: inset(0 0 28% 0);
+  }
+
+  86% {
+    clip-path: inset(0 0 4% 0);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Tırtıklı yazım kenarı: yazım çizgisiyle birlikte aşağı iner */
+.listing-detail__print-edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50px;
+  height: 12px;
+  z-index: 5;
+  pointer-events: none;
+  background:
+    linear-gradient(-45deg, transparent 8px, #ffffff 0),
+    linear-gradient(45deg, transparent 8px, #ffffff 0);
+  background-size: 14px 12px;
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 3px 5px rgba(20, 22, 26, 0.14));
+  animation: receipt-edge 1050ms linear 120ms both;
+}
+
+@keyframes receipt-edge {
+  0% {
+    top: 50px;
+    opacity: 1;
+  }
+
+  12% {
+    top: calc(50px + 18% * 0.94);
+  }
+
+  17% {
+    top: calc(50px + 20% * 0.94);
+  }
+
+  34% {
+    top: calc(50px + 43% * 0.94);
+  }
+
+  40% {
+    top: calc(50px + 45% * 0.94);
+  }
+
+  58% {
+    top: calc(50px + 70% * 0.94);
+  }
+
+  63% {
+    top: calc(50px + 72% * 0.94);
+  }
+
+  86% {
+    top: calc(50px + 96% * 0.94);
+  }
+
+  97% {
+    top: calc(50px + 100% * 0.94);
+    opacity: 1;
+  }
+
+  100% {
+    top: calc(50px + 100% * 0.94);
+    opacity: 0;
+  }
+}
+
+/* Yazıcı kafası: üst bar yazdırma boyunca minik titrer */
+.listing-detail__topbar {
+  animation: printer-hum 1050ms linear 120ms;
+}
+
+@keyframes printer-hum {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(0.6px); }
+  22% { transform: translateX(-0.5px); }
+  36% { transform: translateX(0.5px); }
+  52% { transform: translateX(-0.6px); }
+  68% { transform: translateX(0.4px); }
+  84% { transform: translateX(-0.4px); }
+}
+
+/* Skor mührü: yazım skor bloğundan geçerken vurulur */
+.listing-detail__score-row {
+  animation: stamp-hit 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 560ms both;
+  transform-origin: 30% 60%;
+}
+
+@keyframes stamp-hit {
+  0% {
+    opacity: 0;
+    transform: scale(1.7) rotate(-9deg);
+  }
+
+  55% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-1deg);
+  }
+
+  75% {
+    transform: scale(1.04) rotate(-2deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}

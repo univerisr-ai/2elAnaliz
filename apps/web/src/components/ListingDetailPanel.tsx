@@ -242,6 +242,7 @@ export function ListingDetailPanel({
           </button>
         </header>
 
+        <span className="listing-detail__print-edge" aria-hidden="true" />
         <div className="listing-detail__scroll">
           <div className="listing-detail__media listing-detail__section" style={sectionStyle(0)}>
             {imageUrl ? (
