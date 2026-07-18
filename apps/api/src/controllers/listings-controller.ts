@@ -225,7 +225,12 @@ export function filterCatalogListingsByProduct(
 }
 
 function buildPublicImagePath(listingId: string, imageUrl: string | null | undefined): string | null {
-  return imageUrl ? `/api/image/listing/${encodeURIComponent(listingId)}` : null;
+  // Eski cache'lerden sizan '/api/image/listing/...' oz-referanslari indirilemez;
+  // gorsel yok kabul et ki arayuz plaka gosterebilsin.
+  if (!imageUrl || !/^https?:\/\//i.test(imageUrl)) {
+    return null;
+  }
+  return `/api/image/listing/${encodeURIComponent(listingId)}`;
 }
 
 function getBearerToken(req: Request): string | null {

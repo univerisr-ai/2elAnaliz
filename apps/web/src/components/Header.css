@@ -35,7 +35,13 @@
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-full);
   background: var(--bg-ink);
-  color: #f2f0ec;
+  color: var(--text-on-ink);
+}
+
+.header__brand-mark svg {
+  transform: rotate(var(--needle-deg, 0deg));
+  transition: transform 950ms var(--ease-spring);
+  will-change: transform;
 }
 
 .header__brand-copy {
@@ -56,7 +62,7 @@
   font-size: 0.56rem;
   font-weight: 500;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--text-tertiary);
   white-space: nowrap;
 }
@@ -76,8 +82,8 @@
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   transition: color var(--transition-fast);
 }
 
@@ -117,7 +123,7 @@
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.01em;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
@@ -193,8 +199,8 @@
   font-family: var(--font-mono);
   font-size: 0.64rem;
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   white-space: nowrap;
 }
 
@@ -256,8 +262,8 @@
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
   white-space: nowrap;
   transition: border-color var(--transition-fast);
 }
@@ -315,11 +321,15 @@
   padding: 0 13px;
   border: 1px solid var(--bg-ink);
   background: var(--bg-ink);
-  color: #ffffff;
+  color: var(--text-on-ink);
 }
 
 .header__auth-primary:hover {
   background: #23262c;
+}
+
+:root[data-theme="dark"] .header__auth-primary:hover {
+  background: #DBD8CF;
 }
 
 .header__account-chip {
@@ -376,8 +386,8 @@
   font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .header__notification-list {
@@ -433,8 +443,8 @@
   font-family: var(--font-mono);
   font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .header__notification-item strong {
@@ -466,7 +476,7 @@
   border: 1px solid var(--bg-ink);
   border-radius: var(--radius-md);
   background: var(--bg-ink);
-  color: #ffffff;
+  color: var(--text-on-ink);
   font-size: 0.72rem;
   font-weight: 600;
 }

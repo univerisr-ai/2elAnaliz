@@ -2,9 +2,9 @@
 
 :root {
   color-scheme: light;
-  --bg-primary: #F7F6F2;
-  --bg-secondary: #F1EFE9;
-  --bg-tertiary: #ECE9E1;
+  --bg-primary: #F6F4F8;
+  --bg-secondary: #EFEDF4;
+  --bg-tertiary: #E9E6EF;
   --bg-card: #FFFFFF;
   --bg-card-hover: #FCFBF8;
   --bg-glass: rgba(255, 255, 255, 0.92);
@@ -13,6 +13,7 @@
   --panel-bg: #FFFFFF;
   --soft-surface: #F7F6F2;
   --bg-ink: #14161A;
+  --text-on-ink: #FFFFFF;
   --accent-primary: #C2410C;
   --accent-primary-strong: #9A3412;
   --accent-primary-dim: #FDF0E7;
@@ -29,16 +30,16 @@
   --text-tertiary: #8A8478;
   --text-accent: #C2410C;
   --text-on-accent: #FFFFFF;
-  --border-subtle: #EEEBE3;
-  --border-card: #E6E3DB;
+  --border-subtle: #EFEDF4;
+  --border-card: #E5E2EB;
   --border-strong: #101418;
   --border-input: #D9D5CB;
   --gradient-brand: none;
   --gradient-button: none;
-  --radius-sm: 3px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -47,8 +48,8 @@
   --transition-fast: 150ms var(--ease-standard);
   --transition-base: 290ms var(--ease-out);
   --transition-slow: 720ms var(--ease-emphasis);
-  --shadow-card: 0 0 0 rgba(0, 0, 0, 0);
-  --shadow-card-hover: 0 2px 10px rgba(16, 20, 24, 0.06);
+  --shadow-card: 0 6px 24px rgba(20, 22, 26, 0.05);
+  --shadow-card-hover: 0 12px 32px rgba(20, 22, 26, 0.09);
   --shadow-panel: -12px 0 32px rgba(16, 20, 24, 0.1);
   --glow-accent: 0 0 0 rgba(0, 0, 0, 0);
   --glow-violet: 0 0 0 rgba(0, 0, 0, 0);
@@ -56,6 +57,50 @@
   --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: var(--font-sans);
+  --c-nvidia: #79BD30;
+  --c-amd: #E8544A;
+  --c-intel: #3B82D6;
+  --c-ink: #1A1A1A;
+}
+
+/* Gece Seansı: koyu tema — aynı defter, loş masa lambası */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg-primary: #131318;
+  --bg-secondary: #17171E;
+  --bg-tertiary: #1C1C24;
+  --bg-card: #1A1A21;
+  --bg-card-hover: #1F1F28;
+  --bg-glass: rgba(19, 19, 24, 0.92);
+  --bg-input: #16161C;
+  --bg-surface: #17171D;
+  --panel-bg: #1A1A21;
+  --soft-surface: #1E1E26;
+  --bg-ink: #ECEAE4;
+  --text-on-ink: #14161A;
+  --accent-primary: #F97844;
+  --accent-primary-strong: #FF9A6B;
+  --accent-primary-dim: rgba(249, 120, 68, 0.13);
+  --accent-secondary: #F97844;
+  --accent-secondary-dim: rgba(249, 120, 68, 0.13);
+  --accent-success: #43C583;
+  --accent-success-dim: rgba(67, 197, 131, 0.12);
+  --accent-warning: #E3A44F;
+  --accent-warning-dim: rgba(227, 164, 79, 0.12);
+  --accent-danger: #F26D85;
+  --accent-danger-dim: rgba(242, 109, 133, 0.12);
+  --text-primary: #EAE8E2;
+  --text-secondary: #A9AEB9;
+  --text-tertiary: #80858F;
+  --text-accent: #FF9268;
+  --border-subtle: #222229;
+  --border-card: #26262E;
+  --border-strong: #EAE8E2;
+  --border-input: #30303A;
+  --shadow-card: 0 6px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-panel: -12px 0 32px rgba(0, 0, 0, 0.55);
+  --ring-focus: 0 0 0 2px rgba(249, 120, 68, 0.4);
 }
 
 *,
@@ -78,7 +123,8 @@ html {
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background: var(--bg-primary);
+  /* Zemini html boyar; gövde şeffaf kalır ki gök süsleri (güneş/ay) görünsün. */
+  background: transparent;
   color: var(--text-primary);
   font-family: var(--font-sans);
   line-height: 1.6;
@@ -104,11 +150,11 @@ h4 {
 }
 
 .micro-label {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
   color: var(--text-secondary);
 }
 
@@ -774,4 +820,355 @@ select option {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* ---- Pusula Soft: organik animasyon sözlüğü (proje1/proje2 stili) ---- */
+
+@keyframes grow-up {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scaleY(0.92);
+  }
+
+  60% {
+    transform: translateY(-3px) scaleY(1.02);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  50% {
+    transform: scaleY(1.03);
+  }
+}
+
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+
+  95% {
+    transform: scaleY(0.08);
+  }
+}
+
+.pastel-wash {
+  background:
+    radial-gradient(ellipse 60% 70% at 18% 22%, rgba(107, 33, 255, 0.1), transparent 60%),
+    radial-gradient(ellipse 55% 60% at 82% 18%, rgba(244, 208, 63, 0.16), transparent 62%),
+    radial-gradient(ellipse 65% 62% at 68% 88%, rgba(255, 116, 67, 0.12), transparent 60%),
+    radial-gradient(ellipse 45% 50% at 12% 90%, rgba(52, 211, 153, 0.1), transparent 58%),
+    #FBFAFD;
+}
+
+/* ---- Gök süsleri: gündüz dönen ışınlı güneş, gece süzülen hilal ---- */
+
+/* Gündüz — ışın çarkı: yumuşak pastel ışınlar güneşin etrafında ağır ağır döner */
+:root:not([data-theme="dark"])::before {
+  content: "";
+  position: fixed;
+  top: 65px;
+  left: 50%;
+  margin-left: -110px;
+  width: 220px;
+  height: 220px;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    rgba(240, 177, 62, 0.4) 0deg 6.5deg,
+    transparent 6.5deg 30deg
+  );
+  -webkit-mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
+  mask: radial-gradient(circle, transparent 0 48px, #000 52px 78px, transparent 84px);
+  animation: sun-spin 70s linear infinite;
+}
+
+/* Gündüz — güneş çekirdeği: nefes alan sıcak sarı yuvarlak */
+:root:not([data-theme="dark"])::after {
+  content: "";
+  position: fixed;
+  top: 133px;
+  left: 50%;
+  margin-left: -42px;
+  width: 84px;
+  height: 84px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, #F5C349 0 30px, rgba(245, 195, 73, 0.35) 31px 37px, transparent 40px);
+  animation: sun-breathe 6s ease-in-out infinite alternate;
+}
+
+@keyframes sun-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes sun-breathe {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.05);
+  }
+}
+
+/* Gece — ay halesi */
+:root[data-theme="dark"]::before {
+  content: "";
+  position: fixed;
+  top: 100px;
+  left: 50%;
+  margin-left: -75px;
+  width: 150px;
+  height: 150px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, rgba(234, 232, 226, 0.11), transparent 62%);
+  animation: moon-glow 5.5s ease-in-out infinite alternate;
+}
+
+/* Gece — hilal: kâğıt rengi ay, hafifçe sallanıp süzülür */
+:root[data-theme="dark"]::after {
+  content: "";
+  position: fixed;
+  top: 137px;
+  left: 50%;
+  margin-left: -38px;
+  width: 76px;
+  height: 76px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(circle, #E9E6DE 0 36px, transparent 37px);
+  -webkit-mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
+  mask: radial-gradient(circle at 70% 26%, transparent 0 28px, #000 29px);
+  animation: moon-rock 7s ease-in-out infinite alternate;
+}
+
+@keyframes moon-glow {
+  from {
+    opacity: 0.7;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes moon-rock {
+  from {
+    transform: rotate(-18deg) translateY(0);
+  }
+
+  to {
+    transform: rotate(-8deg) translateY(-7px);
+  }
+}
+
+/* Geniş ekran: içerik ortalı kaldığından sol tarafta boşluk oluşur —
+   güneş/ay o boşluğun ortasına yerleşir. */
+@media (min-width: 1720px) {
+  :root:not([data-theme="dark"])::before {
+    top: 30vh;
+    left: calc((100vw - 1400px) / 4 - 110px);
+    margin-left: 0;
+  }
+
+  :root:not([data-theme="dark"])::after {
+    top: calc(30vh + 68px);
+    left: calc((100vw - 1400px) / 4 - 42px);
+    margin-left: 0;
+  }
+
+  :root[data-theme="dark"]::before {
+    top: calc(30vh + 35px);
+    left: calc((100vw - 1400px) / 4 - 75px);
+    margin-left: 0;
+  }
+
+  :root[data-theme="dark"]::after {
+    top: calc(30vh + 72px);
+    left: calc((100vw - 1400px) / 4 - 38px);
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  :root::before,
+  :root::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root::before,
+  :root::after {
+    animation: none;
+  }
+}
+
+/* ---- Gece göğü: koyu temada süzülen ve göz kırpan yıldızlar ---- */
+
+:root[data-theme="dark"] body::before,
+:root[data-theme="dark"] body::after {
+  content: "";
+  position: fixed;
+  top: -720px;
+  left: 0;
+  right: 0;
+  height: calc(100vh + 720px);
+  pointer-events: none;
+  z-index: 0;
+  background-repeat: repeat;
+}
+
+/* Katman 1: uzak yıldızlar — küçük, soluk, yavaşça aşağı süzülür */
+:root[data-theme="dark"] body::before {
+  background-image:
+    radial-gradient(1px 1px at 44px 58px, rgba(234, 232, 226, 0.7), transparent 1.4px),
+    radial-gradient(1px 1px at 189px 133px, rgba(234, 232, 226, 0.5), transparent 1.4px),
+    radial-gradient(1.4px 1.4px at 317px 41px, rgba(214, 222, 240, 0.6), transparent 1.8px),
+    radial-gradient(1px 1px at 452px 214px, rgba(234, 232, 226, 0.45), transparent 1.4px),
+    radial-gradient(1px 1px at 78px 342px, rgba(240, 226, 214, 0.55), transparent 1.4px),
+    radial-gradient(1.3px 1.3px at 274px 297px, rgba(234, 232, 226, 0.65), transparent 1.7px),
+    radial-gradient(1px 1px at 531px 386px, rgba(214, 222, 240, 0.48), transparent 1.4px),
+    radial-gradient(1px 1px at 372px 471px, rgba(234, 232, 226, 0.58), transparent 1.4px),
+    radial-gradient(1.2px 1.2px at 128px 512px, rgba(234, 232, 226, 0.45), transparent 1.6px),
+    radial-gradient(1px 1px at 596px 96px, rgba(240, 226, 214, 0.5), transparent 1.4px);
+  background-size: 640px 560px;
+  animation: star-drift-far 150s linear infinite;
+}
+
+/* Katman 2: yakın yıldızlar — biraz iri, süzülürken yanıp söner (faz A) */
+:root[data-theme="dark"] body::after {
+  background-image:
+    radial-gradient(1.7px 1.7px at 96px 84px, rgba(234, 232, 226, 0.9), transparent 2.2px),
+    radial-gradient(2px 2px at 563px 74px, rgba(240, 228, 208, 0.85), transparent 2.6px),
+    radial-gradient(1.8px 1.8px at 476px 331px, rgba(234, 232, 226, 0.8), transparent 2.3px);
+  background-size: 720px 540px;
+  animation: star-drift-near 95s linear infinite, star-twinkle 4.4s ease-in-out infinite;
+}
+
+/* Katman 3: yanıp sönen ikinci grup (faz B) — farklı tempo, araya kaçık */
+:root[data-theme="dark"] #root::before {
+  content: "";
+  position: fixed;
+  top: -620px;
+  left: 0;
+  right: 0;
+  height: calc(100vh + 620px);
+  pointer-events: none;
+  z-index: -1;
+  background-repeat: repeat;
+  background-image:
+    radial-gradient(1.5px 1.5px at 341px 189px, rgba(214, 226, 244, 0.8), transparent 2px),
+    radial-gradient(1.5px 1.5px at 189px 393px, rgba(234, 232, 226, 0.75), transparent 2px),
+    radial-gradient(1.6px 1.6px at 611px 448px, rgba(240, 228, 208, 0.7), transparent 2.1px);
+  background-size: 680px 620px;
+  animation: star-drift-blink 120s linear infinite, star-twinkle 6.2s ease-in-out 2.1s infinite;
+}
+
+@keyframes star-drift-blink {
+  to {
+    transform: translateY(620px);
+  }
+}
+
+@keyframes star-drift-far {
+  to {
+    transform: translateY(560px);
+  }
+}
+
+@keyframes star-drift-near {
+  to {
+    transform: translateY(540px);
+  }
+}
+
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  45% {
+    opacity: 0.25;
+  }
+
+  60% {
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="dark"] body::before,
+  :root[data-theme="dark"] body::after,
+  :root[data-theme="dark"] #root::before {
+    animation: none;
+  }
+}
+
+:root[data-theme="dark"] .pastel-wash {
+  background:
+    radial-gradient(ellipse 60% 70% at 18% 22%, rgba(129, 74, 255, 0.14), transparent 60%),
+    radial-gradient(ellipse 55% 60% at 82% 18%, rgba(244, 208, 63, 0.08), transparent 62%),
+    radial-gradient(ellipse 65% 62% at 68% 88%, rgba(255, 116, 67, 0.1), transparent 60%),
+    radial-gradient(ellipse 45% 50% at 12% 90%, rgba(52, 211, 153, 0.08), transparent 58%),
+    #17171E;
+}
+
+/* ---- 3D Kart Eğimi ---- */
+
+.tilt-3d {
+  --tx: 0;
+  --ty: 0;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: perspective(620px) rotateX(calc(var(--ty) * -7deg)) rotateY(calc(var(--tx) * 9deg));
+  transition: transform 420ms var(--ease-spring);
+  will-change: transform;
+}
+
+.tilt-3d.is-tilting {
+  transition: transform 90ms ease-out;
+  z-index: 3;
+}
+
+.tilt-3d.is-tilting img {
+  transform: scale(1.06);
+}
+
+.tilt-3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at calc(50% + var(--tx) * 45%) calc(50% + var(--ty) * 45%),
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.08) 42%,
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+.tilt-3d.is-tilting::after {
+  opacity: 1;
 }

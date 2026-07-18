@@ -5,6 +5,8 @@ import { buildImageCandidateUrls } from "../utils/media";
 import { getCanonicalGpuModel, getModelFamily } from "../utils/catalog-taxonomy";
 import { cleanPublicListingText } from "../utils/display";
 import { getSourceLabel } from "../utils/source";
+import { bellSwing, sparkBurst } from "../utils/micro-fx";
+import { mascotCheer } from "./Mascot";
 import "./CatalogCard.css";
 
 function getSourceKey(label: string): string {
@@ -145,7 +147,7 @@ export function CatalogCard({
     >
       <span className="ledger-row__folio">{folio != null ? `No. ${folio.toLocaleString("tr-TR")}` : "—"}</span>
 
-      <span className="ledger-row__photo">
+      <span className="ledger-row__photo tilt-3d">
         {showImage ? (
           <img
             className="ledger-row__image"
@@ -157,6 +159,11 @@ export function CatalogCard({
           />
         ) : (
           <span className="ledger-row__plate" aria-label="Görsel yok">
+            <span className="plate-buddy" aria-hidden="true">
+              <span className="plate-buddy__eye" />
+              <span className="plate-buddy__eye" />
+              <span className="plate-buddy__zzz">z</span>
+            </span>
             <span className="ledger-row__plate-name">{publicModel.toLocaleUpperCase("tr-TR")}</span>
             <span className="ledger-row__plate-caption">GÖRSEL YOK</span>
           </span>
@@ -229,7 +236,7 @@ export function CatalogCard({
         {score != null && scoreTone != null ? (
           <>
             <span className="ledger-row__score-line">
-              <span className={`ledger-row__score-value ledger-row__score-value--${scoreTone}`}>{score}</span>
+              <span className={`ledger-row__score-value ledger-row__score-value--${scoreTone}`} data-elite={score >= 95}>{score}</span>
               <span className="ledger-row__score-cap">/100</span>
             </span>
             <span className="ledger-row__score-bar" aria-hidden="true">
@@ -257,6 +264,10 @@ export function CatalogCard({
             title={isFavorite ? "Favoriden kaldır" : "Favoriye ekle"}
             onClick={(event) => {
               event.stopPropagation();
+              if (!isFavorite) {
+                sparkBurst(event.currentTarget, "#F4D03F");
+                mascotCheer();
+              }
               onToggleFavorite(listing);
             }}
           >
@@ -273,6 +284,7 @@ export function CatalogCard({
             }
             onClick={(event) => {
               event.stopPropagation();
+              bellSwing(event.currentTarget);
               onSetPriceAlert(listing);
             }}
           >
@@ -300,7 +312,7 @@ export function CatalogCard({
               onOpenDetails(listing);
             }}
           >
-            İNCELE
+            İncele
           </button>
         </span>
         {alertTargetPrice != null ? (

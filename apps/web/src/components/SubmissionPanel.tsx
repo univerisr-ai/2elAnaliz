@@ -40,6 +40,7 @@ import {
 import { GPU_BRAND } from "../types/listing";
 import type { SubmissionBundle, SubmissionRecord } from "../types/submission";
 import { buildImageCandidateUrls } from "../utils/media";
+import { Mascot } from "./Mascot";
 import "./SubmissionPanel.css";
 
 type SubmitMode = "link" | "manual";
@@ -805,6 +806,9 @@ export function SubmissionPanel({
         <section className="submission-panel__auth-gateway submission-panel__auth-gateway--single" aria-label="Oturum">
           {activeAuthIntent === "signin" ? (
           <article className="submission-panel__auth-panel is-recommended">
+            <div className="submission-panel__mascot-stage">
+              <Mascot size={150} />
+            </div>
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <UserRound size={18} />
@@ -880,6 +884,9 @@ export function SubmissionPanel({
           </article>
           ) : (
           <article className="submission-panel__auth-panel submission-panel__auth-panel--register is-recommended">
+            <div className="submission-panel__mascot-stage">
+              <Mascot size={150} />
+            </div>
             <div className="submission-panel__auth-panel-head">
               <span className="submission-panel__icon">
                 <Plus size={18} />

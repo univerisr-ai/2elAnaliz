@@ -1,0 +1,216 @@
+:root {
+  --mx: 0;
+  --my: 0;
+}
+
+.mascot {
+  position: relative;
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.mascot__char {
+  position: absolute;
+  bottom: 0;
+  transform-origin: bottom center;
+  transition: transform 0.6s var(--ease-spring);
+  will-change: transform;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Mor kemer — uzun blob */
+.mascot__char--purple {
+  left: 6%;
+  width: 34%;
+  height: 96%;
+  border-radius: 999px 999px 0 0;
+  background: var(--c-nvidia);
+  transform: skewX(calc(var(--mx) * -5deg)) scaleY(calc(1 + var(--my) * -0.04));
+  z-index: 1;
+}
+
+/* Turuncu yarım daire */
+.mascot__char--orange {
+  left: 26%;
+  width: 56%;
+  height: 62%;
+  border-radius: 999px 999px 0 0;
+  background: var(--c-amd);
+  transform: skewX(calc(var(--mx) * -4deg)) scaleY(calc(1 + var(--my) * -0.03));
+  z-index: 2;
+  animation-delay: 0.6s;
+}
+
+/* Sarı ufaklık */
+.mascot__char--yellow {
+  right: 0;
+  width: 30%;
+  height: 40%;
+  border-radius: 999px 999px 0 0;
+  background: var(--c-intel);
+  transform: skewX(calc(var(--mx) * 3deg)) scaleY(calc(1 + var(--my) * -0.03));
+  z-index: 3;
+  animation-delay: 1.1s;
+}
+
+.mascot__eyes {
+  position: absolute;
+  top: 26%;
+  left: 50%;
+  display: flex;
+  gap: 7px;
+  transform: translate(calc(-50% + var(--mx) * 5px), calc(var(--my) * 3px));
+  transition: transform 0.4s var(--ease-spring);
+  will-change: transform;
+}
+
+.mascot__char--orange .mascot__eyes {
+  top: 30%;
+  gap: 6px;
+}
+
+.mascot__char--yellow .mascot__eyes {
+  top: 24%;
+  gap: 5px;
+}
+
+.mascot__eye {
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #ffffff;
+  position: relative;
+  animation: blink 4.5s infinite;
+}
+
+.mascot__char--orange .mascot__eye {
+  width: 11px;
+  height: 11px;
+  animation-delay: 0.9s;
+}
+
+.mascot__char--orange .mascot__pupil {
+  width: 5px;
+  height: 5px;
+}
+
+.mascot__char--yellow .mascot__eye {
+  width: 9px;
+  height: 9px;
+  animation-delay: 1.4s;
+}
+
+.mascot__char--yellow .mascot__pupil {
+  width: 4px;
+  height: 4px;
+}
+
+.mascot__pupil {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #14161a;
+  transform: translate(calc(-50% + var(--mx) * 2px), calc(-50% + var(--my) * 2px));
+  transition: transform 0.4s var(--ease-spring);
+}
+
+.mascot__smile {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 16px;
+  height: 8px;
+  border: 2.5px solid #ffffff;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+  border-radius: 0 0 999px 999px;
+  transform: translateX(-50%);
+}
+
+.mascot__char--orange .mascot__smile,
+.mascot__char--yellow .mascot__smile {
+  top: 52%;
+  width: 13px;
+  height: 6px;
+}
+
+.mascot__char--yellow .mascot__smile {
+  top: 46%;
+  width: 10px;
+}
+
+.mascot--calm .mascot__char {
+  animation-duration: 5.5s;
+}
+
+@media (max-width: 720px) {
+  .mascot {
+    display: none;
+  }
+}
+
+/* ---- Tepki durumları ---- */
+
+/* Şifre yazılıyor: herkes gözlerini kapatır, gülümseme ciddileşir */
+body[data-mascot-focus="password"] .mascot__eye {
+  animation: none;
+  transform: scaleY(0.08);
+  transition: transform 0.25s var(--ease-spring);
+}
+
+body[data-mascot-focus="password"] .mascot__pupil {
+  opacity: 0;
+}
+
+body[data-mascot-focus="password"] .mascot__smile {
+  height: 3px;
+  border-radius: 999px;
+  border-width: 2px;
+}
+
+/* Şifre görünür yapıldı: mor karakter tek gözle dikizler 👀 */
+body[data-mascot-focus="peek"] .mascot__eye {
+  animation: none;
+  transform: scaleY(0.08);
+}
+
+body[data-mascot-focus="peek"] .mascot__char--purple .mascot__eye:first-child {
+  transform: scaleY(1);
+}
+
+body[data-mascot-focus="peek"] .mascot__char--purple .mascot__eye:first-child .mascot__pupil {
+  opacity: 1;
+}
+
+/* Sevinç: kısa zıplama (favori eklenince vb.) */
+body[data-mascot-cheer="1"] .mascot__char {
+  animation: mascot-jump 0.6s var(--ease-spring);
+}
+
+body[data-mascot-cheer="1"] .mascot__char--orange {
+  animation-delay: 0.06s;
+}
+
+body[data-mascot-cheer="1"] .mascot__char--yellow {
+  animation-delay: 0.12s;
+}
+
+@keyframes mascot-jump {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+
+  30% {
+    transform: translateY(2px) scaleY(0.92);
+  }
+
+  60% {
+    transform: translateY(-12px) scaleY(1.05);
+  }
+}

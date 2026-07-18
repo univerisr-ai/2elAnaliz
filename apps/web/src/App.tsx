@@ -25,6 +25,9 @@ import { CatalogGrid } from "./components/CatalogGrid";
 import { Footer } from "./components/Footer";
 import { ListingDetailPanel } from "./components/ListingDetailPanel";
 import { Ticker } from "./components/Ticker";
+import { Mascot } from "./components/Mascot";
+import { defterTarget, flyTicketToPanel } from "./utils/ticket-morph";
+import { initTilt3d } from "./utils/tilt-3d";
 import { SubmissionPanel } from "./components/SubmissionPanel";
 import { AdminReviewPanel } from "./components/AdminReviewPanel";
 import {
@@ -410,7 +413,7 @@ function CatalogLoadingScreen({
 }) {
   return (
     <section className="catalog-loader container" aria-live="polite" aria-label="Katalog yükleniyor">
-      <span className="catalog-loader__spinner" aria-hidden="true" />
+      <Mascot size={130} mood="calm" />
       <div className="catalog-loader__copy">
         <strong>Defter hazırlanıyor</strong>
         <span className="mono">
@@ -633,7 +636,16 @@ function setSeoJsonLd(title: string, description: string, canonicalPath: string)
 }
 
 export default function App() {
-  const initialRoute = useMemo(() => parseAppRoute(), []);
+  const initialRoute = useMemo(() => {
+    const route = parseAppRoute();
+    // Girişte dogrudan Marketplace: kok adres deftere yonlendirilir.
+    // "Ana Sayfa" menuden hala erisilebilir (yonlendirme yalnizca ilk aciliste).
+    if (route.page === "home" && typeof window !== "undefined" && window.location.pathname === "/") {
+      window.history.replaceState(null, "", "/marketplace");
+      return { page: "catalog" as PageView, modelSlug: null, listingId: null };
+    }
+    return route;
+  }, []);
   const [activePage, setActivePage] = useState<PageView>(initialRoute.page);
   const [routeModelSlug, setRouteModelSlug] = useState<string | null>(initialRoute.modelSlug);
   const [routeListingId, setRouteListingId] = useState<string | null>(initialRoute.listingId);
@@ -655,6 +667,7 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState<string>("Bilinmiyor");
   const [catalogPage, setCatalogPage] = useState(1);
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
+  const [navDirection, setNavDirection] = useState<"left" | "right">("right");
   const [isCatalogEntryLoading, setIsCatalogEntryLoading] = useState(false);
   const [accountSession, setAccountSession] = useState<Session | null>(null);
   const [accountProfile, setAccountProfile] = useState<SubmissionProfile | null>(null);
@@ -665,8 +678,20 @@ export default function App() {
   const activeCatalogProduct: ProductType = activePage === "cpu" ? "cpu" : "gpu";
   const isCpuCatalogPage = activeCatalogProduct === "cpu";
 
+  const NAV_ORDER: readonly PageView[] = useMemo(
+    () => ["home", "catalog", "cpu", "submit-link", "submit-manual", "signin", "signup", "admin", "about"],
+    [],
+  );
+
   const pushRoute = useCallback((route: AppRouteState, path: string) => {
-    setActivePage(route.page);
+    setActivePage((previousPage) => {
+      const fromIndex = NAV_ORDER.indexOf(previousPage);
+      const toIndex = NAV_ORDER.indexOf(route.page);
+      if (fromIndex !== toIndex) {
+        setNavDirection(toIndex > fromIndex ? "right" : "left");
+      }
+      return route.page;
+    });
     setRouteModelSlug(route.modelSlug);
     setRouteListingId(route.listingId);
 
@@ -951,6 +976,10 @@ export default function App() {
       isCancelled = true;
     };
   }, [activeCatalogProduct]);
+
+  useEffect(() => {
+    initTilt3d();
+  }, []);
 
   useEffect(() => {
     setCatalogPage(1);
@@ -1651,7 +1680,42 @@ export default function App() {
 
   return (
     <>
-      <Ticker items={featuredListings} onSelect={(item) => navigateToModelSlug(slugifyModelLabel(item.model))} />
+      <Ticker
+        items={featuredListings}
+        onSelect={(item, element) => {
+          const normalize = (value: string) => value.toLocaleLowerCase("tr-TR").replace(/\s+/g, " ").trim();
+          const wantedModel = normalize(item.model);
+          const match =
+            catalogListings.find(
+              (listing) => listing.price === item.price && normalize(listing.model) === wantedModel,
+            ) ??
+            catalogListings.find(
+              (listing) => listing.price === item.price && normalize(listing.title).includes(wantedModel),
+            );
+          if (match) {
+            flyTicketToPanel(
+              element,
+              {
+                model: item.model,
+                priceText: `${item.price.toLocaleString("tr-TR")} TL`,
+                deltaText: `%-${item.discountPercent}`,
+              },
+              () => navigateToListing(match),
+            );
+          } else {
+            flyTicketToPanel(
+              element,
+              {
+                model: item.model,
+                priceText: `${item.price.toLocaleString("tr-TR")} TL`,
+                deltaText: `%-${item.discountPercent}`,
+              },
+              () => navigateToModelSlug(slugifyModelLabel(item.model)),
+              defterTarget(),
+            );
+          }
+        }}
+      />
       <Header
         activePage={activePage}
         onNavigate={(page) => {
@@ -1675,16 +1739,17 @@ export default function App() {
         portfolioCount={activeWatchItems.length}
       />
 
-      <main className="app-main">
+      <main className={`app-main app-main--${navDirection}`}>
         {activePage === "home" && (
           <section className="page page--home" aria-labelledby="home-title">
             <section className="desk container">
-              <header className="desk__head">
+              <header className="desk__head pastel-wash">
                 <div>
-                  <span className="micro-label desk__eyebrow">Piyasa Özeti</span>
+                  <span className="micro-label desk__eyebrow">Piyasa özeti</span>
                   <h2 id="home-title">Açık seans — {sessionDateLabel}</h2>
+                  <span className="desk__meta">Son senkron {lastUpdated} · 4 kaynak aktif</span>
                 </div>
-                <span className="desk__meta mono">Son senkron {lastUpdated} · Kaynak 4 aktif</span>
+                <Mascot size={170} />
               </header>
 
               <div className="desk__index" aria-label="Piyasa endeksleri">
@@ -1817,7 +1882,11 @@ export default function App() {
         )}
 
         {(activePage === "catalog" || activePage === "cpu") && (
-          <section className={`page page--catalog ${isCpuCatalogPage ? "page--cpu-catalog" : ""}`} aria-labelledby="catalog-title">
+          <section
+            key={activeCatalogProduct}
+            className={`page page--catalog ${isCpuCatalogPage ? "page--cpu-catalog" : ""}`}
+            aria-labelledby="catalog-title"
+          >
             <section className="catalog-page__intro container">
               <div>
                 <span className="micro-label catalog-page__eyebrow">

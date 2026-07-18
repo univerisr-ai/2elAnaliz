@@ -19,13 +19,13 @@ const DEFAULT_FILTERS: CatalogFilterState = {
 };
 
 const SOURCE_OPTIONS: ReadonlyArray<{ readonly value: CatalogSourceFilter; readonly label: string }> = [
-  { value: "all", label: "TÜMÜ" },
-  { value: "sahibinden", label: "SAHİBİNDEN" },
-  { value: "letgo", label: "LETGO" },
-  { value: "dolap", label: "DOLAP" },
-  { value: "donanimhaber", label: "DONANIMHABER" },
-  { value: "external", label: "HARİCİ · FORUM" },
-  { value: "pecid", label: "GPU PUSULA" },
+  { value: "all", label: "Tümü" },
+  { value: "sahibinden", label: "Sahibinden" },
+  { value: "letgo", label: "Letgo" },
+  { value: "dolap", label: "Dolap" },
+  { value: "donanimhaber", label: "Donanım Haber" },
+  { value: "external", label: "Harici · Forum" },
+  { value: "pecid", label: "GPU Pusula" },
 ];
 
 export function CatalogFilterBar({ filters, onFilterChange, onReset, productType = "gpu" }: CatalogFilterBarProps) {
@@ -41,15 +41,15 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
   const brandOptions: ReadonlyArray<{ readonly value: GpuBrand | "all"; readonly label: string }> =
     productType === "gpu"
       ? [
-          { value: "all", label: "TÜMÜ" },
+          { value: "all", label: "Tümü" },
           { value: GPU_BRAND.NVIDIA, label: "NVIDIA" },
           { value: GPU_BRAND.AMD, label: "AMD" },
-          { value: GPU_BRAND.INTEL, label: "INTEL" },
+          { value: GPU_BRAND.INTEL, label: "Intel" },
         ]
       : [
-          { value: "all", label: "TÜMÜ" },
+          { value: "all", label: "Tümü" },
           { value: GPU_BRAND.AMD, label: "AMD" },
-          { value: GPU_BRAND.INTEL, label: "INTEL" },
+          { value: GPU_BRAND.INTEL, label: "Intel" },
         ];
 
   const searchPlaceholder =
@@ -61,7 +61,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
     <section className="catalog-filter" aria-label="Urun katalog filtreleri">
       <div className="catalog-filter__section">
         <label className="catalog-filter__micro" htmlFor="catalog-filter-search">
-          ARA
+          Ara
         </label>
         <input
           id="catalog-filter-search"
@@ -75,7 +75,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
 
       <div className="catalog-filter__section">
         <span className="catalog-filter__micro" id="catalog-filter-brand-label">
-          MARKA
+          Marka
         </span>
         <div className="catalog-filter__segments" role="group" aria-labelledby="catalog-filter-brand-label">
           {brandOptions.map((option) => {
@@ -97,7 +97,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
 
       <div className="catalog-filter__section">
         <span className="catalog-filter__micro" id="catalog-filter-source-label">
-          KAYNAK
+          Kaynak
         </span>
         <div className="catalog-filter__sources" role="group" aria-labelledby="catalog-filter-source-label">
           {SOURCE_OPTIONS.map((option) => {
@@ -126,14 +126,14 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
 
       <div className="catalog-filter__section">
         <span className="catalog-filter__micro" id="catalog-filter-price-label">
-          FİYAT · TL
+          Fiyat · TL
         </span>
         <div className="catalog-filter__price" role="group" aria-labelledby="catalog-filter-price-label">
           <input
             type="number"
             inputMode="numeric"
             className="catalog-filter__price-input"
-            placeholder="MİN"
+            placeholder="Min"
             aria-label="Minimum fiyat"
             value={filters.minPrice || ""}
             onChange={(event) => update("minPrice", parseNumber(event.target.value, 0))}
@@ -145,7 +145,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
             type="number"
             inputMode="numeric"
             className="catalog-filter__price-input"
-            placeholder="MAKS"
+            placeholder="Maks"
             aria-label="Maksimum fiyat"
             value={filters.maxPrice === 100000 ? "" : filters.maxPrice}
             onChange={(event) => update("maxPrice", parseNumber(event.target.value, 100000))}
@@ -155,7 +155,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
 
       <div className="catalog-filter__section">
         <label className="catalog-filter__micro" htmlFor="catalog-filter-sort">
-          ALINABİLİRLİK
+          Alınabilirlik
         </label>
         <select
           id="catalog-filter-sort"
@@ -183,7 +183,7 @@ export function CatalogFilterBar({ filters, onFilterChange, onReset, productType
           onFilterChange(DEFAULT_FILTERS);
         }}
       >
-        SIFIRLA
+        Sıfırla
       </button>
     </section>
   );

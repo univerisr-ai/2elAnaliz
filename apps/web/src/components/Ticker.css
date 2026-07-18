@@ -3,10 +3,11 @@
   z-index: 110;
   display: flex;
   align-items: stretch;
-  height: 34px;
+  height: 38px;
   overflow: hidden;
-  background: var(--bg-ink);
-  color: #e8e6e1;
+  background: #FBFAFD;
+  border-bottom: 1px solid var(--border-card);
+  color: var(--text-secondary);
 }
 
 .ticker__label {
@@ -15,13 +16,11 @@
   gap: 8px;
   flex: 0 0 auto;
   padding: 0 16px;
-  border-right: 1px solid rgba(232, 230, 225, 0.16);
-  background: var(--bg-ink);
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  border-right: 1px solid var(--border-card);
+  background: #FBFAFD;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-primary);
   white-space: nowrap;
 }
 
@@ -55,35 +54,35 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 34px;
+  height: 38px;
   padding: 0 18px;
-  border-right: 1px solid rgba(232, 230, 225, 0.12);
+  border-right: 1px solid var(--border-subtle);
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  color: #c9c6bf;
+  color: var(--text-secondary);
   transition: background 150ms ease, color 150ms ease;
 }
 
 .ticker__item:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #ffffff;
+  background: var(--accent-primary-dim);
+  color: var(--text-primary);
 }
 
 .ticker__item strong {
-  color: #f2f0ec;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .ticker__price {
-  color: #c9c6bf;
+  color: var(--text-secondary);
 }
 
 .ticker__delta.is-down {
-  color: #4ade80;
+  color: var(--accent-success);
 }
 
 .ticker__delta.is-up {
-  color: #f87171;
+  color: var(--accent-danger);
 }
 
 @keyframes ticker-scroll {
@@ -112,3 +111,85 @@
     padding: 0 10px;
   }
 }
+
+/* Banttan Yakala — sökülen parça bantta soluklaşır */
+.ticker__item.is-caught {
+  opacity: 0.18;
+  filter: saturate(0.4);
+  transition: opacity 220ms ease, filter 220ms ease;
+}
+
+/* Uçan fırsat bileti (body altına eklenir) */
+.catch-ticket {
+  position: fixed;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px 0 18px;
+  overflow: hidden;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  pointer-events: none;
+  will-change: transform, width, height;
+}
+
+.catch-ticket strong {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.catch-ticket__price {
+  color: var(--text-secondary);
+}
+
+.catch-ticket__delta {
+  color: var(--accent-success);
+  font-weight: 600;
+}
+
+.catch-ticket__notch {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: var(--accent-primary);
+}
+
+.catch-ticket::before,
+.catch-ticket::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-primary);
+}
+
+.catch-ticket::before {
+  top: -5px;
+}
+
+.catch-ticket::after {
+  bottom: -5px;
+}
+
+/* ---- Gece Seansı: koyu bant ---- */
+
+:root[data-theme="dark"] .ticker,
+:root[data-theme="dark"] .ticker__label {
+  background: #16161C;
+}
+
+:root[data-theme="dark"] .catch-ticket {
+  background: var(--bg-card);
+}
+

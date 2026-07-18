@@ -20,8 +20,15 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 14px;
-  padding-bottom: 4px;
+  gap: 20px;
+  padding: 26px 30px 0;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  animation: grow-up 900ms var(--ease-spring) both;
+}
+
+.desk__head > div {
+  padding-bottom: 24px;
 }
 
 .desk__eyebrow {
@@ -37,10 +44,10 @@
 }
 
 .desk__meta {
+  display: inline-block;
+  margin-top: 8px;
   color: var(--text-tertiary);
-  font-size: 0.66rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.76rem;
   white-space: nowrap;
 }
 
@@ -72,7 +79,7 @@
   color: var(--text-primary);
   font-size: clamp(2rem, 3.4vw, 2.9rem);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.02em;
   line-height: 1;
 }
 
@@ -293,8 +300,8 @@
   color: var(--text-primary);
   font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .desk__protocol p {
@@ -311,7 +318,7 @@
   padding: 18px 20px;
   border-radius: var(--radius-lg);
   background: var(--bg-ink);
-  color: #f2f0ec;
+  color: var(--text-on-ink);
   animation: fade-up 480ms var(--ease-out) 180ms both;
 }
 
@@ -390,7 +397,7 @@
   border: 1px solid var(--bg-ink);
   border-radius: var(--radius-md);
   background: var(--bg-ink);
-  color: #ffffff;
+  color: var(--text-on-ink);
   font-size: 0.76rem;
   font-weight: 600;
   transition: background var(--transition-fast);
@@ -531,6 +538,9 @@
 
 .catalog-spotlight__item:hover:not(:disabled) {
   border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card-hover);
+  transition: transform 0.3s var(--ease-spring), border-color var(--transition-fast), box-shadow 0.3s ease;
 }
 
 .catalog-spotlight__item.is-active {
@@ -554,11 +564,8 @@
 
 .catalog-spotlight__item span {
   color: var(--text-tertiary);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .catalog-spotlight__item strong {
@@ -881,7 +888,7 @@
   border: 1px solid var(--bg-ink);
   border-radius: var(--radius-md);
   background: var(--bg-ink);
-  color: #ffffff;
+  color: var(--text-on-ink);
   font-size: 0.8rem;
   font-weight: 600;
   transition: background var(--transition-fast);
@@ -1179,15 +1186,63 @@
   gap: 8px;
 }
 
+/* Mürekkep dolumu: iskelet kutuları yerine satır satır "yazılan" çizgiler */
 .market-state__skeleton span,
 .dashboard__preview-strip span,
 .listing-grid__standby-grid div {
+  position: relative;
   overflow: hidden;
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent), #ECE9E1;
-  background-size: 220% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(circle at 7px 7px, #CBC3DA 3.5px, transparent 4.5px),
+    repeating-linear-gradient(180deg, #DDD7E7 0 9px, transparent 9px 24px);
+  background-position: 0 2px, 0 0;
+  background-repeat: no-repeat, repeat-y;
+  animation: ink-loop 1.7s ease-in-out infinite;
+}
+
+.market-state__skeleton span:nth-child(2),
+.dashboard__preview-strip span:nth-child(2),
+.listing-grid__standby-grid div:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.market-state__skeleton span:nth-child(3),
+.dashboard__preview-strip span:nth-child(3),
+.listing-grid__standby-grid div:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+.dashboard__preview-strip span:nth-child(4) {
+  animation-delay: 0.66s;
+}
+
+@keyframes ink-loop {
+  0% {
+    opacity: 1;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  58% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+
+  78% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+
+  96% {
+    opacity: 0.12;
+    clip-path: inset(0 0 0 0);
+  }
+
+  100% {
+    opacity: 0.12;
+    clip-path: inset(0 100% 0 0);
+  }
 }
 
 .market-state__skeleton span {
@@ -1503,7 +1558,7 @@
     border: 1px solid var(--bg-ink);
     border-radius: var(--radius-md);
     background: var(--bg-ink);
-    color: #ffffff;
+    color: var(--text-on-ink);
     font-size: 0.76rem;
     font-weight: 600;
   }
@@ -1649,3 +1704,54 @@
     background-position: -80% 0;
   }
 }
+
+/* Pusula ibresi geçişi: içerik gidilen yönden süzülür */
+.app-main--right .page {
+  animation: page-from-right 460ms var(--ease-out) both;
+}
+
+.app-main--left .page {
+  animation: page-from-left 460ms var(--ease-out) both;
+}
+
+@keyframes page-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes page-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ---- Gece Seansı: koyu tema ---- */
+
+:root[data-theme="dark"] .catalog-page__submit-button:hover,
+:root[data-theme="dark"] .catalog-marketplace__submit:hover {
+  background: #DBD8CF;
+}
+
+:root[data-theme="dark"] .market-state__skeleton span,
+:root[data-theme="dark"] .dashboard__preview-strip span,
+:root[data-theme="dark"] .listing-grid__standby-grid div {
+  background:
+    radial-gradient(circle at 7px 7px, #4A4258 3.5px, transparent 4.5px),
+    repeating-linear-gradient(180deg, #373242 0 9px, transparent 9px 24px);
+  background-position: 0 2px, 0 0;
+  background-repeat: no-repeat, repeat-y;
+}
+

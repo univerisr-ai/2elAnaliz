@@ -37,7 +37,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -72,17 +72,19 @@
 .ledger-row {
   display: grid;
   grid-template-columns:
-    46px 64px 108px minmax(0, 1fr) 96px 104px 92px 62px 56px var(--ledger-actions);
-  gap: 8px;
+    64px 108px minmax(0, 1fr) 96px 96px 62px 56px var(--ledger-actions);
+  gap: 10px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 14px 16px;
+}
+
+.ledger-row__folio,
+.ledger-row__range {
+  display: none !important;
 }
 
 .ledger__head {
-  padding-top: 9px;
-  padding-bottom: 9px;
-  border-bottom: 1px solid var(--border-card);
-  background: var(--bg-surface);
+  display: none;
 }
 
 .ledger__hcell {
@@ -116,7 +118,7 @@
   cursor: pointer;
   content-visibility: auto;
   contain-intrinsic-size: auto 66px;
-  animation: ledger-fade-up 300ms var(--ease-out) both;
+  animation: ink-write 420ms var(--ease-out) both;
   transition: background var(--transition-fast);
 }
 
@@ -158,6 +160,45 @@
 .ledger__table > .ledger-row:nth-child(20) { animation-delay: 270ms; }
 .ledger__table > .ledger-row:nth-child(21) { animation-delay: 285ms; }
 .ledger__table > .ledger-row:nth-child(n + 22) { animation-delay: 300ms; }
+
+/* Mürekkep yazımı: satır soldan sağa kalemle çekilir gibi açılır */
+@keyframes ink-write {
+  from {
+    opacity: 0.85;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Fiyat "kuruması": rakam önce ıslak (bulanık), sonra netleşir */
+.ledger-row__price-value {
+  animation: ink-dry 700ms ease-out 240ms both;
+}
+
+.ledger__table > .ledger-row:nth-child(n + 22) .ledger-row__price-value {
+  animation: none;
+}
+
+@keyframes ink-dry {
+  from {
+    filter: blur(3px);
+    opacity: 0.45;
+  }
+
+  60% {
+    filter: blur(1px);
+    opacity: 0.85;
+  }
+
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
 
 @keyframes ledger-fade-up {
   from {
@@ -801,7 +842,7 @@
 .catalog-pagination__page.is-active {
   border-color: var(--bg-ink);
   background: var(--bg-ink);
-  color: var(--text-on-accent);
+  color: var(--text-on-ink);
 }
 
 .catalog-pagination__ellipsis {
@@ -818,7 +859,7 @@
 @media (max-width: 1024px) {
   .ledger__head,
   .ledger-row {
-    grid-template-columns: 46px 64px 78px minmax(0, 1fr) 96px 92px 56px var(--ledger-actions);
+    grid-template-columns: 64px 88px minmax(0, 1fr) 96px 92px 56px var(--ledger-actions);
   }
 
   .ledger__hcell--range,
@@ -957,3 +998,127 @@
     transition: none;
   }
 }
+
+/* ---- Uyuyan Plaka: fotoğrafsız ilanlarda mini maskot uyuklar ---- */
+
+.plate-buddy {
+  position: absolute;
+  right: 4px;
+  bottom: 0;
+  width: 16px;
+  height: 12px;
+  border-radius: 999px 999px 0 0;
+  background: var(--c-amd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  animation: breathe 3.6s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.plate-buddy__eye {
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: #14161a;
+  transform: scaleY(0.18);
+  transition: transform 0.25s var(--ease-spring);
+  margin-top: 1px;
+}
+
+.plate-buddy__zzz {
+  position: absolute;
+  top: -10px;
+  right: -3px;
+  color: var(--text-tertiary);
+  font-size: 8px;
+  font-weight: 700;
+  animation: zzz-float 2.6s ease-in-out infinite;
+}
+
+@keyframes zzz-float {
+  0%, 100% { opacity: 0; transform: translateY(2px); }
+  35% { opacity: 1; }
+  70% { opacity: 0; transform: translateY(-5px); }
+}
+
+/* Satıra hover: uyanır — gözler açılır, zzz kaybolur, minik doğrulma */
+.ledger-row:hover .plate-buddy {
+  animation: none;
+  transform: translateY(-1px);
+}
+
+.ledger-row:hover .plate-buddy__eye {
+  transform: scaleY(1);
+  animation: blink 3.8s infinite 0.6s;
+}
+
+.ledger-row:hover .plate-buddy__zzz {
+  animation: none;
+  opacity: 0;
+}
+
+/* ---- Skor Nabzı: skor görünüme girerken tek kalp atışı; 95+ hafif parıltı ---- */
+
+.ledger-row__score-value {
+  display: inline-block;
+  animation: score-beat 420ms var(--ease-spring) 460ms backwards;
+}
+
+@keyframes score-beat {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+
+.ledger-row__score-value--good[data-elite="true"] {
+  text-shadow: 0 0 0 transparent;
+  animation: score-beat 420ms var(--ease-spring) 460ms backwards, score-glow 3.8s ease-in-out 1.2s infinite;
+}
+
+@keyframes score-glow {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50% { text-shadow: 0 0 10px rgba(14, 124, 74, 0.45); }
+}
+
+/* ---- Gece Seansı: koyu tema uyarlamaları ---- */
+
+:root[data-theme="dark"] .ledger-row__plate {
+  background: repeating-linear-gradient(180deg, #1F1F27 0 9px, #23232C 9px 10px);
+}
+
+:root[data-theme="dark"] .ledger-row__plate::before {
+  background: #3A3229;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="sahibinden"] {
+  background: rgba(224, 164, 79, 0.13);
+  border-color: rgba(224, 164, 79, 0.38);
+  color: #E3A44F;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="letgo"] {
+  background: rgba(236, 100, 160, 0.12);
+  border-color: rgba(236, 100, 160, 0.36);
+  color: #EC64A0;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="dolap"] {
+  background: rgba(61, 190, 148, 0.12);
+  border-color: rgba(61, 190, 148, 0.34);
+  color: #3DBE94;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="donanimhaber"] {
+  background: rgba(110, 143, 216, 0.13);
+  border-color: rgba(110, 143, 216, 0.36);
+  color: #8CA8E8;
+}
+
+:root[data-theme="dark"] .ledger-row__source-pill[data-source="pecid"] {
+  background: var(--accent-primary-dim);
+  border-color: rgba(249, 120, 68, 0.38);
+  color: var(--accent-primary-strong);
+}
+

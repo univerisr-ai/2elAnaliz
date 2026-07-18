@@ -33,8 +33,8 @@
   font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .submission-panel__intro h2 {
@@ -83,7 +83,7 @@
   padding: 0 16px;
   border: 0;
   background: var(--bg-ink);
-  color: #fff;
+  color: var(--text-on-ink);
   box-shadow: none;
 }
 
@@ -346,8 +346,8 @@
   font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .submission-panel__auth-divider::before,
@@ -431,8 +431,8 @@
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .submission-panel input,
@@ -572,8 +572,8 @@
   font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .submission-panel__preview strong {
@@ -685,8 +685,8 @@
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }
 
 .submission-panel__submission-title-row h4 {
@@ -908,4 +908,10 @@
   .submission-panel__submission-media {
     width: 100%;
   }
+}
+
+.submission-panel__mascot-stage {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 2px;
 }
