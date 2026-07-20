@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import type { Session } from "@supabase/supabase-js";
 import {
   ArrowRight,
@@ -2414,7 +2415,7 @@ export default function App() {
 
               <div className="about-panel__note">
                 <span className="about-panel__note-label">Kısa özet</span>
-                <strong>Gerçek ilanları kategori ve filtrelerle hızlı taratmak için okunur, profesyonel bir ekran kartı katalog arayüzü.</strong>
+                <strong>Gerçek ilanları kategori ve filtrelerle hızlı taratmak için okunur, profesyonel bir ekran kartı katalog arayüz��.</strong>
               </div>
             </section>
           </section>
@@ -2472,6 +2473,7 @@ export default function App() {
       ) : null}
 
       <Footer />
+      <Analytics />
     </>
   );
 }
