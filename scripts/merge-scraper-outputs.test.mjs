@@ -35,7 +35,7 @@ try {
     }),
     'utf8',
   );
-  await fs.writeFile(path.join(gpuDir, 'metadata.json'), JSON.stringify({ source_repository: 'univerisr-ai/ahibinden-ekran-karti' }), 'utf8');
+  await fs.writeFile(path.join(gpuDir, 'metadata.json'), JSON.stringify({ source_repository: 'demiralpdev/ahibinden-ekran-karti' }), 'utf8');
 
   await fs.writeFile(
     path.join(cpuDir, 'output.json'),
@@ -58,7 +58,7 @@ try {
   );
   await fs.writeFile(
     path.join(cpuDir, 'metadata.json'),
-    JSON.stringify({ source_repository: 'univerisr-ai/ahibinden-ekran-karti', product_type: 'cpu' }),
+    JSON.stringify({ source_repository: 'demiralpdev/ahibinden-ekran-karti', product_type: 'cpu' }),
     'utf8',
   );
 

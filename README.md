@@ -49,11 +49,11 @@ Vercel proje env'leri:
 ```env
 GITHUB_FINE_GRAINED_TOKEN=
 VERCEL_PROJECT_NAME=
-SCRAPER_REPO_OWNER=univerisr-ai
+SCRAPER_REPO_OWNER=demiralpdev
 SCRAPER_REPO_NAME=yenitest
 SCRAPER_WORKFLOW_ID=scraper.yml
 SCRAPER_REPO_REF=main
-ANALYZER_REPO_OWNER=univerisr-ai
+ANALYZER_REPO_OWNER=demiralpdev
 ANALYZER_REPO_NAME=2elAnaliz
 ANALYZER_WORKFLOW_ID=analyze-telegram-gpu.yml
 ANALYZER_REPO_REF=main
@@ -88,11 +88,11 @@ Variables:
 - `MIN_DISCOUNT_RATIO`
 - `MAX_RESULTS`
 - `TELEGRAM_FORCE_CHAT_ID`
-- `SCRAPER_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/ahibinden-ekran-karti`)
-- `LETGO_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/letgo-ekran-karti`)
-- `DOLAP_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/dolap-ekran-kart-`)
-- `DONANIMHABER_SOURCE_REPOSITORY` (varsayilan `univerisr-ai/donanimhaber-ekran-karti`)
-- `FORUM_SOURCE_REPOSITORY` (varsayilan eski uyumluluk icin `univerisr-ai/facebook-ekran-kart-`; Technopat/Techolay scraper artifact'i burada toplanabilir)
+- `SCRAPER_SOURCE_REPOSITORY` (varsayilan `demiralpdev/ahibinden-ekran-karti`)
+- `LETGO_SOURCE_REPOSITORY` (varsayilan `demiralpdev/letgo-ekran-karti`)
+- `DOLAP_SOURCE_REPOSITORY` (varsayilan `demiralpdev/dolap-ekran-kart-`)
+- `DONANIMHABER_SOURCE_REPOSITORY` (varsayilan `demiralpdev/donanimhaber-ekran-karti`)
+- `FORUM_SOURCE_REPOSITORY` (varsayilan eski uyumluluk icin `demiralpdev/facebook-ekran-kart-`; Technopat/Techolay scraper artifact'i burada toplanabilir)
 - `TECHNOPAT_SOURCE_REPOSITORY` (opsiyonel ayri Technopat scraper repo)
 - `TECHOLAY_SOURCE_REPOSITORY` (opsiyonel ayri Techolay scraper repo)
 - `DOLAP_MIN_LISTINGS` (varsayilan `50`)

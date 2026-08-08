@@ -59,11 +59,11 @@ jobs:
           mkdir -p ./data/inbox
           mkdir -p ./data/sources
 
-          DEFAULT_REPO="${DEFAULT_SOURCE_REPOSITORY:-univerisr-ai/ahibinden-ekran-karti}"
-          LETGO_REPO="${LETGO_SOURCE_REPOSITORY:-univerisr-ai/letgo-ekran-karti}"
-          DOLAP_REPO="${DOLAP_SOURCE_REPOSITORY:-univerisr-ai/dolap-ekran-kart-}"
-          DONANIMHABER_REPO="${DONANIMHABER_SOURCE_REPOSITORY:-univerisr-ai/donanimhaber-ekran-karti}"
-          FORUM_REPO="${FORUM_SOURCE_REPOSITORY:-${FACEBOOK_SOURCE_REPOSITORY:-univerisr-ai/facebook-ekran-kart-}}"
+          DEFAULT_REPO="${DEFAULT_SOURCE_REPOSITORY:-demiralpdev/ahibinden-ekran-karti}"
+          LETGO_REPO="${LETGO_SOURCE_REPOSITORY:-demiralpdev/letgo-ekran-karti}"
+          DOLAP_REPO="${DOLAP_SOURCE_REPOSITORY:-demiralpdev/dolap-ekran-kart-}"
+          DONANIMHABER_REPO="${DONANIMHABER_SOURCE_REPOSITORY:-demiralpdev/donanimhaber-ekran-karti}"
+          FORUM_REPO="${FORUM_SOURCE_REPOSITORY:-${FACEBOOK_SOURCE_REPOSITORY:-demiralpdev/facebook-ekran-kart-}}"
           TECHNOPAT_REPO="${TECHNOPAT_SOURCE_REPOSITORY:-}"
           TECHOLAY_REPO="${TECHOLAY_SOURCE_REPOSITORY:-}"
           DOLAP_MIN_LISTINGS="${DOLAP_MIN_LISTINGS:-50}"
